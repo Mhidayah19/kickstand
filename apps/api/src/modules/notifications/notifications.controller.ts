@@ -7,10 +7,8 @@ import {
 } from '@nestjs/common';
 import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
 import { ApiKeyGuard } from './guards/api-key.guard';
-import {
-  CurrentUser,
-  AuthUser,
-} from '../../common/decorators/current-user.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { AuthUser } from '../../common/decorators/current-user.decorator';
 import { NotificationsService } from './notifications.service';
 import { RegisterTokenDto } from './dto/register-token.dto';
 import { ComplianceScannerJob } from './jobs/compliance-scanner.job';

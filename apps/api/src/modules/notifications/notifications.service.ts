@@ -58,7 +58,7 @@ export class NotificationsService {
     title: string,
     body: string,
   ): Promise<void> {
-    if (!this.expo.isExpoPushToken(expoToken)) {
+    if (!Expo.isExpoPushToken(expoToken)) {
       console.warn(`Invalid Expo push token: ${expoToken}`);
       return;
     }

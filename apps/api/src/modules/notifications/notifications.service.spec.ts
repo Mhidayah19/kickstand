@@ -10,12 +10,14 @@ const mockExpoPushNotificationsAsync = jest.fn();
 const mockIsExpoPushToken = jest.fn();
 const mockChunkPushNotifications = jest.fn((msgs: any[]) => [msgs]);
 
+const MockExpo = jest.fn().mockImplementation(() => ({
+  sendPushNotificationsAsync: mockExpoPushNotificationsAsync,
+  chunkPushNotifications: mockChunkPushNotifications,
+}));
+MockExpo.isExpoPushToken = mockIsExpoPushToken;
+
 jest.mock('expo-server-sdk', () => ({
-  Expo: jest.fn().mockImplementation(() => ({
-    sendPushNotificationsAsync: mockExpoPushNotificationsAsync,
-    isExpoPushToken: mockIsExpoPushToken,
-    chunkPushNotifications: mockChunkPushNotifications,
-  })),
+  Expo: MockExpo,
 }));
 
 describe('NotificationsService', () => {
