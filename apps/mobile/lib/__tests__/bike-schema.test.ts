@@ -20,6 +20,18 @@ describe('bikeSchema', () => {
     const result = bikeSchema.safeParse({ ...validBike, year: 1980 });
     expect(result.success).toBe(false);
   });
+  it('accepts valid ISO date for optional fields', () => {
+    expect(bikeSchema.safeParse({ ...validBike, coeExpiry: '2025-12-31' }).success).toBe(true);
+  });
+  it('accepts empty string for optional date fields', () => {
+    expect(bikeSchema.safeParse({ ...validBike, coeExpiry: '' }).success).toBe(true);
+  });
+  it('rejects invalid date format (DD-MM-YYYY)', () => {
+    expect(bikeSchema.safeParse({ ...validBike, coeExpiry: '31-12-2025' }).success).toBe(false);
+  });
+  it('rejects garbage string for date field', () => {
+    expect(bikeSchema.safeParse({ ...validBike, coeExpiry: 'not a date' }).success).toBe(false);
+  });
 });
 
 describe('updateMileageSchema', () => {
