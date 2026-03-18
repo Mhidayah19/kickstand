@@ -1,6 +1,6 @@
 // src/modules/workshops/workshops.service.ts
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { eq, and, sql, isNull, isNotNull, or } from 'drizzle-orm';
+import { eq, and, sql, isNull, or } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.module';
 import type { DrizzleDB } from '../../database/database.types';
 import * as schema from '../../database/schema';
@@ -39,10 +39,7 @@ export class WorkshopsService {
       `);
     }
 
-    return this.db
-      .select()
-      .from(schema.workshops)
-      .where(isNotNull(schema.workshops.id));
+    return this.db.select().from(schema.workshops);
   }
 
   async findOne(workshopId: string) {

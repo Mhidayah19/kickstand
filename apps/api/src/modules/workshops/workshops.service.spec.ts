@@ -51,7 +51,7 @@ describe('WorkshopsService', () => {
         { id: 'w-1', name: 'Ah Boy Motor' },
         { id: 'w-2', name: 'Ban Leong' },
       ];
-      mockDb.where.mockResolvedValue(workshops);
+      mockDb.from.mockResolvedValueOnce(workshops);
 
       const result = await service.findNearby({});
 
