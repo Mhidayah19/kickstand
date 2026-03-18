@@ -1,6 +1,6 @@
 # Kickstand API
 
-NestJS backend for the Kickstand motorcycle ownership platform. Handles authentication, bike management, and (soon) workshop search, service logging, and an AI conversational agent.
+NestJS backend for the Kickstand motorcycle ownership platform. Handles authentication, bike management, workshop search, service logging, and (soon) an AI conversational agent.
 
 ## Running locally
 
@@ -37,6 +37,7 @@ The server starts at `http://localhost:3000`.
 | `npm run lint` | Lint and auto-fix |
 | `npm run format` | Format with Prettier |
 | `npm run seed:service-types` | Seed 15 motorcycle service types |
+| `npm run seed:workshops` | Seed Singapore motorcycle workshops |
 
 ## Endpoints
 
@@ -53,12 +54,15 @@ The server starts at `http://localhost:3000`.
 | `DELETE` | `/bikes/:id` | Yes | Remove a bike |
 | `PATCH` | `/bikes/:id/mileage` | Yes | Update mileage (forward-only validation) |
 | `GET` | `/health` | No | Health check |
+| `GET` | `/workshops?lat=X&lng=Y&radius=10` | Yes | Find nearby workshops (Haversine proximity search) |
+| `GET` | `/workshops/:id` | Yes | Workshop details with services and pricing |
+| `GET` | `/workshops/compare?service_type=X&bike_model=Y` | Yes | Compare workshop prices for a service + bike model |
+| `GET` | `/bikes/:bikeId/services` | Yes | List service logs for a bike (paginated) |
+| `POST` | `/bikes/:bikeId/services` | Yes | Log a service |
+| `DELETE` | `/bikes/:bikeId/services/:id` | Yes | Delete a service log |
 
 ### Planned
 
-- `GET/POST/DELETE /bikes/:bikeId/services` — service log CRUD
-- `GET /workshops` — proximity search via Haversine
-- `GET /workshops/compare` — price comparison
 - `POST /agent/converse` — AI agent conversation
 - `POST /notifications/register-token` — push token registration
 - `POST /notifications/trigger-scan` — compliance scan trigger

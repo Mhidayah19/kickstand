@@ -8,7 +8,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/status-work%20in%20progress-yellow" alt="Status: Work in Progress" />
-  <img src="https://img.shields.io/badge/license-UNLICENSED-lightgrey" alt="License" />
+  <img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT" />
   <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" alt="Node >= 18" />
 </p>
 
@@ -143,8 +143,9 @@ Kickstand operates in two core modes:
 
 ### Planned
 
-- [ ] Workshops module (proximity search via Haversine formula)
-- [ ] Service logs module (maintenance record CRUD)
+- [x] Workshops module (proximity search via Haversine formula, price comparison, workshop details)
+- [x] Service logs module (paginated list, create, delete)
+- [x] Workshop seed data (Singapore motorcycle workshops)
 - [ ] Mastra AI agent with voice interface
 - [ ] 9 agent tools: get_bike_profile, get_service_history, get_compliance_status, find_workshops_nearby, compare_workshop_prices, get_workshop_details, get_maintenance_schedule, log_service, update_mileage
 - [ ] Background jobs (compliance deadline scanner, maintenance reminders, workshop data freshness)
@@ -192,8 +193,10 @@ kickstand/
 │   │   │   │   └── database.types.ts
 │   │   │   ├── modules/
 │   │   │   │   ├── auth/             # Register, login, refresh
-│   │   │   │   └── bikes/            # CRUD + mileage
-│   │   │   ├── seeds/                # Service type seeder
+│   │   │   │   ├── bikes/            # CRUD + mileage
+│   │   │   │   ├── workshops/        # Proximity search, price comparison
+│   │   │   │   └── service-logs/     # Maintenance record CRUD
+│   │   │   ├── seeds/                # Service type + workshop seeder
 │   │   │   ├── app.module.ts
 │   │   │   ├── health.controller.ts
 │   │   │   └── main.ts
@@ -292,17 +295,17 @@ npm run test:cov
 | `DELETE` | `/bikes/:id` | Yes | Remove a bike |
 | `PATCH` | `/bikes/:id/mileage` | Yes | Update mileage (forward-only) |
 | `GET` | `/health` | No | Health check |
+| `GET` | `/workshops?lat=X&lng=Y&radius=10` | Yes | Find nearby workshops (Haversine) |
+| `GET` | `/workshops/:id` | Yes | Workshop details |
+| `GET` | `/workshops/compare?service_type=X&bike_model=Y` | Yes | Compare prices |
+| `GET` | `/bikes/:bikeId/services` | Yes | List service logs (paginated) |
+| `POST` | `/bikes/:bikeId/services` | Yes | Log a service |
+| `DELETE` | `/bikes/:bikeId/services/:id` | Yes | Delete a service log |
 
 ### Planned endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/bikes/:bikeId/services` | List service logs for a bike |
-| `POST` | `/bikes/:bikeId/services` | Log a service |
-| `DELETE` | `/bikes/:bikeId/services/:id` | Delete a service log |
-| `GET` | `/workshops?lat=X&lng=Y&radius=10` | Find nearby workshops |
-| `GET` | `/workshops/:id` | Workshop details |
-| `GET` | `/workshops/compare?service_type=X&bike_model=Y` | Compare prices |
 | `POST` | `/agent/converse` | Chat with AI agent |
 | `POST` | `/notifications/register-token` | Register push token |
 | `POST` | `/notifications/trigger-scan` | Trigger compliance scan |
@@ -350,4 +353,4 @@ Target: $0/month total using free tiers.
 
 ## License
 
-UNLICENSED — this is a private portfolio project.
+MIT — see [LICENSE](LICENSE) for details.
