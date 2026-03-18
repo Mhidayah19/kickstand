@@ -9,7 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
-import { CurrentUser, AuthUser } from '../../common/decorators/current-user.decorator';
+import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import type { AuthUser } from '../../common/decorators/current-user.decorator';
 import { BikesService } from './bikes.service';
 import { CreateBikeDto } from './dto/create-bike.dto';
 import { UpdateBikeDto } from './dto/update-bike.dto';

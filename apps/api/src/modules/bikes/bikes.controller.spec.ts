@@ -39,7 +39,12 @@ describe('BikesController', () => {
 
   describe('POST /bikes', () => {
     it('should create a bike for authenticated user', async () => {
-      const dto = { model: 'Honda CB400X', year: 2023, plateNumber: 'FBA1234X', class: '2A' };
+      const dto = {
+        model: 'Honda CB400X',
+        year: 2023,
+        plateNumber: 'FBA1234X',
+        class: '2A',
+      };
       const bike = { id: 'bike-1', userId: 'user-1', ...dto };
       mockBikesService.create.mockResolvedValue(bike);
       const result = await controller.create(mockUser, dto);
@@ -55,7 +60,11 @@ describe('BikesController', () => {
       mockBikesService.update.mockResolvedValue(updated);
       const result = await controller.update('bike-1', mockUser, dto);
       expect(result).toEqual(updated);
-      expect(mockBikesService.update).toHaveBeenCalledWith('bike-1', 'user-1', dto);
+      expect(mockBikesService.update).toHaveBeenCalledWith(
+        'bike-1',
+        'user-1',
+        dto,
+      );
     });
   });
 
@@ -66,7 +75,11 @@ describe('BikesController', () => {
       mockBikesService.updateMileage.mockResolvedValue(updated);
       const result = await controller.updateMileage('bike-1', mockUser, dto);
       expect(result).toEqual(updated);
-      expect(mockBikesService.updateMileage).toHaveBeenCalledWith('bike-1', 'user-1', dto);
+      expect(mockBikesService.updateMileage).toHaveBeenCalledWith(
+        'bike-1',
+        'user-1',
+        dto,
+      );
     });
   });
 

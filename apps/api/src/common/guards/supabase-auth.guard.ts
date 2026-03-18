@@ -27,7 +27,7 @@ export class SupabaseAuthGuard implements CanActivate {
       const payload = jwt.verify(token, secret) as jwt.JwtPayload & {
         email?: string;
       };
-      (request as Record<string, unknown>)['user'] = {
+      (request as unknown as Record<string, unknown>)['user'] = {
         id: payload.sub,
         email: payload.email,
       };

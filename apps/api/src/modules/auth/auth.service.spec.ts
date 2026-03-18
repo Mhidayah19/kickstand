@@ -61,9 +61,11 @@ describe('AuthService', () => {
 
       mockDb.insert.mockReturnValue({
         values: jest.fn().mockReturnValue({
-          returning: jest.fn().mockResolvedValue([
-            { id: 'uuid-123', email: 'test@example.com', name: 'Test User' },
-          ]),
+          returning: jest
+            .fn()
+            .mockResolvedValue([
+              { id: 'uuid-123', email: 'test@example.com', name: 'Test User' },
+            ]),
         }),
       });
 
@@ -126,7 +128,9 @@ describe('AuthService', () => {
 
       await expect(service.register(registerDto)).rejects.toThrow(Error);
 
-      expect(mockSupabaseAuth.admin.deleteUser).toHaveBeenCalledWith('uuid-123');
+      expect(mockSupabaseAuth.admin.deleteUser).toHaveBeenCalledWith(
+        'uuid-123',
+      );
     });
   });
 

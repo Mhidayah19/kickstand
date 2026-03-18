@@ -16,3 +16,4 @@ apps/api/dist/
 
 # Drizzle
 drizzle/meta/
+supabase/.temp/
