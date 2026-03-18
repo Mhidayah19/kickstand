@@ -1,5 +1,5 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import { Expo, ExpoPushMessage, ExpoPushTicket } from 'expo-server-sdk';
+import { Expo, ExpoPushMessage, ExpoPushErrorTicket } from 'expo-server-sdk';
 import { eq, and } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.module';
 import type { DrizzleDB } from '../../database/database.types';
@@ -50,8 +50,7 @@ export class NotificationsService {
   ): Promise<void> {
     await this.db
       .insert(schema.notificationLogs)
-      .values({ userId, bikeId, type, deadlineField, tier })
-      .returning();
+      .values({ userId, bikeId, type, deadlineField, tier });
   }
 
   async sendPush(
@@ -72,7 +71,7 @@ export class NotificationsService {
       for (const ticket of tickets) {
         if (
           ticket.status === 'error' &&
-          (ticket as any).details?.error === 'DeviceNotRegistered'
+          (ticket as ExpoPushErrorTicket).details?.error === 'DeviceNotRegistered'
         ) {
           await this.clearToken(expoToken);
         }
@@ -93,7 +92,7 @@ export class NotificationsService {
           const ticket = tickets[i];
           if (
             ticket.status === 'error' &&
-            (ticket as any).details?.error === 'DeviceNotRegistered'
+            (ticket as ExpoPushErrorTicket).details?.error === 'DeviceNotRegistered'
           ) {
             const token = chunk[i].to as string;
             await this.clearToken(token);
