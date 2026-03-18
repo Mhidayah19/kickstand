@@ -6,6 +6,7 @@ import { DatabaseModule } from './database/database.module';
 import { envConfig } from './config/env.config';
 import { HealthController } from './health.controller';
 import { BikesModule } from './modules/bikes/bikes.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BikesModule } from './modules/bikes/bikes.module';
     TerminusModule,
     DatabaseModule,
     BikesModule,
+    AuthModule,
   ],
   controllers: [HealthController],
 })
