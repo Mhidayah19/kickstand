@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, View } from 'react-native';
+import { Animated, DimensionValue, View } from 'react-native';
 
 interface SkeletonProps {
-  width?: number | string;
+  width?: DimensionValue;
   height?: number;
   rounded?: boolean;
   className?: string;

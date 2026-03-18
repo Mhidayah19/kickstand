@@ -1,7 +1,7 @@
 import { create } from 'zustand';
-import { MMKV } from 'react-native-mmkv';
+import { createMMKV } from 'react-native-mmkv';
 
-const storage = new MMKV({ id: 'bike-store' });
+const storage = createMMKV({ id: 'bike-store' });
 const ACTIVE_BIKE_KEY = 'activeBikeId';
 
 interface BikeState {
@@ -13,7 +13,7 @@ export const useBikeStore = create<BikeState>((set) => ({
   activeBikeId: storage.getString(ACTIVE_BIKE_KEY) ?? null,
   setActiveBikeId: (id) => {
     if (id === null) {
-      storage.delete(ACTIVE_BIKE_KEY);
+      storage.remove(ACTIVE_BIKE_KEY);
     } else {
       storage.set(ACTIVE_BIKE_KEY, id);
     }
