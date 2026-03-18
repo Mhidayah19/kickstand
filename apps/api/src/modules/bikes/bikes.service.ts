@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { eq, and } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.module';
-import { DrizzleDB } from '../../database/database.types';
+import type { DrizzleDB } from '../../database/database.types';
 import * as schema from '../../database/schema';
 import { CreateBikeDto } from './dto/create-bike.dto';
 import { UpdateBikeDto } from './dto/update-bike.dto';

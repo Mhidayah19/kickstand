@@ -5,6 +5,7 @@ import { TerminusModule } from '@nestjs/terminus';
 import { DatabaseModule } from './database/database.module';
 import { envConfig } from './config/env.config';
 import { HealthController } from './health.controller';
+import { BikesModule } from './modules/bikes/bikes.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { HealthController } from './health.controller';
     ]),
     TerminusModule,
     DatabaseModule,
+    BikesModule,
   ],
   controllers: [HealthController],
 })
