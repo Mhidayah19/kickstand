@@ -1,0 +1,25 @@
+name: Deploy API
+
+# Deploy to Render when API code changes land on main
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/api/**"
+
+# Secrets required (configure in GitHub repo settings > Secrets):
+#   RENDER_SERVICE_ID — the service ID from your Render dashboard
+#   RENDER_API_KEY    — an API key from Render (Account Settings > API Keys)
+
+jobs:
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        uses: JorgeLNJunior/render-deploy@v1.5.0
+        with:
+          service_id: ${{ secrets.RENDER_SERVICE_ID }}
+          api_key: ${{ secrets.RENDER_API_KEY }}
+          # Wait for the deploy to finish so we get a clear pass/fail signal
+          wait_deploy: true

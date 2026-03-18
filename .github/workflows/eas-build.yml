@@ -1,0 +1,39 @@
+name: EAS Build
+
+# This workflow is for when the mobile app is ready for app store builds.
+# It can be triggered manually or by pushing a version tag (e.g. v1.0.0).
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+# Secret required (configure in GitHub repo settings > Secrets):
+#   EXPO_TOKEN — personal access token from https://expo.dev/settings/access-tokens
+
+jobs:
+  build:
+    name: EAS Build (all platforms)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+        # Install from the repo root so workspace dependencies resolve correctly
+        working-directory: .
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build for all platforms
+        run: eas build --platform all --non-interactive --no-wait
