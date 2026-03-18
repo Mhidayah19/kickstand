@@ -14,7 +14,7 @@ export function useBikes() {
 
 export function useBike(id: string | null) {
   return useQuery({
-    queryKey: bikeKey(id!),
+    queryKey: id ? bikeKey(id) : ['bikes', '__disabled__'],
     queryFn: () => apiClient.get<Bike>(`/bikes/${id}`),
     enabled: !!id,
   });

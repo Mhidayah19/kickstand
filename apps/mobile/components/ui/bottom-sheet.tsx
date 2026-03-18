@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Animated, Modal, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native';
 
@@ -11,9 +11,11 @@ interface BottomSheetProps {
 
 export function BottomSheet({ visible, onClose, title, children }: BottomSheetProps) {
   const translateY = useRef(new Animated.Value(300)).current;
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     if (visible) {
+      setModalVisible(true);
       Animated.timing(translateY, {
         toValue: 0,
         duration: 300,
@@ -24,12 +26,12 @@ export function BottomSheet({ visible, onClose, title, children }: BottomSheetPr
         toValue: 300,
         duration: 200,
         useNativeDriver: true,
-      }).start();
+      }).start(() => setModalVisible(false));
     }
   }, [visible, translateY]);
 
   return (
-    <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>
+    <Modal transparent visible={modalVisible} animationType="none" onRequestClose={onClose}>
       <View className="flex-1">
         <TouchableOpacity className="flex-1 bg-black/40" onPress={onClose} activeOpacity={1} />
         <Animated.View

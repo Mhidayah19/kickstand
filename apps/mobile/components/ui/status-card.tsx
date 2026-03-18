@@ -8,7 +8,7 @@ interface StatusCardProps {
   label: string;
   value: string | number;
   unit: string;
-  date: string;
+  date: string | null;
   variant: StatusVariant;
 }
 
@@ -55,7 +55,7 @@ export function StatusCard({ label, value, unit, date, variant }: StatusCardProp
         <Text className={`text-3xl font-sans-bold ${styles.value}`}>{value}</Text>
         <Text className={`text-sm font-sans-medium ${variant === 'expired' ? 'text-white/70' : 'text-text-muted'}`}>{unit}</Text>
       </View>
-      <Text className={`text-xs font-sans mt-xs ${variant === 'expired' ? 'text-white/70' : 'text-text-muted'}`}>{date}</Text>
+      {date ? <Text className={`text-xs font-sans mt-xs ${variant === 'expired' ? 'text-white/70' : 'text-text-muted'}`}>{date}</Text> : null}
     </View>
   );
 }

@@ -18,15 +18,24 @@ const variantStyles: Record<ToastVariant, { bg: string; text: string }> = {
 
 export function Toast({ message, variant, onDismiss }: ToastProps) {
   const opacity = useRef(new Animated.Value(0)).current;
+  const onDismissRef = useRef(onDismiss);
   const styles = variantStyles[variant];
 
+  // Keep ref current without re-triggering animation
   useEffect(() => {
-    Animated.sequence([
+    onDismissRef.current = onDismiss;
+  }, [onDismiss]);
+
+  useEffect(() => {
+    const anim = Animated.sequence([
       Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }),
       Animated.delay(2600),
       Animated.timing(opacity, { toValue: 0, duration: 200, useNativeDriver: true }),
-    ]).start(() => onDismiss());
-  }, [opacity, onDismiss]);
+    ]);
+    anim.start(() => onDismissRef.current());
+    return () => anim.stop();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
 
   return (
     <Animated.View

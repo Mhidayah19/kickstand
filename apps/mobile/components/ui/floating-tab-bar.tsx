@@ -5,6 +5,15 @@ import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
 import { Home, Grid2x2, Plus, Mic, Settings } from 'lucide-react-native';
 
+// Token values matching global.css CSS variables
+// IMPORTANT: Keep these in sync with CSS variables defined in global.css
+const COLORS = {
+  hero: '#1c1917',
+  heroMuted: '#78716c',
+  white: '#ffffff',
+  accent: '#d97706',
+} as const;
+
 const TAB_ICONS: Record<string, React.ComponentType<{ size: number; color: string; strokeWidth?: number }>> = {
   index: Home,
   garage: Grid2x2,
@@ -67,10 +76,10 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
                 key={route.key}
                 onPress={onPress}
                 className="w-12 h-12 rounded-full bg-accent items-center justify-center mx-sm"
-                style={{ marginTop: -16, shadowColor: '#d97706', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 12, elevation: 6 }}
+                style={{ marginTop: -16, shadowColor: COLORS.accent, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 12, elevation: 6 }}
                 activeOpacity={0.8}
               >
-                <Plus size={24} color="#fff" strokeWidth={2.5} />
+                <Plus size={24} color={COLORS.white} strokeWidth={2.5} />
               </TouchableOpacity>
             );
           }
@@ -82,7 +91,7 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
               className={`w-10 h-10 items-center justify-center rounded-full mx-xs ${isFocused ? 'bg-white' : ''}`}
               activeOpacity={0.7}
             >
-              <Icon size={20} color={isFocused ? '#1c1917' : '#78716c'} strokeWidth={isFocused ? 2.5 : 2} />
+              <Icon size={20} color={isFocused ? COLORS.hero : COLORS.heroMuted} strokeWidth={isFocused ? 2.5 : 2} />
             </TouchableOpacity>
           );
         })}

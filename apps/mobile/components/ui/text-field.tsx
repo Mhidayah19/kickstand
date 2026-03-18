@@ -18,6 +18,8 @@ export function TextField({ label, error, prefix, style, className, ...rest }: T
         {prefix ? <Text className="text-text-secondary font-sans mr-xs">{prefix}</Text> : null}
         <TextInput
           className="flex-1 text-sm font-sans text-text-primary"
+          // Note: #a8a29e = --color-text-muted (light). NativeWind v4 CSS vars
+          // cannot be read at JS runtime, so this is a known limitation.
           placeholderTextColor="#a8a29e"
           {...rest}
         />

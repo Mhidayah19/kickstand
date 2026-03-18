@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Calendar } from 'lucide-react-native';
 import { Platform, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -45,7 +46,7 @@ export function DateField({ label, value, onChange, error }: DateFieldProps) {
         <Text className={`flex-1 text-sm font-sans ${value ? 'text-text-primary' : 'text-text-muted'}`}>
           {formatDisplay(value)}
         </Text>
-        <Text className="text-text-muted">📅</Text>
+        <Calendar size={16} color="#a8a29e" accessibilityLabel="Open date picker" />
       </TouchableOpacity>
       {show && (
         <DateTimePicker
