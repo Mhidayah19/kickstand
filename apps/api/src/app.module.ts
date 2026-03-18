@@ -8,6 +8,7 @@ import { HealthController } from './health.controller';
 import { BikesModule } from './modules/bikes/bikes.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { WorkshopsModule } from './modules/workshops/workshops.module';
+import { ServiceLogsModule } from './modules/service-logs/service-logs.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { WorkshopsModule } from './modules/workshops/workshops.module';
     BikesModule,
     AuthModule,
     WorkshopsModule,
+    ServiceLogsModule,
   ],
   controllers: [HealthController],
 })
