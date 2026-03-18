@@ -1,98 +1,89 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Kickstand API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS backend for the Kickstand motorcycle ownership platform. Handles authentication, bike management, and (soon) workshop search, service logging, and an AI conversational agent.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
+## Running locally
 
 ```bash
-$ npm install
+# From repo root
+npm install
+
+# Configure environment
+cp apps/api/.env.example apps/api/.env
+# Fill in your Supabase credentials
+
+# Run migrations and seed
+cd apps/api
+npx drizzle-kit push
+npm run seed:service-types
+
+# Start in dev mode (from repo root)
+npm run api
 ```
 
-## Compile and run the project
+The server starts at `http://localhost:3000`.
+
+## Available scripts
+
+| Script | Description |
+|---|---|
+| `npm run start:dev` | Start with file watching |
+| `npm run start:debug` | Start with debugger |
+| `npm run build` | Compile to `dist/` |
+| `npm run start:prod` | Run compiled output |
+| `npm test` | Run unit tests |
+| `npm run test:cov` | Run tests with coverage |
+| `npm run test:e2e` | Run end-to-end tests |
+| `npm run lint` | Lint and auto-fix |
+| `npm run format` | Format with Prettier |
+| `npm run seed:service-types` | Seed 15 motorcycle service types |
+
+## Endpoints
+
+### Live
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| `POST` | `/auth/register` | No | Create account (proxies Supabase Auth) |
+| `POST` | `/auth/login` | No | Sign in |
+| `POST` | `/auth/refresh` | No | Refresh access token |
+| `GET` | `/bikes` | Yes | List user's bikes |
+| `POST` | `/bikes` | Yes | Add a bike |
+| `PATCH` | `/bikes/:id` | Yes | Update bike details |
+| `DELETE` | `/bikes/:id` | Yes | Remove a bike |
+| `PATCH` | `/bikes/:id/mileage` | Yes | Update mileage (forward-only validation) |
+| `GET` | `/health` | No | Health check |
+
+### Planned
+
+- `GET/POST/DELETE /bikes/:bikeId/services` — service log CRUD
+- `GET /workshops` — proximity search via Haversine
+- `GET /workshops/compare` — price comparison
+- `POST /agent/converse` — AI agent conversation
+- `POST /notifications/register-token` — push token registration
+- `POST /notifications/trigger-scan` — compliance scan trigger
+
+## Environment variables
+
+See `.env.example` for the full list:
+
+- `PORT` — server port (default 3000)
+- `SUPABASE_DATABASE_URL` — PostgreSQL connection string
+- `SUPABASE_JWT_SECRET` — JWT verification secret
+- `SUPABASE_URL` — Supabase project URL
+- `SUPABASE_SERVICE_ROLE_KEY` — service role key for admin operations
+- `SCAN_API_KEY` — API key for triggering compliance scans
+
+## Testing
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+npm test              # unit tests
+npm run test:cov      # with coverage report
+npm run test:e2e      # end-to-end tests
 ```
 
-## Run tests
+Unit tests exist for the auth and bikes modules (controllers + services).
 
-```bash
-# unit tests
-$ npm run test
+## Tech
 
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+NestJS v11, Drizzle ORM, Supabase (Auth + PostgreSQL), Passport JWT, Pino logging, Helmet, @nestjs/throttler.
