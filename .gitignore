@@ -21,3 +21,7 @@ supabase/.temp/
 # Worktrees
 .worktrees/
 .superpowers/
+
+# Mobile env
+apps/mobile/.env
+apps/mobile/.env.local
