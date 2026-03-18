@@ -7,6 +7,7 @@ import { envConfig } from './config/env.config';
 import { HealthController } from './health.controller';
 import { BikesModule } from './modules/bikes/bikes.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { WorkshopsModule } from './modules/workshops/workshops.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthModule } from './modules/auth/auth.module';
     DatabaseModule,
     BikesModule,
     AuthModule,
+    WorkshopsModule,
   ],
   controllers: [HealthController],
 })
