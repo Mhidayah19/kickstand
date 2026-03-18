@@ -1,11 +1,11 @@
-import { IsOptional, IsNumberString } from 'class-validator';
+import { IsOptional, IsNumberString, ValidateIf } from 'class-validator';
 
 export class FindWorkshopsDto {
-  @IsOptional()
+  @ValidateIf((o: FindWorkshopsDto) => o.lng !== undefined)
   @IsNumberString()
   lat?: string;
 
-  @IsOptional()
+  @ValidateIf((o: FindWorkshopsDto) => o.lat !== undefined)
   @IsNumberString()
   lng?: string;
 

@@ -1,8 +1,9 @@
-import { IsString, IsOptional, IsNotEmpty } from 'class-validator';
+import { IsIn, IsString, IsOptional, IsNotEmpty } from 'class-validator';
+import { SERVICE_TYPE_KEYS } from '../../../common/constants/service-types';
 
 export class CompareWorkshopsDto {
-  @IsString()
   @IsNotEmpty()
+  @IsIn(SERVICE_TYPE_KEYS)
   service_type: string;
 
   @IsOptional()
