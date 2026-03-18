@@ -1,9 +1,12 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { BikesService } from './bikes.service';
 import { DRIZZLE } from '../../database/database.module';
 import { CreateBikeDto } from './dto/create-bike.dto';
-import { UpdateBikeDto } from './dto/update-bike.dto';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
 
 const mockDb: any = {};
@@ -24,10 +27,7 @@ describe('BikesService', () => {
     jest.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        BikesService,
-        { provide: DRIZZLE, useValue: mockDb },
-      ],
+      providers: [BikesService, { provide: DRIZZLE, useValue: mockDb }],
     }).compile();
 
     service = module.get<BikesService>(BikesService);
@@ -133,7 +133,9 @@ describe('BikesService', () => {
       const updatedBike = { ...existingBike, currentMileage: 15000 };
 
       // First call: findOneByUser → where resolves with existing bike (select terminal)
-      mockDb.where.mockImplementationOnce(() => Promise.resolve([existingBike]));
+      mockDb.where.mockImplementationOnce(() =>
+        Promise.resolve([existingBike]),
+      );
       // Subsequent calls: where returns mockDb so the update chain can call .returning()
       mockDb.where.mockImplementation(() => mockDb);
       // update().set().where().returning() resolves with updatedBike

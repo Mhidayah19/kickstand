@@ -25,6 +25,7 @@ export class AuthService {
     const serviceRoleKey = this.configService.getOrThrow<string>(
       'SUPABASE_SERVICE_ROLE_KEY',
     );
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.supabase = createClient(url, serviceRoleKey, {
       auth: {
         autoRefreshToken: false,
@@ -55,7 +56,11 @@ export class AuthService {
       await this.db
         .insert(schema.users)
         .values({ id: userId, email, name })
-        .returning({ id: schema.users.id, email: schema.users.email, name: schema.users.name });
+        .returning({
+          id: schema.users.id,
+          email: schema.users.email,
+          name: schema.users.name,
+        });
     } catch (dbError) {
       await this.supabase.auth.admin.deleteUser(userId);
       throw dbError;
