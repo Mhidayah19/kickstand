@@ -13,7 +13,12 @@ export class ServiceLogsService {
     private readonly bikesService: BikesService,
   ) {}
 
-  async findAllByBike(bikeId: string, userId: string, page: number, limit: number) {
+  async findAllByBike(
+    bikeId: string,
+    userId: string,
+    page: number,
+    limit: number,
+  ) {
     await this.bikesService.findOneByUser(bikeId, userId);
 
     const offset = (page - 1) * limit;
@@ -53,7 +58,12 @@ export class ServiceLogsService {
     const [existing] = await this.db
       .select()
       .from(schema.serviceLogs)
-      .where(and(eq(schema.serviceLogs.id, logId), eq(schema.serviceLogs.bikeId, bikeId)));
+      .where(
+        and(
+          eq(schema.serviceLogs.id, logId),
+          eq(schema.serviceLogs.bikeId, bikeId),
+        ),
+      );
 
     if (!existing) {
       throw new NotFoundException(`Service log ${logId} not found`);

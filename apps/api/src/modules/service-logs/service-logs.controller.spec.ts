@@ -5,7 +5,11 @@ import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
 
 describe('ServiceLogsController', () => {
   let controller: ServiceLogsController;
-  const mockService = { findAllByBike: jest.fn(), create: jest.fn(), remove: jest.fn() };
+  const mockService = {
+    findAllByBike: jest.fn(),
+    create: jest.fn(),
+    remove: jest.fn(),
+  };
   const mockUser = { id: 'user-1', email: 'test@test.com' };
 
   beforeEach(async () => {
@@ -22,24 +26,46 @@ describe('ServiceLogsController', () => {
 
   describe('GET /bikes/:bikeId/services', () => {
     it('should return paginated service logs', async () => {
-      const response = { data: [{ id: 'log-1' }], meta: { page: 1, limit: 20, total: 1 } };
+      const response = {
+        data: [{ id: 'log-1' }],
+        meta: { page: 1, limit: 20, total: 1 },
+      };
       mockService.findAllByBike.mockResolvedValue(response);
 
       const result = await controller.findAll('bike-1', mockUser, {});
       expect(result).toEqual(response);
-      expect(mockService.findAllByBike).toHaveBeenCalledWith('bike-1', 'user-1', 1, 20);
+      expect(mockService.findAllByBike).toHaveBeenCalledWith(
+        'bike-1',
+        'user-1',
+        1,
+        20,
+      );
     });
 
     it('should parse page and limit from query', async () => {
-      mockService.findAllByBike.mockResolvedValue({ data: [], meta: { page: 2, limit: 10, total: 0 } });
+      mockService.findAllByBike.mockResolvedValue({
+        data: [],
+        meta: { page: 2, limit: 10, total: 0 },
+      });
       await controller.findAll('bike-1', mockUser, { page: '2', limit: '10' });
-      expect(mockService.findAllByBike).toHaveBeenCalledWith('bike-1', 'user-1', 2, 10);
+      expect(mockService.findAllByBike).toHaveBeenCalledWith(
+        'bike-1',
+        'user-1',
+        2,
+        10,
+      );
     });
   });
 
   describe('POST /bikes/:bikeId/services', () => {
     it('should create a service log', async () => {
-      const dto = { serviceType: 'oil_change', description: 'Regular', cost: '45.00', mileageAt: 15000, date: '2026-03-15' };
+      const dto = {
+        serviceType: 'oil_change',
+        description: 'Regular',
+        cost: '45.00',
+        mileageAt: 15000,
+        date: '2026-03-15',
+      };
       const log = { id: 'log-1', bikeId: 'bike-1', ...dto };
       mockService.create.mockResolvedValue(log);
 
@@ -55,7 +81,11 @@ describe('ServiceLogsController', () => {
 
       const result = await controller.remove('bike-1', 'log-1', mockUser);
       expect(result).toEqual({ id: 'log-1' });
-      expect(mockService.remove).toHaveBeenCalledWith('log-1', 'bike-1', 'user-1');
+      expect(mockService.remove).toHaveBeenCalledWith(
+        'log-1',
+        'bike-1',
+        'user-1',
+      );
     });
   });
 });

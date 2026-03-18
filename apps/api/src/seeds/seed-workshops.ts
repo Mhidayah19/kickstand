@@ -94,7 +94,9 @@ async function seed() {
   console.log(`Seeded ${insertedWorkshops.length} workshops.`);
 
   if (insertedWorkshops.length === 0) {
-    console.log('No new workshops inserted (already exist). Skipping services.');
+    console.log(
+      'No new workshops inserted (already exist). Skipping services.',
+    );
     await client.end();
     return;
   }

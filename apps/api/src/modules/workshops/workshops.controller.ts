@@ -16,7 +16,10 @@ export class WorkshopsController {
 
   @Get('compare')
   compare(@Query() query: CompareWorkshopsDto) {
-    return this.workshopsService.compareByService(query.service_type, query.bike_model);
+    return this.workshopsService.compareByService(
+      query.service_type,
+      query.bike_model,
+    );
   }
 
   @Get(':id')

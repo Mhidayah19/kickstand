@@ -1,4 +1,7 @@
-// src/modules/workshops/workshops.service.spec.ts
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Test, TestingModule } from '@nestjs/testing';
 import { WorkshopsService } from './workshops.service';
 import { DRIZZLE } from '../../database/database.module';
@@ -19,10 +22,7 @@ describe('WorkshopsService', () => {
     jest.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        WorkshopsService,
-        { provide: DRIZZLE, useValue: mockDb },
-      ],
+      providers: [WorkshopsService, { provide: DRIZZLE, useValue: mockDb }],
     }).compile();
 
     service = module.get<WorkshopsService>(WorkshopsService);
@@ -36,7 +36,11 @@ describe('WorkshopsService', () => {
       ];
       mockDb.execute.mockResolvedValue(workshops);
 
-      const result = await service.findNearby({ lat: '1.3521', lng: '103.8198', radius: '10' });
+      const result = await service.findNearby({
+        lat: '1.3521',
+        lng: '103.8198',
+        radius: '10',
+      });
 
       expect(result).toEqual(workshops);
       expect(mockDb.execute).toHaveBeenCalled();
@@ -59,7 +63,12 @@ describe('WorkshopsService', () => {
     it('should return workshop with its services', async () => {
       const workshop = { id: 'w-1', name: 'Ah Boy Motor' };
       const services = [
-        { id: 'ws-1', serviceType: 'oil_change', priceMin: '30', priceMax: '50' },
+        {
+          id: 'ws-1',
+          serviceType: 'oil_change',
+          priceMin: '30',
+          priceMax: '50',
+        },
       ];
       mockDb.where.mockResolvedValueOnce([workshop]);
       mockDb.where.mockResolvedValueOnce(services);
@@ -86,22 +95,34 @@ describe('WorkshopsService', () => {
 
       const result = await service.compareByService('oil_change', undefined);
 
-      expect(result).toEqual(expect.arrayContaining([
-        expect.objectContaining({ workshopName: 'Ah Boy Motor' }),
-      ]));
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ workshopName: 'Ah Boy Motor' }),
+        ]),
+      );
     });
 
     it('should filter by bike_model when provided', async () => {
       const results = [
-        { workshopName: 'Ah Boy Motor', priceMin: '30', priceMax: '50', bikeModel: 'CB400X' },
+        {
+          workshopName: 'Ah Boy Motor',
+          priceMin: '30',
+          priceMax: '50',
+          bikeModel: 'CB400X',
+        },
       ];
       mockDb.where.mockResolvedValue(results);
 
       const result = await service.compareByService('oil_change', 'CB400X');
 
-      expect(result).toEqual(expect.arrayContaining([
-        expect.objectContaining({ workshopName: 'Ah Boy Motor', bikeModel: 'CB400X' }),
-      ]));
+      expect(result).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            workshopName: 'Ah Boy Motor',
+            bikeModel: 'CB400X',
+          }),
+        ]),
+      );
     });
   });
 

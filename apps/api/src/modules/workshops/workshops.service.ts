@@ -39,7 +39,10 @@ export class WorkshopsService {
       `);
     }
 
-    return this.db.select().from(schema.workshops).where(isNotNull(schema.workshops.id));
+    return this.db
+      .select()
+      .from(schema.workshops)
+      .where(isNotNull(schema.workshops.id));
   }
 
   async findOne(workshopId: string) {
@@ -100,7 +103,9 @@ export class WorkshopsService {
     }));
   }
 
-  static flagVerificationStatus(entry: { lastVerified?: string | Date | null }) {
+  static flagVerificationStatus(entry: {
+    lastVerified?: string | Date | null;
+  }) {
     if (!entry.lastVerified) {
       return { ...entry, verified: false };
     }
