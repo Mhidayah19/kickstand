@@ -1,0 +1,13 @@
+{
+  "name": "kickstand",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "api": "npm run start:dev --workspace=apps/api",
+    "mobile": "npm run start --workspace=apps/mobile",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  }
+}
