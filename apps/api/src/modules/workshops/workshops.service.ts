@@ -31,7 +31,7 @@ export class WorkshopsService {
       const distanceExpr = this.haversineSQL(latNum, lngNum);
 
       return this.db.execute(sql`
-        SELECT id, name, address, lat, lng, phone, rating, opening_hours,
+        SELECT id, name, address, lat, lng, phone, rating, opening_hours AS "openingHours",
           ${distanceExpr} AS distance
         FROM workshops
         WHERE ${distanceExpr} < ${radiusNum}

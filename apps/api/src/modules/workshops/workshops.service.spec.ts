@@ -90,6 +90,19 @@ describe('WorkshopsService', () => {
         expect.objectContaining({ workshopName: 'Ah Boy Motor' }),
       ]));
     });
+
+    it('should filter by bike_model when provided', async () => {
+      const results = [
+        { workshopName: 'Ah Boy Motor', priceMin: '30', priceMax: '50', bikeModel: 'CB400X' },
+      ];
+      mockDb.where.mockResolvedValue(results);
+
+      const result = await service.compareByService('oil_change', 'CB400X');
+
+      expect(result).toEqual(expect.arrayContaining([
+        expect.objectContaining({ workshopName: 'Ah Boy Motor', bikeModel: 'CB400X' }),
+      ]));
+    });
   });
 
   describe('flagVerificationStatus', () => {
