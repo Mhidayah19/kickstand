@@ -9,6 +9,7 @@ import { Section } from '../../components/ui/section';
 import { StatusCard } from '../../components/ui/status-card';
 import { MetricDisplay } from '../../components/ui/metric-display';
 import { EmptyState } from '../../components/ui/empty-state';
+import { Skeleton } from '../../components/ui/skeleton';
 import { useBikes } from '../../lib/api/use-bikes';
 import { useBikeStore } from '../../lib/store/bike-store';
 import { daysUntil, getComplianceVariant } from '../../lib/theme';
@@ -31,6 +32,18 @@ export default function DashboardScreen() {
   const activeBikeId = useBikeStore((s) => s.activeBikeId);
 
   const activeBike = bikes?.find((b) => b.id === activeBikeId) ?? bikes?.[0] ?? null;
+
+  if (isLoading) {
+    return (
+      <SafeScreen scrollable>
+        <View className="gap-sm pt-lg">
+          <Skeleton height={48} className="w-48 mb-lg" />
+          <Skeleton height={140} className="mb-lg" />
+          <Skeleton height={200} />
+        </View>
+      </SafeScreen>
+    );
+  }
 
   if (!isLoading && !activeBike) {
     return (

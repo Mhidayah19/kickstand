@@ -4,24 +4,33 @@ import type { LoginInput, RegisterInput } from '../types/auth';
 
 export function useLogin() {
   return useMutation({
-    mutationFn: ({ email, password }: LoginInput) =>
-      supabase.auth.signInWithPassword({ email, password }),
+    mutationFn: async ({ email, password }: LoginInput) => {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      return data;
+    },
   });
 }
 
 export function useRegister() {
   return useMutation({
-    mutationFn: ({ name, email, password }: RegisterInput) =>
-      supabase.auth.signUp({
+    mutationFn: async ({ name, email, password }: RegisterInput) => {
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: { data: { name } },
-      }),
+      });
+      if (error) throw error;
+      return data;
+    },
   });
 }
 
 export function useSignOut() {
   return useMutation({
-    mutationFn: () => supabase.auth.signOut(),
+    mutationFn: async () => {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    },
   });
 }

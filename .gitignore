@@ -21,3 +21,7 @@ supabase/.temp/
 # Worktrees
 .worktrees/
 .superpowers/
+
+# Mobile env (explicit, in addition to root .env pattern)
+apps/mobile/.env
+apps/mobile/.env.local
