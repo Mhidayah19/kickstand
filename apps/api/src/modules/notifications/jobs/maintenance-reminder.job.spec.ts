@@ -322,7 +322,7 @@ describe('MaintenanceReminderJob', () => {
 
       // "approaching" already sent, "due" not yet sent
       mockNotificationsService.hasAlreadySent.mockImplementation(
-        async (_u, _b, _t, _field, tier) => tier === 'approaching',
+        (_u, _b, _t, _field, tier) => Promise.resolve(tier === 'approaching'),
       );
 
       await job.run();
@@ -368,8 +368,8 @@ describe('MaintenanceReminderJob', () => {
 
       // One batch send per bike (not one per service type)
       expect(mockNotificationsService.sendBatchPush).toHaveBeenCalledTimes(1);
-      const [messages] =
-        mockNotificationsService.sendBatchPush.mock.calls[0] as [any[]];
+      const [messages] = mockNotificationsService.sendBatchPush.mock
+        .calls[0] as [any[]];
       expect(messages[0].body).toMatch(/oil change/i);
       expect(messages[0].body).toMatch(/chain/i);
     });
@@ -391,8 +391,8 @@ describe('MaintenanceReminderJob', () => {
 
       await job.run();
 
-      const [messages] =
-        mockNotificationsService.sendBatchPush.mock.calls[0] as [any[]];
+      const [messages] = mockNotificationsService.sendBatchPush.mock
+        .calls[0] as [any[]];
       expect(messages[0].body).toMatch(/oil change/i);
       expect(messages[0].body).toMatch(/10.?000|10000/);
     });
@@ -413,8 +413,8 @@ describe('MaintenanceReminderJob', () => {
 
       await job.run();
 
-      const [messages] =
-        mockNotificationsService.sendBatchPush.mock.calls[0] as [any[]];
+      const [messages] = mockNotificationsService.sendBatchPush.mock
+        .calls[0] as [any[]];
       // 15000 - 11000 = 4000km used of 5000km → 1000km remaining
       expect(messages[0].body).toMatch(/1.?000\s*km|1000km/i);
     });

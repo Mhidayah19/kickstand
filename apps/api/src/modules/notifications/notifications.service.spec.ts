@@ -10,14 +10,14 @@ const mockExpoPushNotificationsAsync = jest.fn();
 const mockIsExpoPushToken = jest.fn();
 const mockChunkPushNotifications = jest.fn((msgs: any[]) => [msgs]);
 
-const MockExpo = jest.fn().mockImplementation(() => ({
+const mockExpoConstructor = jest.fn().mockImplementation(() => ({
   sendPushNotificationsAsync: mockExpoPushNotificationsAsync,
   chunkPushNotifications: mockChunkPushNotifications,
 }));
-MockExpo.isExpoPushToken = mockIsExpoPushToken;
+mockExpoConstructor.isExpoPushToken = mockIsExpoPushToken;
 
 jest.mock('expo-server-sdk', () => ({
-  Expo: MockExpo,
+  Expo: mockExpoConstructor,
 }));
 
 describe('NotificationsService', () => {
@@ -41,10 +41,7 @@ describe('NotificationsService', () => {
     );
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        NotificationsService,
-        { provide: DRIZZLE, useValue: mockDb },
-      ],
+      providers: [NotificationsService, { provide: DRIZZLE, useValue: mockDb }],
     }).compile();
 
     service = module.get<NotificationsService>(NotificationsService);
@@ -95,7 +92,13 @@ describe('NotificationsService', () => {
     it('should check all five dedup key fields: userId, bikeId, type, deadlineField, tier', async () => {
       mockDb.where.mockResolvedValue([]);
 
-      await service.hasAlreadySent('u1', 'b1', 'maintenance', 'oil_change', 'due');
+      await service.hasAlreadySent(
+        'u1',
+        'b1',
+        'maintenance',
+        'oil_change',
+        'due',
+      );
 
       // The where clause should receive all five criteria
       expect(mockDb.where).toHaveBeenCalled();
@@ -157,11 +160,7 @@ describe('NotificationsService', () => {
       ]);
       mockDb.execute.mockResolvedValue(undefined);
 
-      await service.sendPush(
-        'ExponentPushToken[stale123]',
-        'Title',
-        'Body',
-      );
+      await service.sendPush('ExponentPushToken[stale123]', 'Title', 'Body');
 
       expect(mockDb.update).toHaveBeenCalled();
       expect(mockDb.set).toHaveBeenCalledWith(

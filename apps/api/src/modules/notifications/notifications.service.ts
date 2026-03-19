@@ -1,5 +1,5 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import { Expo, ExpoPushMessage, ExpoPushErrorTicket } from 'expo-server-sdk';
+import { Expo, ExpoPushMessage } from 'expo-server-sdk';
 import { eq, and } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.module';
 import type { DrizzleDB } from '../../database/database.types';
@@ -59,7 +59,7 @@ export class NotificationsService {
     body: string,
   ): Promise<void> {
     if (!Expo.isExpoPushToken(expoToken)) {
-      console.warn(`Invalid Expo push token: ${expoToken}`);
+      console.warn(`Invalid Expo push token: ${String(expoToken)}`);
       return;
     }
 
@@ -71,7 +71,7 @@ export class NotificationsService {
       for (const ticket of tickets) {
         if (
           ticket.status === 'error' &&
-          (ticket as ExpoPushErrorTicket).details?.error === 'DeviceNotRegistered'
+          ticket.details?.error === 'DeviceNotRegistered'
         ) {
           await this.clearToken(expoToken);
         }
@@ -92,7 +92,7 @@ export class NotificationsService {
           const ticket = tickets[i];
           if (
             ticket.status === 'error' &&
-            (ticket as ExpoPushErrorTicket).details?.error === 'DeviceNotRegistered'
+            ticket.details?.error === 'DeviceNotRegistered'
           ) {
             const token = chunk[i].to as string;
             await this.clearToken(token);

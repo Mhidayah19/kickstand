@@ -240,7 +240,7 @@ describe('ComplianceScannerJob', () => {
       setupTierMocks({ '7d': [bike] });
 
       mockNotificationsService.hasAlreadySent.mockImplementation(
-        async (_u, _b, _t, _field, tier) => tier === '14d',
+        (_u, _b, _t, _field, tier) => Promise.resolve(tier === '14d'),
       );
 
       await job.run();
@@ -264,7 +264,7 @@ describe('ComplianceScannerJob', () => {
       setupTierMocks({ '7d': [bike] });
 
       mockNotificationsService.hasAlreadySent.mockImplementation(
-        async (_u, _b, _t, field) => field === 'roadTaxExpiry',
+        (_u, _b, _t, field) => Promise.resolve(field === 'roadTaxExpiry'),
       );
 
       await job.run();
@@ -321,8 +321,8 @@ describe('ComplianceScannerJob', () => {
 
       await job.run();
 
-      const [messages] =
-        mockNotificationsService.sendBatchPush.mock.calls[0] as [any[]];
+      const [messages] = mockNotificationsService.sendBatchPush.mock
+        .calls[0] as [any[]];
       expect(messages[0].body).toMatch(/\d{1,2} \w{3}|\d{4}-\d{2}-\d{2}/);
     });
 
@@ -332,8 +332,8 @@ describe('ComplianceScannerJob', () => {
 
       await job.run();
 
-      const [messages] =
-        mockNotificationsService.sendBatchPush.mock.calls[0] as [any[]];
+      const [messages] = mockNotificationsService.sendBatchPush.mock
+        .calls[0] as [any[]];
       expect(messages[0].body).toMatch(/2 weeks|14 days/i);
     });
 
@@ -343,8 +343,8 @@ describe('ComplianceScannerJob', () => {
 
       await job.run();
 
-      const [messages] =
-        mockNotificationsService.sendBatchPush.mock.calls[0] as [any[]];
+      const [messages] = mockNotificationsService.sendBatchPush.mock
+        .calls[0] as [any[]];
       expect(messages[0].body).toMatch(/7 days/i);
     });
 
@@ -354,8 +354,8 @@ describe('ComplianceScannerJob', () => {
 
       await job.run();
 
-      const [messages] =
-        mockNotificationsService.sendBatchPush.mock.calls[0] as [any[]];
+      const [messages] = mockNotificationsService.sendBatchPush.mock
+        .calls[0] as [any[]];
       expect(messages[0].body).toMatch(/tomorrow/i);
     });
   });
