@@ -14,7 +14,7 @@ const mockExpoConstructor = jest.fn().mockImplementation(() => ({
   sendPushNotificationsAsync: mockExpoPushNotificationsAsync,
   chunkPushNotifications: mockChunkPushNotifications,
 }));
-mockExpoConstructor.isExpoPushToken = mockIsExpoPushToken;
+(mockExpoConstructor as any).isExpoPushToken = mockIsExpoPushToken;
 
 jest.mock('expo-server-sdk', () => ({
   Expo: mockExpoConstructor,
