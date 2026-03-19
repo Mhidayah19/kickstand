@@ -1,0 +1,16 @@
+name: Daily Notification Scan
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 00:00 UTC = 08:00 SGT
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  trigger-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger notification scan
+        run: |
+          curl -f -X POST "${{ secrets.API_URL }}/notifications/trigger-scan?job=all" \
+            -H "x-api-key: ${{ secrets.SCAN_API_KEY }}" \
+            -H "Content-Type: application/json"
