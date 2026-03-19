@@ -1,6 +1,10 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Modal, TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native';
+import React, { useEffect } from 'react';
+import { Modal, Text, TouchableOpacity, View } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 
 interface BottomSheetProps {
   visible: boolean;
@@ -10,41 +14,38 @@ interface BottomSheetProps {
 }
 
 export function BottomSheet({ visible, onClose, title, children }: BottomSheetProps) {
-  const translateY = useRef(new Animated.Value(300)).current;
-  const [modalVisible, setModalVisible] = useState(false);
+  const translateY = useSharedValue(300);
 
   useEffect(() => {
     if (visible) {
-      setModalVisible(true);
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
+      translateY.value = withTiming(0, { duration: 280 });
     } else {
-      Animated.timing(translateY, {
-        toValue: 300,
-        duration: 200,
-        useNativeDriver: true,
-      }).start(() => setModalVisible(false));
+      translateY.value = withTiming(300, { duration: 220 });
     }
   }, [visible, translateY]);
 
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: translateY.value }],
+  }));
+
   return (
-    <Modal transparent visible={modalVisible} animationType="none" onRequestClose={onClose}>
-      <View className="flex-1">
-        <TouchableOpacity className="flex-1 bg-black/40" onPress={onClose} activeOpacity={1} />
-        <Animated.View
-          className="bg-surface rounded-t-2xl px-lg pt-md pb-xl"
-          style={{ transform: [{ translateY }] }}
-        >
-          <View className="w-10 h-1 bg-surface-muted rounded-full self-center mb-md" />
-          {title ? (
-            <Text className="text-base font-sans-bold text-text-primary mb-md">{title}</Text>
-          ) : null}
-          {children}
-        </Animated.View>
-      </View>
+    <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>
+      <TouchableOpacity
+        className="flex-1 bg-black/40"
+        activeOpacity={1}
+        onPress={onClose}
+      />
+      <Animated.View
+        style={[animatedStyle]}
+        className="absolute bottom-0 left-0 right-0 bg-surface rounded-t-2xl px-lg pt-md pb-xl"
+      >
+        {/* Drag handle */}
+        <View className="w-10 h-1 bg-surface-muted rounded-full self-center mb-lg" />
+        {title ? (
+          <Text className="text-base font-sans-bold text-text-primary mb-md">{title}</Text>
+        ) : null}
+        {children}
+      </Animated.View>
     </Modal>
   );
 }

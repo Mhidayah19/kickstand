@@ -1,6 +1,12 @@
-import React, { useEffect, useRef } from 'react';
-import { Animated, View } from 'react-native';
+import React, { useEffect } from 'react';
 import { Text } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
 type ToastVariant = 'success' | 'error' | 'info';
 
@@ -10,39 +16,32 @@ interface ToastProps {
   onDismiss: () => void;
 }
 
-const variantStyles: Record<ToastVariant, { bg: string; text: string }> = {
-  success: { bg: 'bg-success-surface', text: 'text-success' },
-  error: { bg: 'bg-danger-surface', text: 'text-danger' },
-  info: { bg: 'bg-accent-surface', text: 'text-accent' },
+const variantStyles: Record<ToastVariant, string> = {
+  success: 'bg-success',
+  error: 'bg-danger',
+  info: 'bg-hero',
 };
 
 export function Toast({ message, variant, onDismiss }: ToastProps) {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const onDismissRef = useRef(onDismiss);
-  const styles = variantStyles[variant];
-
-  // Keep ref current without re-triggering animation
-  useEffect(() => {
-    onDismissRef.current = onDismiss;
-  }, [onDismiss]);
+  const opacity = useSharedValue(0);
 
   useEffect(() => {
-    const anim = Animated.sequence([
-      Animated.timing(opacity, { toValue: 1, duration: 200, useNativeDriver: true }),
-      Animated.delay(2600),
-      Animated.timing(opacity, { toValue: 0, duration: 200, useNativeDriver: true }),
-    ]);
-    anim.start(() => onDismissRef.current());
-    return () => anim.stop();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run once on mount
+    opacity.value = withSequence(
+      withTiming(1, { duration: 250 }),
+      withDelay(2500, withTiming(0, { duration: 300 })),
+    );
+    const timer = setTimeout(onDismiss, 3050);
+    return () => clearTimeout(timer);
+  }, [opacity, onDismiss]);
+
+  const style = useAnimatedStyle(() => ({ opacity: opacity.value }));
 
   return (
     <Animated.View
-      className={`absolute top-16 left-lg right-lg ${styles.bg} rounded-xl px-lg py-md`}
-      style={{ opacity, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 4, elevation: 4 }}
+      style={[style, { position: 'absolute', top: 60, left: 16, right: 16, zIndex: 999 }]}
+      className={`${variantStyles[variant]} rounded-lg px-lg py-md`}
     >
-      <Text className={`text-sm font-sans-medium ${styles.text}`}>{message}</Text>
+      <Text className="text-sm font-sans-medium text-white text-center">{message}</Text>
     </Animated.View>
   );
 }

@@ -59,7 +59,7 @@ export class NotificationsService {
     body: string,
   ): Promise<void> {
     if (!Expo.isExpoPushToken(expoToken)) {
-      console.warn(`Invalid Expo push token: ${String(expoToken)}`);
+      this.logger.warn(`Invalid Expo push token: ${String(expoToken)}`);
       return;
     }
 
@@ -77,7 +77,7 @@ export class NotificationsService {
         }
       }
     } catch (error) {
-      console.error('Expo push failed:', error);
+      this.logger.error('Expo push failed', error);
     }
   }
 
@@ -99,7 +99,7 @@ export class NotificationsService {
           }
         }
       } catch (error) {
-        this.logger.error('Expo batch push failed:', error);
+        this.logger.error('Expo batch push failed', error);
       }
     }
   }
