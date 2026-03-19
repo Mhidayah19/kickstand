@@ -1,15 +1,14 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Text } from 'react-native';
 import { router } from 'expo-router';
+import React, { useMemo } from 'react';
+import { Text, View } from 'react-native';
+import { HeroCard } from '../../components/ui/hero-card';
+import { MetricDisplay } from '../../components/ui/metric-display';
 import { SafeScreen } from '../../components/ui/safe-screen';
 import { ScreenHeader } from '../../components/ui/screen-header';
-import { HeroCard } from '../../components/ui/hero-card';
 import { Section } from '../../components/ui/section';
-import { StatusCard } from '../../components/ui/status-card';
-import { MetricDisplay } from '../../components/ui/metric-display';
-import { WelcomeScreen } from '../../components/welcome-screen';
 import { Skeleton } from '../../components/ui/skeleton';
+import { StatusCard } from '../../components/ui/status-card';
+import { EmptyState } from '../../components/ui/empty-state';
 import { useBikes } from '../../lib/api/use-bikes';
 import { useBikeStore } from '../../lib/store/bike-store';
 import { daysUntil, getComplianceVariant } from '../../lib/theme';
@@ -21,85 +20,109 @@ function getGreeting(): string {
   return 'Good evening';
 }
 
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return 'Not set';
-  const [year, month, day] = dateStr.split('-');
-  return `${day}/${month}/${year}`;
-}
-
-export default function DashboardScreen() {
+export default function HomeScreen() {
   const { data: bikes, isLoading } = useBikes();
-  const activeBikeId = useBikeStore((s) => s.activeBikeId);
+  const { activeBikeId } = useBikeStore();
 
-  const activeBike = bikes?.find((b) => b.id === activeBikeId) ?? bikes?.[0] ?? null;
+  const activeBike = useMemo(() => {
+    if (!bikes || bikes.length === 0) return null;
+    return bikes.find((b) => b.id === activeBikeId) ?? bikes[0];
+  }, [bikes, activeBikeId]);
 
   if (isLoading) {
     return (
       <SafeScreen scrollable>
-        <View className="gap-sm pt-lg">
-          <Skeleton height={48} className="w-48 mb-lg" />
-          <Skeleton height={140} className="mb-lg" />
-          <Skeleton height={200} />
-        </View>
+        <Skeleton height={36} className="rounded-md mb-lg w-48" />
+        <Skeleton height={120} className="rounded-2xl mb-lg" />
+        <Skeleton height={200} className="rounded-xl mb-lg" />
       </SafeScreen>
     );
   }
 
-  if (!isLoading && !activeBike) {
-    return <WelcomeScreen />;
+  if (!activeBike) {
+    return (
+      <SafeScreen scrollable>
+        <ScreenHeader title="Kickstand" subtitle={getGreeting()} />
+        <EmptyState
+          title="No bikes yet"
+          description="Add your first bike to start tracking mileage and compliance"
+          actionLabel="Add bike"
+          onAction={() => router.push('/(tabs)/garage/add' as any)}
+        />
+      </SafeScreen>
+    );
   }
 
-  const inspectionDays = daysUntil(activeBike?.inspectionDue ?? null);
-  const roadTaxDays = daysUntil(activeBike?.roadTaxExpiry ?? null);
-  const insuranceDays = daysUntil(activeBike?.insuranceExpiry ?? null);
-  const coeDays = daysUntil(activeBike?.coeExpiry ?? null);
-
   const complianceItems = [
-    { label: 'Inspection', days: inspectionDays, date: activeBike?.inspectionDue ?? null },
-    { label: 'Road Tax', days: roadTaxDays, date: activeBike?.roadTaxExpiry ?? null },
-    { label: 'Insurance', days: insuranceDays, date: activeBike?.insuranceExpiry ?? null },
-    { label: 'COE', days: coeDays, date: activeBike?.coeExpiry ?? null },
+    { label: 'Inspection', dateField: activeBike.inspectionDue },
+    { label: 'Road Tax', dateField: activeBike.roadTaxExpiry },
+    { label: 'Insurance', dateField: activeBike.insuranceExpiry },
+    { label: 'COE', dateField: activeBike.coeExpiry },
   ];
 
   return (
     <SafeScreen scrollable>
       <ScreenHeader
+        title={activeBike.model}
         subtitle={getGreeting()}
-        title={activeBike?.model ?? '…'}
+        onTitlePress={bikes && bikes.length > 1 ? () => {/* bike switcher — future */ } : undefined}
       />
 
+      {/* Mileage hero card */}
       <HeroCard>
         <Text className="text-xs font-sans-medium text-hero-muted uppercase tracking-widest mb-xs">
           Current Mileage
         </Text>
-        {activeBike ? (
-          <MetricDisplay
-            value={activeBike.currentMileage.toLocaleString()}
-            unit="km"
-            size="xl"
-            onHero
-          />
+        <MetricDisplay
+          value={activeBike.currentMileage.toLocaleString()}
+          unit="km"
+          size="xl"
+          onHero
+        />
+        {activeBike.updatedAt ? (
+          <Text className="text-xs font-sans text-hero-muted mt-xs">
+            Updated {new Date(activeBike.updatedAt).toLocaleDateString('en-SG', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+            })}
+          </Text>
         ) : null}
       </HeroCard>
 
+      {/* Compliance grid */}
       <Section label="Compliance">
         <View className="flex-row flex-wrap gap-sm">
-          {complianceItems.map((item) => (
-            <View key={item.label} className="w-[47%]">
-              <StatusCard
-                label={item.label}
-                value={item.days !== null ? Math.abs(item.days) : '—'}
-                unit={item.days !== null ? (Math.abs(item.days) === 1 ? 'day' : 'days') : ''}
-                date={formatDate(item.date)}
-                variant={getComplianceVariant(item.days)}
-              />
-            </View>
-          ))}
+          {complianceItems.map(({ label, dateField }) => {
+            const days = daysUntil(dateField);
+            const variant = getComplianceVariant(days);
+            const value = days === null ? '–' : String(Math.abs(days));
+            const unit = days === null ? '' : days < 0 ? 'overdue' : 'days';
+            const dateDisplay = dateField
+              ? new Date(dateField).toLocaleDateString('en-SG', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })
+              : 'Not set';
+            return (
+              <View key={label} style={{ width: '47%' }}>
+                <StatusCard
+                  label={label}
+                  value={value}
+                  unit={unit}
+                  date={dateDisplay}
+                  variant={variant}
+                />
+              </View>
+            );
+          })}
         </View>
       </Section>
 
+      {/* Recent service placeholder */}
       <Section label="Recent Service">
-        <Text className="text-sm text-text-muted font-sans py-sm">
+        <Text className="text-sm font-sans text-muted text-center py-lg">
           No services logged yet
         </Text>
       </Section>
