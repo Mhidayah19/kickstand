@@ -99,7 +99,7 @@ export class NotificationsService {
           }
         }
       } catch (error) {
-        this.logger.error('Expo batch push failed:', error);
+        this.logger.error('Expo batch push failed', error);
       }
     }
   }

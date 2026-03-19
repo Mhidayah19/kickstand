@@ -186,7 +186,10 @@ describe('NotificationsService', () => {
       await service.sendPush('ExponentPushToken[abc123]', 'Title', 'Body');
 
       expect(mockDb.insert).not.toHaveBeenCalled();
-      expect(errorSpy).toHaveBeenCalled();
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Expo push failed'),
+        expect.anything(),
+      );
       errorSpy.mockRestore();
     });
   });
@@ -230,6 +233,21 @@ describe('NotificationsService', () => {
       ]);
 
       expect(mockDb.update).toHaveBeenCalled();
+    });
+
+    it('should log an error when Expo API throws during batch send', async () => {
+      mockExpoPushNotificationsAsync.mockRejectedValue(new Error('Expo API unavailable'));
+      const errorSpy = jest.spyOn(service['logger'], 'error').mockImplementation();
+
+      await service.sendBatchPush([
+        { to: 'ExponentPushToken[abc]', title: 'T', body: 'B' },
+      ]);
+
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Expo batch push failed'),
+        expect.anything(),
+      );
+      errorSpy.mockRestore();
     });
   });
 });
