@@ -46,7 +46,6 @@ export default function EditBikeScreen() {
         defaultValues={defaultValues}
         onSubmit={onSubmit}
         submitLabel="Save changes"
-        isSubmitting={isPending}
       />
     </SafeScreen>
   );

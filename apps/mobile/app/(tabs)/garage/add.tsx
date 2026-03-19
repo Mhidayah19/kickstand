@@ -26,7 +26,6 @@ export default function AddBikeScreen() {
       <BikeForm
         onSubmit={onSubmit}
         submitLabel="Add bike"
-        isSubmitting={isPending}
       />
     </SafeScreen>
   );
