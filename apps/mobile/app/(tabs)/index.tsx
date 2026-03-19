@@ -8,7 +8,7 @@ import { HeroCard } from '../../components/ui/hero-card';
 import { Section } from '../../components/ui/section';
 import { StatusCard } from '../../components/ui/status-card';
 import { MetricDisplay } from '../../components/ui/metric-display';
-import { EmptyState } from '../../components/ui/empty-state';
+import { WelcomeScreen } from '../../components/welcome-screen';
 import { Skeleton } from '../../components/ui/skeleton';
 import { useBikes } from '../../lib/api/use-bikes';
 import { useBikeStore } from '../../lib/store/bike-store';
@@ -46,16 +46,7 @@ export default function DashboardScreen() {
   }
 
   if (!isLoading && !activeBike) {
-    return (
-      <SafeScreen>
-        <EmptyState
-          title="No bikes yet"
-          description="Add your first bike to get started"
-          actionLabel="Add bike"
-          onAction={() => router.push('/(tabs)/garage/add')}
-        />
-      </SafeScreen>
-    );
+    return <WelcomeScreen />;
   }
 
   const inspectionDays = daysUntil(activeBike?.inspectionDue ?? null);

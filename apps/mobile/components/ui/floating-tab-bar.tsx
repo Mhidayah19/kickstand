@@ -4,6 +4,7 @@ import { Text } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import * as Haptics from 'expo-haptics';
 import { Home, Grid2x2, Plus, Mic, Settings } from 'lucide-react-native';
+import { useBikes } from '../../lib/api/use-bikes';
 
 // Token values matching global.css CSS variables
 // IMPORTANT: Keep these in sync with CSS variables defined in global.css
@@ -16,14 +17,18 @@ const COLORS = {
 
 const TAB_ICONS: Record<string, React.ComponentType<{ size: number; color: string; strokeWidth?: number }>> = {
   index: Home,
-  garage: Grid2x2,
+  'garage/index': Grid2x2,
   log: Plus,
   agent: Mic,
   settings: Settings,
 };
 
 export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const { data: bikes } = useBikes();
   const translateY = useRef(new Animated.Value(0)).current;
+
+  // Hide tab bar during onboarding (no bikes added yet)
+  if (!bikes || bikes.length === 0) return null;
 
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () => {
@@ -46,6 +51,8 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
     };
   }, [translateY]);
 
+  const visibleRoutes = state.routes.filter((route) => route.name in TAB_ICONS);
+
   return (
     <Animated.View
       className="absolute bottom-4 self-center"
@@ -55,8 +62,8 @@ export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarP
         className="bg-hero rounded-full flex-row items-center px-sm py-sm"
         style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 10 }}
       >
-        {state.routes.map((route, index) => {
-          const isFocused = state.index === index;
+        {visibleRoutes.map((route) => {
+          const isFocused = state.index === state.routes.indexOf(route);
           const isCenter = route.name === 'log';
           const Icon = TAB_ICONS[route.name] ?? Home;
 
