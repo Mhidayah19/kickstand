@@ -9,5 +9,12 @@
     "mobile": "npm run start --workspace=apps/mobile",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present"
+  },
+  "overrides": {
+    "react": "19.1.0",
+    "react-native": "0.81.5"
+  },
+  "dependencies": {
+    "react-native-screens": "~4.16.0"
   }
 }

@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
-import { Stack, router } from 'expo-router';
+import '../global.css';
+import React, { useEffect, useState } from 'react';
+import { View, Text } from 'react-native';
+import { Redirect, Stack } from 'expo-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useAppFonts } from '../lib/theme';
 import { supabase } from '../lib/supabase';
@@ -14,12 +16,23 @@ const queryClient = new QueryClient({
   },
 });
 
+function NavigationStack() {
+  return (
+    <Stack screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="(auth)" />
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="+not-found" />
+    </Stack>
+  );
+}
+
 export default function RootLayout() {
-  const [fontsLoaded] = useAppFonts();
+  const [fontsLoaded, fontError] = useAppFonts();
   const setUser = useAuthStore((s) => s.setUser);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    // Hydrate auth state from existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser({
@@ -30,9 +43,11 @@ export default function RootLayout() {
           expoToken: null,
         });
       }
+      setIsReady(true);
+    }).catch(() => {
+      setIsReady(true);
     });
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
         setUser({
@@ -42,25 +57,27 @@ export default function RootLayout() {
           activeBikeId: null,
           expoToken: null,
         });
-        router.replace('/(tabs)');
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
-        router.replace('/(auth)/login');
       }
     });
 
     return () => subscription.unsubscribe();
   }, [setUser]);
 
-  if (!fontsLoaded) return null;
+  if ((!fontsLoaded && !fontError) || !isReady) {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#faf8f5', alignItems: 'center', justifyContent: 'center' }}>
+        <Text style={{ color: '#78716c', fontSize: 14 }}>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      <NavigationStack />
+      {isReady && !isAuthenticated && <Redirect href="/(auth)/login" />}
+      {isReady && isAuthenticated && <Redirect href="/(tabs)" />}
     </QueryClientProvider>
   );
 }

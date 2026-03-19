@@ -1,22 +1,29 @@
 import { create } from 'zustand';
-import { createMMKV } from 'react-native-mmkv';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const storage = createMMKV({ id: 'bike-store' });
 const ACTIVE_BIKE_KEY = 'activeBikeId';
 
 interface BikeState {
   activeBikeId: string | null;
   setActiveBikeId: (id: string | null) => void;
+  hydrate: () => Promise<void>;
 }
 
 export const useBikeStore = create<BikeState>((set) => ({
-  activeBikeId: storage.getString(ACTIVE_BIKE_KEY) ?? null,
+  activeBikeId: null,
   setActiveBikeId: (id) => {
     if (id === null) {
-      storage.remove(ACTIVE_BIKE_KEY);
+      AsyncStorage.removeItem(ACTIVE_BIKE_KEY);
     } else {
-      storage.set(ACTIVE_BIKE_KEY, id);
+      AsyncStorage.setItem(ACTIVE_BIKE_KEY, id);
     }
     set({ activeBikeId: id });
   },
+  hydrate: async () => {
+    const stored = await AsyncStorage.getItem(ACTIVE_BIKE_KEY);
+    if (stored) set({ activeBikeId: stored });
+  },
 }));
+
+// Hydrate on import
+useBikeStore.getState().hydrate();
