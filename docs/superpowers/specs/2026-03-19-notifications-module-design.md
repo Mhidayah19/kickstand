@@ -124,8 +124,9 @@ Custom guard at `src/modules/notifications/guards/api-key.guard.ts`.
    - **Due by mileage:** `currentMileage - lastServiceMileage >= intervalKm`
    - **Due by time:** months since last service >= `intervalMonths`
    - **Approaching:** has used >= 80% but < 100% of mileage or time interval (e.g., at 4000km of a 5000km interval)
-4. Dedup via `notification_logs` (type=`maintenance`, deadlineField=serviceType, tier=`due` or `approaching`)
-5. Batch all due/approaching items per bike into one push notification
+4. **If no `service_log` exists** for a given type: skip time-based checks (no reference date), use `lastServiceMileage=0` for mileage-based checks
+5. Dedup via `notification_logs` (type=`maintenance`, deadlineField=serviceType, tier=`due` or `approaching`)
+6. Batch all due/approaching items per bike into one push notification
 
 **Notification copy examples:**
 
