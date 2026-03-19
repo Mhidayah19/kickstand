@@ -38,9 +38,9 @@ SafeScreen (bg-background, no scroll needed)
   4. Feature icons    — Horizontal row of 5 circular icons (42px)
                          First icon: bg-hero, icon stroke hero-text (active style)
                          Rest: bg-surface-muted, icon stroke text-primary
-                         Icons: BarChart3, Shield, Wrench, Mic, Sun
+                         Icons: ChartBar, Shield, Wrench, Mic, Sun
                          (Mileage, Compliance, Services, AI Agent, Settings)
-  5. CTA button       — "Get started", bg-hero, text-hero-text, rounded-xl (14px),
+  5. CTA button       — "Get started", bg-hero, text-hero-text, rounded-full,
                          full-width, py-lg, font-sans-bold, shadow-md
                          onPress → router.push('/(tabs)/garage/add')
 ```
@@ -96,18 +96,15 @@ EmptyState (existing component, minor polish)
 
 ## 4. Tab Bar Fix
 
-The floating tab bar has a route-to-icon mapping bug causing duplicate house icons.
+The floating tab bar shows duplicate house icons in the screenshot. The `href: null` fix for sub-routes is already implemented in `_layout.tsx`. Verify the icon mapping in `FloatingTabBar` is correct — the `TAB_ICONS` map should match exactly 5 routes:
 
-**Root cause:** The `FloatingTabBar` component maps route names to icons. Routes like `garage/add`, `garage/[id]` are registered as separate tabs but should be hidden (they're stack screens within the garage tab).
-
-**Fix:** In `app/(tabs)/_layout.tsx`, ensure only 5 routes are visible tabs:
 - `index` → Home (House icon)
-- `garage` → Garage (Grid2x2 icon, href points to `garage/index`)
+- `garage` → Garage (Grid2x2 icon)
 - `log` → FAB center (Plus icon)
 - `agent` → Agent (Mic icon)
 - `settings` → Settings (Settings icon)
 
-All sub-routes (`garage/add`, `garage/[id]/*`) should have `href: null` in their tab screen options to hide them from the tab bar.
+If the tab bar still shows duplicates, the issue is likely in how routes are filtered before rendering — investigate and fix.
 
 ---
 
@@ -116,7 +113,7 @@ All sub-routes (`garage/add`, `garage/[id]/*`) should have `href: null` in their
 | File | Action | Description |
 |------|--------|-------------|
 | `components/illustrations/motorcycle.tsx` | Create | SVG motorcycle illustration component |
-| `components/ui/empty-state.tsx` | Modify | Add `variant` prop for 'welcome' vs 'inline' styles |
+| `components/ui/empty-state.tsx` | Modify | Add `variant` prop: `'welcome'` (new full-screen onboarding) vs `'inline'` (current behavior, default) |
 | `app/(tabs)/index.tsx` | Modify | Dashboard empty state → welcome onboarding layout |
 | `app/(tabs)/_layout.tsx` | Modify | Fix tab screen options, add `href: null` to hidden routes |
 | `components/ui/floating-tab-bar.tsx` | Modify | Verify icon mapping is correct for 5 tabs |
@@ -126,7 +123,7 @@ All sub-routes (`garage/add`, `garage/[id]/*`) should have `href: null` in their
 
 ## 6. Out of Scope
 
-- Dark mode adaptation (follows automatically from token usage, except SVG hardcoded colors)
+- Dark mode SVG variant: hardcoded dark strokes (#1c1917) will have low contrast against dark mode `surface-muted` (#3a3633). A conditional stroke color or separate dark variant should be addressed post-MVP.
 - Animation on the motorcycle illustration (nice-to-have, not MVP)
 - Feature icon interactivity (they're decorative only)
 - Other screens beyond empty state
