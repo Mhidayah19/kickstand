@@ -1,12 +1,13 @@
-import { SafeScreen } from '../../components/ui/safe-screen';
+import React from 'react';
 import { Text } from 'react-native';
+import { SafeScreen } from '../../components/ui/safe-screen';
+import { ScreenHeader } from '../../components/ui/screen-header';
 
 export default function AgentScreen() {
   return (
-    <SafeScreen>
-      <Text className="text-text-primary font-sans-semibold text-base mt-xl">
-        Agent — coming soon
-      </Text>
+    <SafeScreen scrollable>
+      <ScreenHeader title="Agent" />
+      <Text className="text-sm font-sans text-muted text-center mt-xl">Voice agent — coming soon</Text>
     </SafeScreen>
   );
 }
