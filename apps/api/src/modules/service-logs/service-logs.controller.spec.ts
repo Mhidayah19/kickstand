@@ -1,7 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { validate } from 'class-validator';
 import { ServiceLogsController } from './service-logs.controller';
 import { ServiceLogsService } from './service-logs.service';
 import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
+import { ListServiceLogsDto } from './dto/list-service-logs.dto';
 
 describe('ServiceLogsController', () => {
   let controller: ServiceLogsController;
@@ -47,13 +49,26 @@ describe('ServiceLogsController', () => {
         data: [],
         meta: { page: 2, limit: 10, total: 0 },
       });
-      await controller.findAll('bike-1', mockUser, { page: '2', limit: '10' });
-      expect(mockService.findAllByBike).toHaveBeenCalledWith(
-        'bike-1',
-        'user-1',
-        2,
-        10,
-      );
+      await controller.findAll('bike-1', mockUser, { page: 2, limit: 10 });
+      expect(mockService.findAllByBike).toHaveBeenCalledWith('bike-1', 'user-1', 2, 10);
+    });
+
+    it('should reject limit > 100 at the DTO level', async () => {
+      const dto = Object.assign(new ListServiceLogsDto(), { limit: 200, page: 1 });
+      const errors = await validate(dto);
+      expect(errors.some(e => e.property === 'limit')).toBe(true);
+    });
+
+    it('should reject limit < 1 at the DTO level', async () => {
+      const dto = Object.assign(new ListServiceLogsDto(), { limit: 0, page: 1 });
+      const errors = await validate(dto);
+      expect(errors.some(e => e.property === 'limit')).toBe(true);
+    });
+
+    it('should reject page < 1 at the DTO level', async () => {
+      const dto = Object.assign(new ListServiceLogsDto(), { page: 0, limit: 20 });
+      const errors = await validate(dto);
+      expect(errors.some(e => e.property === 'page')).toBe(true);
     });
   });
 
