@@ -6,19 +6,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationsService } from './notifications.service';
 import { DRIZZLE } from '../../database/database.module';
 
-const mockExpoPushNotificationsAsync = jest.fn();
-const mockIsExpoPushToken = jest.fn();
-const mockChunkPushNotifications = jest.fn((msgs: any[]) => [msgs]);
-
-const mockExpoConstructor = jest.fn().mockImplementation(() => ({
-  sendPushNotificationsAsync: mockExpoPushNotificationsAsync,
-  chunkPushNotifications: mockChunkPushNotifications,
-}));
-(mockExpoConstructor as any).isExpoPushToken = mockIsExpoPushToken;
-
-jest.mock('expo-server-sdk', () => ({
-  Expo: mockExpoConstructor,
-}));
+// moduleNameMapper in package.json points expo-server-sdk to __mocks__/expo-server-sdk.js
+// which exports the mock functions directly — no jest.mock() factory needed.
+const {
+  mockSendPushNotificationsAsync: mockExpoPushNotificationsAsync,
+  mockIsExpoPushToken,
+  mockChunkPushNotifications,
+} = jest.requireMock('expo-server-sdk');
 
 describe('NotificationsService', () => {
   let service: NotificationsService;

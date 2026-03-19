@@ -1,9 +1,16 @@
+const mockSendPushNotificationsAsync = jest.fn();
+const mockChunkPushNotifications = jest.fn((msgs) => [msgs]);
+const mockIsExpoPushToken = jest.fn().mockReturnValue(true);
+
 const Expo = jest.fn().mockImplementation(() => ({
-  isExpoPushToken: jest.fn().mockReturnValue(true),
-  chunkPushNotifications: jest.fn((msgs) => [msgs]),
-  sendPushNotificationsAsync: jest.fn().mockResolvedValue([]),
+  sendPushNotificationsAsync: mockSendPushNotificationsAsync,
+  chunkPushNotifications: mockChunkPushNotifications,
 }));
+Expo.isExpoPushToken = mockIsExpoPushToken;
 
-Expo.isExpoPushToken = jest.fn().mockReturnValue(true);
-
-module.exports = { Expo };
+module.exports = {
+  Expo,
+  mockSendPushNotificationsAsync,
+  mockIsExpoPushToken,
+  mockChunkPushNotifications,
+};
