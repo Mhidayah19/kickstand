@@ -1,18 +1,19 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { Trash2 } from 'lucide-react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
-import { BikeDetailsCard } from '../../../../components/bike/bike-details-card';
+import { ScrollView, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { BentoStat } from '../../../../components/ui/bento-stat';
 import { ConfirmationDialog } from '../../../../components/ui/confirmation-dialog';
-import { HeroCard } from '../../../../components/ui/hero-card';
-import { MetricDisplay } from '../../../../components/ui/metric-display';
-import { SafeScreen } from '../../../../components/ui/safe-screen';
-import { ScreenHeader } from '../../../../components/ui/screen-header';
+import { ListCard } from '../../../../components/ui/list-card';
+import { PillBadge } from '../../../../components/ui/pill-badge';
+import { PrimaryButton } from '../../../../components/ui/primary-button';
+import { ProgressBar } from '../../../../components/ui/progress-bar';
 import { Section } from '../../../../components/ui/section';
 import { Skeleton } from '../../../../components/ui/skeleton';
-import { StatusCard } from '../../../../components/ui/status-card';
+import { TopAppBar } from '../../../../components/ui/top-app-bar';
 import { useDeleteBike, useBike } from '../../../../lib/api/use-bikes';
-import { daysUntil, getComplianceVariant } from '../../../../lib/theme';
 
 export default function BikeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -27,99 +28,127 @@ export default function BikeDetailScreen() {
 
   if (isLoading || !bike) {
     return (
-      <SafeScreen scrollable>
-        <Skeleton height={32} className="rounded-md mb-lg w-48" />
-        <Skeleton height={120} className="rounded-2xl mb-lg" />
-        <Skeleton height={160} className="rounded-xl mb-lg" />
-      </SafeScreen>
+      <SafeAreaView className="flex-1 bg-surface">
+        <TopAppBar />
+        <ScrollView
+          contentContainerStyle={{ paddingTop: 80, paddingBottom: 128 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <Skeleton height={400} className="mb-4" />
+          <View className="px-6">
+            <Skeleton height={80} className="rounded-xl mb-4" />
+            <Skeleton height={160} className="rounded-2xl mb-4" />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
-  const complianceItems = [
-    { label: 'Inspection', dateField: bike.inspectionDue },
-    { label: 'Road Tax', dateField: bike.roadTaxExpiry },
-    { label: 'Insurance', dateField: bike.insuranceExpiry },
-    { label: 'COE', dateField: bike.coeExpiry },
-  ];
-
   return (
-    <SafeScreen scrollable>
-      <ScreenHeader
-        title={bike.model}
-        subtitle={bike.plateNumber}
-        rightAction={
-          <View className="flex-row items-center gap-sm">
-            <TouchableOpacity
-              onPress={() => router.push(`/(tabs)/garage/${id}/edit` as any)}
-              className="bg-surface-muted rounded-full px-md py-sm"
-              activeOpacity={0.7}
-            >
-              <Text className="text-xs font-sans-semibold text-text-secondary">Edit</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setShowDeleteDialog(true)}
-              className="bg-danger-surface rounded-full p-sm"
-              activeOpacity={0.7}
-            >
-              <Trash2 size={16} color="#dc2626" />
-            </TouchableOpacity>
+    <SafeAreaView className="flex-1 bg-surface">
+      <TopAppBar />
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 128 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Hero Image Section */}
+        <View style={{ height: 400, width: '100%' }}>
+          <View className="flex-1 bg-surface-low items-center justify-center">
+            <MaterialCommunityIcons name="motorbike" size={80} color="#D0C5BA" />
           </View>
-        }
-      />
-
-      {/* Mileage hero */}
-      <HeroCard>
-        <Text className="text-xs font-sans-medium text-hero-muted uppercase tracking-widest mb-xs">
-          Current Mileage
-        </Text>
-        <MetricDisplay
-          value={bike.currentMileage.toLocaleString()}
-          unit="km"
-          size="xl"
-          onHero
-        />
-        {bike.updatedAt ? (
-          <Text className="text-xs font-sans text-hero-muted mt-xs">
-            Updated {new Date(bike.updatedAt).toLocaleDateString('en-SG', { day: 'numeric', month: 'short', year: 'numeric' })}
-          </Text>
-        ) : null}
-      </HeroCard>
-
-      {/* Compliance grid */}
-      <Section label="Compliance" action="Edit dates" onAction={() => router.push(`/(tabs)/garage/${id}/edit` as any)}>
-        <View className="flex-row flex-wrap gap-sm">
-          {complianceItems.map(({ label, dateField }) => {
-            const days = daysUntil(dateField);
-            const variant = getComplianceVariant(days);
-            const value = days === null ? '–' : Math.abs(days);
-            const unit = days === null ? '' : days < 0 ? 'days overdue' : 'days';
-            const dateDisplay = dateField
-              ? new Date(dateField).toLocaleDateString('en-SG', { day: 'numeric', month: 'short', year: 'numeric' })
-              : 'Not set';
-            return (
-              <View key={label} style={{ width: '47%' }}>
-                <StatusCard
-                  label={label}
-                  value={String(value)}
-                  unit={unit}
-                  date={dateDisplay}
-                  variant={variant}
-                />
-              </View>
-            );
-          })}
+          <LinearGradient
+            colors={['transparent', '#F9F9F9']}
+            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 200 }}
+          />
+          <View className="absolute bottom-6 left-6">
+            <PillBadge label="Ready to Ride" variant="yellow" />
+            <Text className="text-4xl font-sans-xbold text-charcoal mt-2">
+              {bike.model}
+            </Text>
+          </View>
         </View>
-      </Section>
 
-      {/* Service history placeholder */}
-      <Section label="Service History" action="See all" onAction={() => router.push(`/(tabs)/garage/${id}/services` as any)}>
-        <Text className="text-sm font-sans text-muted text-center py-lg">No services logged yet</Text>
-      </Section>
+        {/* Stats Bento Grid */}
+        <View className="px-6 -mt-6">
+          <View className="flex-row gap-4 mb-4">
+            <BentoStat label="Engine" value={bike.engineCapacity ? `${bike.engineCapacity}cc` : '1200cc'} accent />
+            <BentoStat label="Year" value={String(bike.year ?? '2024')} />
+          </View>
+          <View className="flex-row gap-4">
+            <BentoStat label="Weight" value="205kg" />
+            <BentoStat label="Torque" value="110Nm" />
+          </View>
+        </View>
 
-      {/* Bike details */}
-      <Section label="Bike Details">
-        <BikeDetailsCard bike={bike} />
-      </Section>
+        {/* Vitals Section */}
+        <View className="px-6 mt-8">
+          <View className="flex-row items-center gap-3 mb-4">
+            <View className="w-1.5 h-6 bg-charcoal rounded-full" />
+            <Text className="font-sans-bold text-xl text-charcoal tracking-tight">
+              Vitals
+            </Text>
+          </View>
+          <View className="bg-surface-low p-6 rounded-2xl">
+            <ProgressBar
+              label="Engine Oil"
+              value={85}
+              color="yellow"
+              statusText="Safe • 85%"
+            />
+            <View className="mb-6" />
+            <ProgressBar
+              label="Tire Wear"
+              value={40}
+              color="sand"
+              statusText="Inspect • 40%"
+            />
+            <View className="mb-6" />
+            <ProgressBar
+              label="Chain Tension"
+              value={12}
+              color="danger"
+              statusText="Adjust • 12%"
+            />
+          </View>
+        </View>
+
+        {/* Service History */}
+        <View className="px-6 mt-8">
+          <Section
+            label="Service History"
+            action="View All"
+            onAction={() => router.push(`/(tabs)/garage/${id}/services` as any)}
+          >
+            <View className="gap-3">
+              <ListCard
+                icon="oil"
+                iconBg="bg-yellow/20"
+                iconColor="#F2D06B"
+                title="Oil Change"
+                subtitle="12 Mar 2026 • 24,500 km"
+                onPress={() => {}}
+              />
+              <ListCard
+                icon="link-variant"
+                iconBg="bg-sand/20"
+                iconColor="#C7B299"
+                title="Chain Adjustment"
+                subtitle="28 Feb 2026 • 23,800 km"
+                onPress={() => {}}
+              />
+            </View>
+          </Section>
+        </View>
+
+        {/* Start Ride Track */}
+        <View className="px-6 mt-4">
+          <PrimaryButton
+            label="Start Ride Track"
+            onPress={() => {}}
+            icon="map-marker-path"
+          />
+        </View>
+      </ScrollView>
 
       <ConfirmationDialog
         visible={showDeleteDialog}
@@ -130,6 +159,6 @@ export default function BikeDetailScreen() {
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteDialog(false)}
       />
-    </SafeScreen>
+    </SafeAreaView>
   );
 }
