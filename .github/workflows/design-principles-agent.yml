@@ -32,10 +32,7 @@ jobs:
       - name: Run Claude Code Design Review
         uses: anthropics/claude-code-action@v1
         with:
-          # Uses your Claude Max/Pro subscription via OAuth token
-          # Generate with: claude setup-token
-          # Then add as repo secret: CLAUDE_CODE_OAUTH_TOKEN
-          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
             You are a design principles review agent for the Kickstand codebase.
 
