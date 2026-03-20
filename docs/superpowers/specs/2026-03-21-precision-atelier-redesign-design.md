@@ -233,9 +233,8 @@ The `FloatingTabBar` is rendered by the tab layout, not by individual screens.
    - Card 1 (Tire Pressure): sand/30 bg, yellow icon, "Good" pill (surface-card bg)
    - Card 2 (Oil Life): surface-low bg, danger icon, "Warning" danger pill
 
-4. **Recent Services**
-   - Section header: "Recent Services" + "View All" link
-   - List of surface-card rows: icon in colored square (rounded-xl), title, date + km, chevron
+4. **Recent Services** — use `Section` component with "View All" action
+   - List of `ListCard` rows: icon in colored square (rounded-xl), title, date + km, chevron
 
 5. **Precision Badge**
    - Charcoal bg, rounded-3xl, centered text
@@ -294,19 +293,16 @@ The `FloatingTabBar` is rendered by the tab layout, not by individual screens.
 3. **Vitals Section**
    - Section header with vertical bar accent (width 6, height 24, charcoal, rounded-full)
    - Container: surface-low, p-6, rounded-2xl
-   - Progress bars with color-coded status:
-     - Engine Oil: yellow (safe)
-     - Tire Wear: sand (inspect)
-     - Chain Tension: danger (adjust)
-   - Each: label (font-sans-bold, uppercase, tracking-wider) + status text (text-xs, colored) + percentage bar
+   - Use `ProgressBar` with `label` and `statusText` props:
+     - `<ProgressBar label="Engine Oil Life" statusText="Safe • 85%" value={85} color="yellow" />`
+     - `<ProgressBar label="Tire Wear" statusText="Inspect • 40%" value={40} color="sand" />`
+     - `<ProgressBar label="Chain Tension" statusText="Adjust • 12%" value={12} color="danger" />`
 
-4. **Service History**
-   - Section header + "View All" link (navigates to `garage/[id]/services.tsx`)
-   - Compact list rows: icon square (rounded-lg, surface-low bg), title, date + km, chevron
+4. **Service History** — use `Section` component with "View All" action (navigates to `garage/[id]/services.tsx`)
+   - Compact `ListCard` rows: icon square (rounded-lg, surface-low bg), title, date + km, chevron
 
-5. **"Start Ride Track" CTA**
-   - Full-width charcoal button, py-5 (20px), rounded-2xl
-   - Yellow route icon (filled) + uppercase font-sans-bold label, `tracking-wide-1`
+5. **"Start Ride Track" CTA** — use `PrimaryButton` component
+   - Props: `label="Start Ride Track"`, `icon="map-marker-path"`, `iconColor="yellow"`
 
 **Stack navigator (`garage/[id]/_layout.tsx`):** Keep existing Stack layout unchanged. Only screen content is redesigned.
 
@@ -320,10 +316,7 @@ The `FloatingTabBar` is rendered by the tab layout, not by individual screens.
    - Headline: "New Service Log" — text-4xl, font-sans-xbold
    - Subtitle: bike name context
 
-2. **Service Type Selector**
-   - Horizontal wrap (flexWrap) of chip buttons
-   - Active: charcoal bg, surface text
-   - Inactive: surface-low bg, sand text
+2. **Service Type Selector** — use `FilterChips` component with `wrap={true}`
    - Types: Oil Change, Chain Adjustment, Brake Flush, Desmo Service (configurable)
 
 3. **Bento Form Grid** (2-column using flexbox, gap-6)
@@ -340,10 +333,8 @@ The `FloatingTabBar` is rendered by the tab layout, not by individual screens.
    - Photo grid: image preview with press-to-delete overlay (Pressable, not hover)
    - Upload placeholder: dashed border (outline), camera icon
 
-6. **Save Button**
-   - Full-width charcoal, py-6 (24px), rounded-2xl
-   - "SAVE LOG" text + yellow checkmark circle
-   - Press state: `activeOpacity: 0.9`, `scale(0.98)`
+6. **Save Button** — use `PrimaryButton` component
+   - Props: `label="Save Log"`, `icon="check-circle"`, `iconColor="yellow"`
 
 ### 4.5 Service History — `(tabs)/log.tsx`
 
@@ -354,9 +345,8 @@ The `FloatingTabBar` is rendered by the tab layout, not by individual screens.
    - Headline: "Service History" — text-3xl, font-sans-xbold
    - Total Spend badge: yellow bg, rounded-xl, font-sans-xbold amount
 
-2. **Filter Chips**
-   - Horizontal FlatList: All (active/charcoal), Maintenance, Repairs, Performance
-   - Same chip style as service type selector
+2. **Filter Chips** — use `FilterChips` component with `wrap={false}` (horizontal scroll)
+   - Options: All, Maintenance, Repairs, Performance
 
 3. **Timeline**
    - Vertical line: absolute, left 16px, width 2px, sand/30 bg, full height
@@ -383,18 +373,17 @@ The `FloatingTabBar` is rendered by the tab layout, not by individual screens.
 
 2. **Account Settings Section**
    - Section label: text-xxs, font-sans-xbold, tracking-wide-2, outline, uppercase
-   - Grouped surface-card rows (rounded-2xl container):
-     - Personal Info: account icon, title (font-sans-bold, text-sm) + subtitle (text-xs, sand), chevron
-     - Security: shield-lock icon, title + subtitle, chevron
-     - Subscription: card-account-details icon, title + subtitle, chevron
-   - Each row: Pressable with press state (bg-surface-low)
+   - Grouped `ListCard` rows in a surface-card container (rounded-2xl):
+     - `<ListCard icon="account" title="Personal Info" subtitle="Update your account details" />`
+     - `<ListCard icon="shield-lock" title="Security" subtitle="Password and biometric settings" />`
+     - `<ListCard icon="card-account-details" title="Subscription" subtitle="Manage your Pro membership" />`
 
 3. **Appearance Section**
    - Dark Mode toggle (disabled for now — show toggle in off position, non-interactive)
    - Accent Color selector: 4 color circles (yellow=selected with ring-2 ring-offset-2, sand, charcoal variants). Visual only for now.
 
-4. **Log Out**
-   - Full-width charcoal button, rounded-xl, py-4
+4. **Log Out** — use `PrimaryButton` component
+   - Props: `label="Log Out"` (no icon variant)
    - Version footer: "Kickstand App v4.2.0", text-xxs, outline, tracking-widest, centered
 
 ### 4.7 Agent — Voice Agent (Bottom Sheet)
@@ -419,10 +408,10 @@ The `FloatingTabBar` is rendered by the tab layout, not by individual screens.
 | `floating-tab-bar` | New token colors, reordered 5 tabs with center Agent FAB (position 3), MaterialCommunityIcons, agent triggers bottom sheet instead of navigation |
 | `hero-card` | Charcoal bg, rounded-3xl (32px), larger shadow, yellow accent elements |
 | `screen-header` | Add label above headline, font-sans-xbold weight |
-| `filter-chips` | Charcoal active state (was accent), surface-low inactive |
-| `progress-bar` | Color-coded variants (yellow/sand/danger), h-2/h-3 sizes |
+| `filter-chips` | Charcoal active state (was accent), surface-low inactive. Add `wrap` prop: `false` (default) = horizontal scroll (for filter bars), `true` = flex wrap (for service type selector). Absorbs the planned `chip-selector` — one component for all chip groups. |
+| `progress-bar` | Color-coded variants (yellow/sand/danger), h-2/h-3 sizes. Add optional `label` and `statusText` props for the vitals use case (label left, status right, bar below). Absorbs the planned `vitals-bar` — one component for plain bars and labeled vitals. |
 | `status-card` | Square aspect ratio, icon + title + pill layout |
-| `list-card` | Icon square + content + chevron pattern |
+| `list-card` | Icon square + content + chevron pattern. Reuse for: Dashboard recent services, Bike Detail service history, and Settings rows (icon + title + subtitle + chevron). Add optional `subtitle` prop. |
 | `pill-badge` | Updated colors (yellow, danger, charcoal variants) |
 | `safe-screen` | Update default padding to px-6, pb-32 |
 | `empty-state` | Dashed border style matching "Expand Your Fleet" |
@@ -438,9 +427,8 @@ The `FloatingTabBar` is rendered by the tab layout, not by individual screens.
 | `bento-stat` | `components/ui/` — Stat card for bento grids (label + value, optional accent border) |
 | `bike-image-card` | `components/bike/` — Full card with hero image, status badge overlay, stats row. **Replaces `components/bike/bike-card.tsx`** which will be deleted. |
 | `timeline-entry` | `components/ui/` — Timeline node + card for service history |
-| `chip-selector` | `components/ui/` — Horizontal chip group with single selection (charcoal active) |
+| `primary-button` | `components/ui/` — Full-width charcoal button with optional left icon (yellow circle) and press state. Used for "Start Ride Track", "Save Log", "Log Out". |
 | `profile-hero` | `components/ui/` — Centered profile card with avatar, name, role badge |
-| `vitals-bar` | `components/ui/` — Labeled progress bar with color-coded status text |
 
 ### 5.3 Removed/Deprecated
 
@@ -481,7 +469,7 @@ These components are not redesigned in this spec. They will receive token color 
 7. Rebuild `FloatingTabBar`: new design, reordered tabs (agent → center), agent triggers bottom sheet
 8. Reorder tabs in `(tabs)/_layout.tsx`: index, garage, agent (center), log, settings
 9. Update existing components with new tokens (hero-card, progress-bar, filter-chips, etc.)
-10. Build new components (bento-stat, bike-image-card, timeline-entry, chip-selector, profile-hero, vitals-bar)
+10. Build new components (bento-stat, bike-image-card, timeline-entry, primary-button, profile-hero)
 
 ### Phase 3: Screens
 11. Dashboard (index.tsx)
