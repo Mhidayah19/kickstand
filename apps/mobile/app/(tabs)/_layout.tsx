@@ -23,9 +23,6 @@ export default function TabLayout() {
         {/* Hidden routes */}
         <Tabs.Screen name="garage/add" options={{ href: null }} />
         <Tabs.Screen name="garage/[id]" options={{ href: null }} />
-        <Tabs.Screen name="garage/[id]/index" options={{ href: null }} />
-        <Tabs.Screen name="garage/[id]/edit" options={{ href: null }} />
-        <Tabs.Screen name="garage/[id]/services" options={{ href: null }} />
       </Tabs>
       <BottomSheet
         visible={agentVisible}
