@@ -1,115 +1,94 @@
-import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { View, Pressable, Keyboard } from 'react-native';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
-import { Grid2x2, Home, Mic, Plus, Settings } from 'lucide-react-native';
-import React, { useEffect, useState } from 'react';
-import { Keyboard, Platform, Text, TouchableOpacity, View } from 'react-native';
+import { useState, useEffect } from 'react';
 
-const ROUTES = [
-  { name: 'index', Icon: Home, label: 'Home' },
-  { name: 'garage', Icon: Grid2x2, label: 'Garage' },
-  { name: 'log', Icon: Plus, label: '' }, // center FAB — no label
-  { name: 'agent', Icon: Mic, label: 'Agent' },
-  { name: 'settings', Icon: Settings, label: 'Settings' },
-] as const;
+const TAB_ICONS: Record<string, string> = {
+  index: 'wrench',
+  'garage/index': 'motorbike',
+  agent: 'microphone',
+  log: 'chart-bar',
+  settings: 'cog',
+};
 
-export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+interface FloatingTabBarProps extends BottomTabBarProps {
+  onAgentPress?: () => void;
+}
+
+export function FloatingTabBar({ state, navigation, onAgentPress }: FloatingTabBarProps) {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
     const showSub = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
     const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
-    return () => {
-      showSub.remove();
-      hideSub.remove();
-    };
+    return () => { showSub.remove(); hideSub.remove(); };
   }, []);
 
   if (keyboardVisible) return null;
 
   return (
-    <View className="absolute bottom-4 left-4 right-4 items-center" pointerEvents="box-none">
-      <View
-        className="bg-hero rounded-full flex-row items-center px-sm"
+    <View className="absolute bottom-6 left-0 right-0 items-center">
+      <BlurView
+        intensity={80}
+        tint="dark"
+        className="w-[90%] max-w-md rounded-3xl overflow-hidden"
         style={{
           shadowColor: '#000',
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.2,
-          shadowRadius: 20,
+          shadowOffset: { width: 0, height: 20 },
+          shadowOpacity: 0.1,
+          shadowRadius: 40,
           elevation: 10,
-          height: 64,
         }}
       >
-        {state.routes.map((route, index) => {
-          const routeConfig = ROUTES[index];
-          if (!routeConfig) return null;
+        <View className="flex-row items-center justify-between px-8 py-3">
+          {state.routes.map((route, index) => {
+            const isFocused = state.index === index;
+            const isCenter = route.name === 'agent';
+            const iconName = TAB_ICONS[route.name] || 'help-circle';
 
-          const isFocused = state.index === index;
-          const isCenter = routeConfig.name === 'log';
-          const { Icon } = routeConfig;
+            const onPress = () => {
+              if (isCenter) {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                onAgentPress?.();
+                return;
+              }
+              const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
+              if (!isFocused && !event.defaultPrevented) {
+                navigation.navigate(route.name);
+              }
+            };
 
-          const onPress = () => {
-            const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
-            }
             if (isCenter) {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              return (
+                <Pressable
+                  key={route.key}
+                  onPress={onPress}
+                  className="bg-yellow rounded-full p-3 active:opacity-80"
+                  style={{ transform: [{ scale: 1.1 }] }}
+                >
+                  <MaterialCommunityIcons name={iconName as any} size={24} color="#1E1E1E" />
+                </Pressable>
+              );
             }
-          };
 
-          if (isCenter) {
-            // Center FAB
             return (
-              <TouchableOpacity
+              <Pressable
                 key={route.key}
                 onPress={onPress}
-                className="mx-sm items-center justify-center rounded-full bg-accent"
-                style={{
-                  width: 52,
-                  height: 52,
-                  marginTop: -16,
-                  shadowColor: '#d97706',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.35,
-                  shadowRadius: 12,
-                  elevation: 8,
-                }}
-                activeOpacity={0.85}
+                className="p-3 active:opacity-70"
               >
-                <Icon size={22} color="#ffffff" />
-              </TouchableOpacity>
+                <MaterialCommunityIcons
+                  name={iconName as any}
+                  size={24}
+                  color={isFocused ? '#F2D06B' : '#C7B299'}
+                />
+              </Pressable>
             );
-          }
-
-          return (
-            <TouchableOpacity
-              key={route.key}
-              onPress={onPress}
-              className="items-center justify-center mx-xs"
-              style={{ width: 52, height: 52 }}
-              activeOpacity={0.7}
-            >
-              {isFocused ? (
-                <View
-                  className="items-center justify-center rounded-full"
-                  style={{ width: 40, height: 40, backgroundColor: 'rgba(250, 248, 245, 0.2)' }}
-                >
-                  <Icon size={20} color="#faf8f5" />
-                </View>
-              ) : (
-                <Icon size={20} color="#78716c" />
-              )}
-              {routeConfig.label ? (
-                <Text
-                  className={`text-xs font-sans-medium mt-0.5 ${isFocused ? 'text-hero-text' : 'text-hero-muted'}`}
-                >
-                  {routeConfig.label}
-                </Text>
-              ) : null}
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+          })}
+        </View>
+      </BlurView>
     </View>
   );
 }
