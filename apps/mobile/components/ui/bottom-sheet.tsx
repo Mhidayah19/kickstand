@@ -1,10 +1,5 @@
-import React, { useEffect } from 'react';
-import { Modal, Text, TouchableOpacity, View } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import React, { useEffect, useRef } from 'react';
+import { Animated, Modal, Text, TouchableOpacity, View } from 'react-native';
 
 interface BottomSheetProps {
   visible: boolean;
@@ -14,19 +9,15 @@ interface BottomSheetProps {
 }
 
 export function BottomSheet({ visible, onClose, title, children }: BottomSheetProps) {
-  const translateY = useSharedValue(300);
+  const translateY = useRef(new Animated.Value(300)).current;
 
   useEffect(() => {
     if (visible) {
-      translateY.value = withTiming(0, { duration: 280 });
+      Animated.timing(translateY, { toValue: 0, duration: 280, useNativeDriver: true }).start();
     } else {
-      translateY.value = withTiming(300, { duration: 220 });
+      Animated.timing(translateY, { toValue: 300, duration: 220, useNativeDriver: true }).start();
     }
   }, [visible, translateY]);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: translateY.value }],
-  }));
 
   return (
     <Modal transparent visible={visible} animationType="none" onRequestClose={onClose}>
@@ -36,13 +27,13 @@ export function BottomSheet({ visible, onClose, title, children }: BottomSheetPr
         onPress={onClose}
       />
       <Animated.View
-        style={[animatedStyle]}
-        className="absolute bottom-0 left-0 right-0 bg-surface-card rounded-t-2xl px-lg pt-md pb-xl"
+        style={{ transform: [{ translateY }] }}
+        className="absolute bottom-0 left-0 right-0 bg-surface-card rounded-t-2xl px-6 pt-3 pb-6"
       >
         {/* Drag handle */}
-        <View className="w-10 h-1 bg-surface-low rounded-full self-center mb-lg" />
+        <View className="w-10 h-1 bg-surface-low rounded-full self-center mb-4" />
         {title ? (
-          <Text className="text-base font-sans-bold text-charcoal mb-md">{title}</Text>
+          <Text className="text-base font-sans-bold text-charcoal mb-3">{title}</Text>
         ) : null}
         {children}
       </Animated.View>
