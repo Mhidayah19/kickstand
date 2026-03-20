@@ -37,12 +37,12 @@ export function BottomSheet({ visible, onClose, title, children }: BottomSheetPr
       />
       <Animated.View
         style={[animatedStyle]}
-        className="absolute bottom-0 left-0 right-0 bg-surface rounded-t-2xl px-lg pt-md pb-xl"
+        className="absolute bottom-0 left-0 right-0 bg-surface-card rounded-t-2xl px-lg pt-md pb-xl"
       >
         {/* Drag handle */}
-        <View className="w-10 h-1 bg-surface-muted rounded-full self-center mb-lg" />
+        <View className="w-10 h-1 bg-surface-low rounded-full self-center mb-lg" />
         {title ? (
-          <Text className="text-base font-sans-bold text-text-primary mb-md">{title}</Text>
+          <Text className="text-base font-sans-bold text-charcoal mb-md">{title}</Text>
         ) : null}
         {children}
       </Animated.View>

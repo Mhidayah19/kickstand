@@ -1,6 +1,4 @@
-import React from 'react';
-import { TextInput, TextInputProps, View } from 'react-native';
-import { Text } from 'react-native';
+import { View, Text, TextInput, TextInputProps } from 'react-native';
 
 interface TextFieldProps extends TextInputProps {
   label: string;
@@ -8,23 +6,23 @@ interface TextFieldProps extends TextInputProps {
   prefix?: string;
 }
 
-export function TextField({ label, error, prefix, style, className, ...rest }: TextFieldProps) {
+export function TextField({ label, error, prefix, ...props }: TextFieldProps) {
   return (
-    <View className="mb-md">
-      <Text className="text-xs font-sans-medium text-text-secondary mb-xs">{label}</Text>
-      <View
-        className={`flex-row items-center bg-surface border rounded-lg px-md h-12 ${error ? 'border-danger' : 'border-border'}`}
-      >
-        {prefix ? <Text className="text-text-secondary font-sans mr-xs">{prefix}</Text> : null}
+    <View className="bg-surface-low p-6 rounded-xl">
+      <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mb-2">
+        {label}
+      </Text>
+      <View className="flex-row items-end gap-2">
+        {prefix && (
+          <Text className="font-sans-bold text-xl text-charcoal">{prefix}</Text>
+        )}
         <TextInput
-          className="flex-1 text-sm font-sans text-text-primary"
-          // Note: #a8a29e = --color-text-muted (light). NativeWind v4 CSS vars
-          // cannot be read at JS runtime, so this is a known limitation.
-          placeholderTextColor="#a8a29e"
-          {...rest}
+          className="flex-1 text-2xl font-sans-bold text-charcoal p-0"
+          placeholderTextColor="#D0C5BA"
+          {...props}
         />
       </View>
-      {error ? <Text className="text-xs text-danger font-sans mt-xs">{error}</Text> : null}
+      {error && <Text className="text-xs text-danger font-sans mt-2">{error}</Text>}
     </View>
   );
 }

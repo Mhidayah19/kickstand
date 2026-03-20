@@ -1,26 +1,24 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Text } from 'react-native';
-
-type BadgeVariant = 'danger' | 'warning' | 'success' | 'neutral';
+import { View, Text } from 'react-native';
 
 interface PillBadgeProps {
   label: string;
-  variant: BadgeVariant;
+  variant: 'yellow' | 'danger' | 'charcoal' | 'surface';
 }
 
-const variantStyles: Record<BadgeVariant, { bg: string; text: string }> = {
-  danger: { bg: 'bg-danger-surface', text: 'text-danger' },
-  warning: { bg: 'bg-warning-surface', text: 'text-warning' },
-  success: { bg: 'bg-success-surface', text: 'text-success' },
-  neutral: { bg: 'bg-surface-muted', text: 'text-text-secondary' },
+const variantStyles: Record<string, { bg: string; text: string }> = {
+  yellow: { bg: 'bg-yellow', text: 'text-charcoal' },
+  danger: { bg: 'bg-danger', text: 'text-white' },
+  charcoal: { bg: 'bg-charcoal', text: 'text-white' },
+  surface: { bg: 'bg-surface-card', text: 'text-charcoal' },
 };
 
 export function PillBadge({ label, variant }: PillBadgeProps) {
   const styles = variantStyles[variant];
   return (
-    <View className={`${styles.bg} px-sm py-xs rounded-sm`}>
-      <Text className={`text-xs font-sans-medium ${styles.text}`}>{label}</Text>
+    <View className={`${styles.bg} self-start px-3 py-1 rounded-full`}>
+      <Text className={`font-sans-xbold text-xxs uppercase tracking-widest ${styles.text}`}>
+        {label}
+      </Text>
     </View>
   );
 }
