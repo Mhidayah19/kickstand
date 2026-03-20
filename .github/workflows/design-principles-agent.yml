@@ -20,6 +20,7 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+      id-token: write
     timeout-minutes: 30
 
     steps:
@@ -29,10 +30,12 @@ jobs:
           fetch-depth: 0
 
       - name: Run Claude Code Design Review
-        uses: anthropics/claude-code-action@beta
+        uses: anthropics/claude-code-action@v1
         with:
-          # Uses your Claude Max/Pro subscription via OAuth — no API key needed
-          use_oauth: true
+          # Uses your Claude Max/Pro subscription via OAuth token
+          # Generate with: claude setup-token
+          # Then add as repo secret: CLAUDE_CODE_OAUTH_TOKEN
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
             You are a design principles review agent for the Kickstand codebase.
 
@@ -76,5 +79,3 @@ jobs:
             5. Create a descriptive commit
 
             Start by examining the source files under apps/api/src/ and apps/mobile/.
-          direct_prompt: true
-          allowed_tools: "Read,Write,Edit,Glob,Grep,Bash(npm run lint:*),Bash(npm run test:*),Bash(npx tsc --noEmit),Bash(git *)"
