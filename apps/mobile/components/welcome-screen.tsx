@@ -2,22 +2,21 @@ import React from 'react';
 import { Dimensions, Image, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native';
 import { router } from 'expo-router';
-import { ChartBar, Shield, Wrench, Mic, Sun } from 'lucide-react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeScreen } from './ui/safe-screen';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const motorcycleImage = require('../assets/images/motorcycle.png');
 
 const ICON_SIZE = 20;
-const ICON_STROKE = 2;
 
 const FEATURES = [
-  { Icon: ChartBar, label: 'Track', active: true },
-  { Icon: Shield, label: 'Legal', active: false },
-  { Icon: Wrench, label: 'Service', active: false },
-  { Icon: Mic, label: 'Voice', active: false },
-  { Icon: Sun, label: 'Trips', active: false },
-] as const;
+  { icon: 'chart-bar' as const, label: 'Track', active: true },
+  { icon: 'shield-check-outline' as const, label: 'Legal', active: false },
+  { icon: 'wrench' as const, label: 'Service', active: false },
+  { icon: 'microphone' as const, label: 'Voice', active: false },
+  { icon: 'white-balance-sunny' as const, label: 'Trips', active: false },
+];
 
 export function WelcomeScreen() {
   return (
@@ -52,10 +51,10 @@ export function WelcomeScreen() {
 
         {/* Features + CTA — pinned at bottom */}
         <View className="flex-row justify-between mb-lg">
-          {FEATURES.map(({ Icon, label, active }, i) => (
+          {FEATURES.map(({ icon, label, active }, i) => (
             <View key={i} className="items-center gap-xs flex-1">
-              <View className={`w-12 h-12 rounded-full items-center justify-center ${active ? 'bg-hero' : 'bg-surface-muted'}`}>
-                <Icon size={ICON_SIZE} color={active ? '#faf8f5' : '#1c1917'} strokeWidth={ICON_STROKE} />
+              <View className={`w-12 h-12 rounded-full items-center justify-center ${active ? 'bg-charcoal' : 'bg-surface-low'}`}>
+                <MaterialCommunityIcons name={icon} size={ICON_SIZE} color={active ? '#faf8f5' : '#1c1917'} />
               </View>
               <Text className={`text-xs font-sans-semibold ${active ? 'text-text-primary' : 'text-text-muted'}`}>
                 {label}
