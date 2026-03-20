@@ -1,6 +1,7 @@
 import React from 'react';
-import { Modal, TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native';
+import { Modal, Text, TouchableOpacity, View } from 'react-native';
+
+type ConfirmVariant = 'danger' | 'accent';
 
 interface ConfirmationDialogProps {
   visible: boolean;
@@ -9,7 +10,7 @@ interface ConfirmationDialogProps {
   onConfirm: () => void;
   onCancel: () => void;
   confirmLabel?: string;
-  confirmVariant?: 'danger' | 'accent';
+  confirmVariant?: ConfirmVariant;
 }
 
 export function ConfirmationDialog({
@@ -19,32 +20,38 @@ export function ConfirmationDialog({
   onConfirm,
   onCancel,
   confirmLabel = 'Confirm',
-  confirmVariant = 'accent',
+  confirmVariant = 'danger',
 }: ConfirmationDialogProps) {
   return (
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onCancel}>
-      <View className="flex-1 bg-black/50 items-center justify-center px-lg">
-        <View className="bg-surface rounded-2xl p-xl w-full">
-          <Text className="text-base font-sans-bold text-text-primary mb-sm">{title}</Text>
-          <Text className="text-sm font-sans text-text-secondary mb-xl">{body}</Text>
+      <TouchableOpacity
+        className="flex-1 bg-black/50 items-center justify-center px-lg"
+        activeOpacity={1}
+        onPress={onCancel}
+      >
+        <TouchableOpacity activeOpacity={1} className="w-full bg-surface rounded-2xl p-xl">
+          <Text className="text-lg font-sans-bold text-text-primary mb-sm">{title}</Text>
+          <Text className="text-sm font-sans text-text-muted mb-xl">{body}</Text>
           <View className="flex-row gap-sm">
             <TouchableOpacity
-              className="flex-1 bg-surface-muted rounded-full py-md items-center"
               onPress={onCancel}
+              className="flex-1 py-md rounded-full bg-surface-muted items-center"
               activeOpacity={0.7}
             >
               <Text className="text-sm font-sans-semibold text-text-secondary">Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className={`flex-1 ${confirmVariant === 'danger' ? 'bg-danger' : 'bg-accent'} rounded-full py-md items-center`}
               onPress={onConfirm}
-              activeOpacity={0.7}
+              className={`flex-1 py-md rounded-full items-center ${
+                confirmVariant === 'danger' ? 'bg-danger' : 'bg-accent'
+              }`}
+              activeOpacity={0.8}
             >
               <Text className="text-sm font-sans-semibold text-white">{confirmLabel}</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
     </Modal>
   );
 }

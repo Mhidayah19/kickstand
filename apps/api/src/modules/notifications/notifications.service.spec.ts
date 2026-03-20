@@ -175,11 +175,12 @@ describe('NotificationsService', () => {
     });
 
     it('should skip sending and log a warning for an invalid token format', async () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
+      const warnSpy = jest.spyOn(service['logger'], 'warn').mockImplementation();
 
       await service.sendPush('not-a-valid-expo-token', 'Title', 'Body');
 
       expect(mockExpoPushNotificationsAsync).not.toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid Expo push token'));
       warnSpy.mockRestore();
     });
 
@@ -187,11 +188,15 @@ describe('NotificationsService', () => {
       mockExpoPushNotificationsAsync.mockRejectedValue(
         new Error('Expo API unavailable'),
       );
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const errorSpy = jest.spyOn(service['logger'], 'error').mockImplementation();
 
       await service.sendPush('ExponentPushToken[abc123]', 'Title', 'Body');
 
       expect(mockDb.insert).not.toHaveBeenCalled();
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Expo push failed'),
+        expect.anything(),
+      );
       errorSpy.mockRestore();
     });
   });
@@ -235,6 +240,21 @@ describe('NotificationsService', () => {
       ]);
 
       expect(mockDb.update).toHaveBeenCalled();
+    });
+
+    it('should log an error when Expo API throws during batch send', async () => {
+      mockExpoPushNotificationsAsync.mockRejectedValue(new Error('Expo API unavailable'));
+      const errorSpy = jest.spyOn(service['logger'], 'error').mockImplementation();
+
+      await service.sendBatchPush([
+        { to: 'ExponentPushToken[abc]', title: 'T', body: 'B' },
+      ]);
+
+      expect(errorSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Expo batch push failed'),
+        expect.anything(),
+      );
+      errorSpy.mockRestore();
     });
   });
 });
