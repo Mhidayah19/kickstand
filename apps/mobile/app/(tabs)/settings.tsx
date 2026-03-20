@@ -1,13 +1,94 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { View, Text } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeScreen } from '../../components/ui/safe-screen';
-import { ScreenHeader } from '../../components/ui/screen-header';
+import { ProfileHero } from '../../components/ui/profile-hero';
+import { ListCard } from '../../components/ui/list-card';
+import { PrimaryButton } from '../../components/ui/primary-button';
 
 export default function SettingsScreen() {
   return (
     <SafeScreen scrollable>
-      <ScreenHeader title="Settings" />
-      <Text className="text-sm font-sans text-muted text-center mt-xl">Settings — coming soon</Text>
+      {/* Profile Hero */}
+      <View className="mb-8">
+        <ProfileHero name="Alex Thompson" role="Professional Rider" />
+      </View>
+
+      {/* Account Settings Section */}
+      <View className="mb-8">
+        <Text className="text-xxs font-sans-xbold tracking-wide-2 text-outline uppercase px-2 mb-4">
+          ACCOUNT SETTINGS
+        </Text>
+        <View className="bg-surface-card rounded-2xl overflow-hidden">
+          <ListCard
+            icon="account"
+            title="Personal Info"
+            subtitle="Update your account details"
+            onPress={() => {}}
+          />
+          <ListCard
+            icon="shield-lock"
+            title="Security"
+            subtitle="Password and biometric settings"
+            onPress={() => {}}
+          />
+          <ListCard
+            icon="card-account-details"
+            title="Subscription"
+            subtitle="Manage your Pro membership"
+            onPress={() => {}}
+          />
+        </View>
+      </View>
+
+      {/* Appearance Section */}
+      <View className="mb-8">
+        <Text className="text-xxs font-sans-xbold tracking-wide-2 text-outline uppercase px-2 mb-4">
+          APPEARANCE
+        </Text>
+        <View className="bg-surface-card rounded-2xl p-5">
+          {/* Dark Mode Row */}
+          <View className="flex-row items-center justify-between mb-6">
+            <View className="flex-row items-center gap-3">
+              <MaterialCommunityIcons name="moon-waning-crescent" size={20} color="#1E1E1E" />
+              <Text className="font-sans-bold text-sm text-charcoal">Dark Mode</Text>
+            </View>
+            {/* Toggle (OFF position, non-interactive) */}
+            <View className="w-12 h-7 rounded-full bg-surface-low justify-center px-0.5">
+              <View className="w-6 h-6 rounded-full bg-white" style={{ elevation: 2 }} />
+            </View>
+          </View>
+
+          {/* Accent Color Row */}
+          <View className="flex-row items-center justify-between">
+            <View className="flex-row items-center gap-3">
+              <MaterialCommunityIcons name="palette" size={20} color="#1E1E1E" />
+              <Text className="font-sans-bold text-sm text-charcoal">Accent Color</Text>
+            </View>
+            <View className="flex-row items-center gap-3">
+              {/* Yellow — selected */}
+              <View
+                className="w-8 h-8 rounded-full bg-yellow"
+                style={{ borderWidth: 2, borderColor: '#F2D06B', margin: 2 }}
+              />
+              {/* Sand */}
+              <View className="w-8 h-8 rounded-full bg-sand" />
+              {/* Charcoal */}
+              <View className="w-8 h-8 rounded-full bg-charcoal" />
+              {/* Dark */}
+              <View className="w-8 h-8 rounded-full" style={{ backgroundColor: '#3A3A3A' }} />
+            </View>
+          </View>
+        </View>
+      </View>
+
+      {/* Log Out Button */}
+      <PrimaryButton label="Log Out" onPress={() => {}} />
+
+      {/* Version Footer */}
+      <Text className="text-xxs font-sans-bold text-outline tracking-widest uppercase text-center mt-6">
+        Kickstand App v4.2.0
+      </Text>
     </SafeScreen>
   );
 }
