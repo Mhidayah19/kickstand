@@ -1,9 +1,11 @@
 name: Design Principles Review Agent
 
 on:
+  push:
+    branches: [main]
   schedule:
-    # Runs every Monday at 09:00 UTC
-    - cron: '0 9 * * 1'
+    # Runs daily at 09:00 UTC
+    - cron: '0 9 * * *'
   workflow_dispatch:
     inputs:
       focus_area:
