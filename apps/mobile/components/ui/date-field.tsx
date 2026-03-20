@@ -38,12 +38,12 @@ export function DateField({ label, value, onChange, error }: DateFieldProps) {
 
   return (
     <View className="mb-md">
-      <Text className="text-xs font-sans-medium text-text-secondary mb-xs">{label}</Text>
+      <Text className="text-xs font-sans-medium text-sand mb-xs">{label}</Text>
       <TouchableOpacity
-        className={`flex-row items-center bg-surface border rounded-lg px-md h-12 ${error ? 'border-danger' : 'border-border'}`}
+        className={`flex-row items-center bg-surface border rounded-lg px-md h-12 ${error ? 'border-danger' : 'border-outline'}`}
         onPress={() => setShow(true)}
       >
-        <Text className={`flex-1 text-sm font-sans ${value ? 'text-text-primary' : 'text-text-muted'}`}>
+        <Text className={`flex-1 text-sm font-sans ${value ? 'text-charcoal' : 'text-sand'}`}>
           {formatDisplay(value)}
         </Text>
         <MaterialCommunityIcons name="calendar" size={16} color="#D0C5BA" accessibilityLabel="Open date picker" />

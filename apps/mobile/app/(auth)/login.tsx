@@ -32,11 +32,11 @@ export default function LoginScreen() {
       <SafeScreen scrollable>
         {/* Logo area */}
         <View className="items-center pt-3xl pb-2xl">
-          <View className="w-16 h-16 bg-hero rounded-2xl items-center justify-center mb-lg">
+          <View className="w-16 h-16 bg-charcoal rounded-2xl items-center justify-center mb-lg">
             <Text className="text-4xl">🏍️</Text>
           </View>
-          <Text className="text-3xl font-sans-bold text-text-primary">Kickstand</Text>
-          <Text className="text-sm font-sans text-text-muted mt-xs">Your bike's AI companion</Text>
+          <Text className="text-3xl font-sans-bold text-charcoal">Kickstand</Text>
+          <Text className="text-sm font-sans text-sand mt-xs">Your bike's AI companion</Text>
         </View>
 
         {/* Error banner */}
@@ -80,12 +80,12 @@ export default function LoginScreen() {
           />
 
           <TouchableOpacity
-            className="bg-hero rounded-full py-md items-center mt-sm"
+            className="bg-charcoal rounded-full py-md items-center mt-sm"
             onPress={handleSubmit(onSubmit)}
             disabled={isPending}
             activeOpacity={0.8}
           >
-            <Text className="text-hero-text font-sans-semibold text-sm">
+            <Text className="text-white font-sans-semibold text-sm">
               {isPending ? 'Signing in...' : 'Sign in'}
             </Text>
           </TouchableOpacity>
@@ -93,18 +93,18 @@ export default function LoginScreen() {
 
         {/* Divider */}
         <View className="flex-row items-center my-xl gap-md">
-          <View className="flex-1 h-px bg-border" />
-          <Text className="text-xs text-text-muted font-sans">or</Text>
-          <View className="flex-1 h-px bg-border" />
+          <View className="flex-1 h-px bg-outline" />
+          <Text className="text-xs text-sand font-sans">or</Text>
+          <View className="flex-1 h-px bg-outline" />
         </View>
 
         {/* Create account */}
         <TouchableOpacity
-          className="border border-border rounded-full py-md items-center"
+          className="border border-outline rounded-full py-md items-center"
           onPress={() => router.push('/(auth)/register')}
           activeOpacity={0.7}
         >
-          <Text className="text-text-primary font-sans-medium text-sm">Create account</Text>
+          <Text className="text-charcoal font-sans-medium text-sm">Create account</Text>
         </TouchableOpacity>
       </SafeScreen>
     </KeyboardAvoidingView>
