@@ -5,7 +5,7 @@ interface ListCardProps {
   icon?: string;
   iconBg?: string;
   iconColor?: string;
-  title: string;
+  title?: string;
   subtitle?: string;
   onPress?: () => void;
   children?: React.ReactNode;

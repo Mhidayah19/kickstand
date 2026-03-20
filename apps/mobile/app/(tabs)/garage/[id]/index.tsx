@@ -71,7 +71,7 @@ export default function BikeDetailScreen() {
         {/* Stats Bento Grid */}
         <View className="px-6 -mt-6">
           <View className="flex-row gap-4 mb-4">
-            <BentoStat label="Engine" value={bike.engineCapacity ? `${bike.engineCapacity}cc` : '1200cc'} accent />
+            <BentoStat label="Engine" value="1200cc" accent />
             <BentoStat label="Year" value={String(bike.year ?? '2024')} />
           </View>
           <View className="flex-row gap-4">

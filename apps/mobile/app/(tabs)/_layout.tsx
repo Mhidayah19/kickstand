@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useState } from 'react';
+import { View } from 'react-native';
 import { FloatingTabBar } from '../../components/ui/floating-tab-bar';
 import { BottomSheet } from '../../components/ui/bottom-sheet';
 
@@ -31,7 +32,7 @@ export default function TabLayout() {
         onClose={() => setAgentVisible(false)}
         title="Voice Agent"
       >
-        {/* Agent content placeholder */}
+        <View />
       </BottomSheet>
     </>
   );
