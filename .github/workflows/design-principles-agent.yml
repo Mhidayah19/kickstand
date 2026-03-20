@@ -29,7 +29,8 @@ jobs:
       - name: Run Claude Code Design Review
         uses: anthropics/claude-code-action@beta
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Uses your Claude Max/Pro subscription via OAuth — no API key needed
+          use_oauth: true
           prompt: |
             You are a design principles review agent for the Kickstand codebase.
 
