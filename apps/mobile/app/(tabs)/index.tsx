@@ -6,6 +6,7 @@ import { HeroCard } from '../../components/ui/hero-card';
 import { ListCard } from '../../components/ui/list-card';
 import { PillBadge } from '../../components/ui/pill-badge';
 import { ProgressBar } from '../../components/ui/progress-bar';
+import { DevAuthToggle } from '../../components/dev/DevAuthToggle';
 import { SafeScreen } from '../../components/ui/safe-screen';
 import { ScreenHeader } from '../../components/ui/screen-header';
 import { Section } from '../../components/ui/section';
@@ -70,7 +71,9 @@ export default function HomeScreen() {
   if (!activeBike) {
     return (
       <SafeScreen scrollable>
-        <ScreenHeader label="DASHBOARD OVERVIEW" title="Welcome back!" />
+        <DevAuthToggle>
+          <ScreenHeader label="DASHBOARD OVERVIEW" title="Welcome back!" />
+        </DevAuthToggle>
         <EmptyState
           title="No bikes yet"
           description="Add your first bike to start tracking mileage and compliance"
@@ -83,7 +86,9 @@ export default function HomeScreen() {
 
   return (
     <SafeScreen scrollable>
-      <ScreenHeader label="DASHBOARD OVERVIEW" title="Welcome back!" />
+      <DevAuthToggle>
+        <ScreenHeader label="DASHBOARD OVERVIEW" title="Welcome back!" />
+      </DevAuthToggle>
 
       {/* Mileage Hero Card */}
       <HeroCard>

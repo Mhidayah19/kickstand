@@ -1,5 +1,4 @@
 import { View, Text, Pressable } from 'react-native';
-import { DevAuthToggle } from '../dev/DevAuthToggle';
 
 interface ScreenHeaderProps {
   title: string;
@@ -30,9 +29,7 @@ export function ScreenHeader({ title, label, subtitle, rightAction, onTitlePress
             {titleElement}
           </Pressable>
         ) : (
-          <DevAuthToggle>
-            {titleElement}
-          </DevAuthToggle>
+          titleElement
         )}
         {rightAction}
       </View>
