@@ -9,7 +9,7 @@ import '../global.css';
 
 SplashScreen.preventAutoHideAsync();
 
-export const justRegisteredRef = { current: false };
+const justRegisteredRef = { current: false };
 
 const queryClient = new QueryClient({
   defaultOptions: {
