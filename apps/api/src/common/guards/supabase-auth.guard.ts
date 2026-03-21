@@ -2,6 +2,7 @@ import {
   CanActivate,
   ExecutionContext,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -10,6 +11,8 @@ import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class SupabaseAuthGuard implements CanActivate {
+  private readonly logger = new Logger(SupabaseAuthGuard.name);
+
   constructor(private configService: ConfigService) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -17,6 +20,7 @@ export class SupabaseAuthGuard implements CanActivate {
     const token = this.extractToken(request);
 
     if (!token) {
+      this.logger.warn({ url: request.url }, 'Missing authorization token');
       throw new UnauthorizedException('Missing authorization token');
     }
 
@@ -33,6 +37,7 @@ export class SupabaseAuthGuard implements CanActivate {
       };
       return true;
     } catch {
+      this.logger.warn({ url: request.url }, 'Invalid or expired token');
       throw new UnauthorizedException('Invalid or expired token');
     }
   }
