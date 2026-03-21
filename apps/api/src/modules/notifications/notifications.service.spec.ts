@@ -21,10 +21,7 @@ jest.mock('expo-server-sdk', () => {
 });
 
 const { mockSendPushNotificationsAsync: mockExpoPushNotificationsAsync, mockIsExpoPushToken } =
-  jest.requireMock('expo-server-sdk') as {
-    mockSendPushNotificationsAsync: jest.Mock;
-    mockIsExpoPushToken: jest.Mock;
-  };
+  jest.requireMock('expo-server-sdk');
 
 describe('NotificationsService', () => {
   let service: NotificationsService;
