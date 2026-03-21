@@ -1,4 +1,5 @@
 import { View, Text, Pressable } from 'react-native';
+import { DevAuthToggle } from '../dev/DevAuthToggle';
 
 interface ScreenHeaderProps {
   title: string;
@@ -12,6 +13,10 @@ interface ScreenHeaderProps {
 export function ScreenHeader({ title, label, subtitle, rightAction, onTitlePress, size = 'lg' }: ScreenHeaderProps) {
   const titleSize = size === 'lg' ? 'text-4xl' : 'text-3xl';
 
+  const titleElement = (
+    <Text className={`${titleSize} font-sans-xbold text-charcoal tracking-tight`}>{title}</Text>
+  );
+
   return (
     <View className="mb-8">
       {label && (
@@ -20,9 +25,15 @@ export function ScreenHeader({ title, label, subtitle, rightAction, onTitlePress
         </Text>
       )}
       <View className="flex-row items-center justify-between">
-        <Pressable onPress={onTitlePress} disabled={!onTitlePress}>
-          <Text className={`${titleSize} font-sans-xbold text-charcoal tracking-tight`}>{title}</Text>
-        </Pressable>
+        {onTitlePress ? (
+          <Pressable onPress={onTitlePress}>
+            {titleElement}
+          </Pressable>
+        ) : (
+          <DevAuthToggle>
+            {titleElement}
+          </DevAuthToggle>
+        )}
         {rightAction}
       </View>
       {subtitle && (
