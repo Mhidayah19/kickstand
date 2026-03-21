@@ -44,9 +44,11 @@ export function FloatingTabBar({ state, navigation, onAgentPress }: FloatingTabB
       >
         <View className="flex-row items-center justify-between px-8 py-3">
           {state.routes.map((route, index) => {
+            const iconName = TAB_ICONS[route.name];
+            if (!iconName) return null; // skip hidden routes (garage/[id], etc.)
+
             const isFocused = state.index === index;
             const isCenter = route.name === 'agent';
-            const iconName = TAB_ICONS[route.name] || 'help-circle';
 
             const onPress = () => {
               if (isCenter) {
