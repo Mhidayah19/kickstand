@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { log } from './log-middleware';
 import type { User } from '../types/auth';
 
 interface AuthState {
@@ -7,8 +8,13 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  isAuthenticated: false,
-  setUser: (user) => set({ user, isAuthenticated: user !== null }),
-}));
+export const useAuthStore = create<AuthState>()(
+  log(
+    (set) => ({
+      user: null,
+      isAuthenticated: false,
+      setUser: (user) => set({ user, isAuthenticated: user !== null }),
+    }),
+    'AuthStore',
+  ),
+);
