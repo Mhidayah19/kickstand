@@ -251,33 +251,39 @@ export default function AddMachineScreen() {
     setFormError(null);
   };
 
+  const submitBike = async () => {
+    const fullModel = data.brand ? `${data.brand} ${data.model}`.trim() : data.model;
+    const bike = await createBike.mutateAsync({
+      model: fullModel,
+      year: parseInt(data.year, 10),
+      plateNumber: data.plateNumber,
+      class: data.class as BikeClass,
+      currentMileage: parseInt(data.currentMileage, 10),
+    });
+    setActiveBikeId(bike.id);
+    router.back();
+  };
+
   const handleNext = async () => {
     const error = validateStep(step, data);
-    if (error) { setFormError(error); return; }
-    setFormError(null);
-
-    if (step < TOTAL_STEPS - 1) {
-      setStep(step + 1);
+    if (error) {
+      setFormError(error);
       return;
     }
 
-    // Final step — submit
+    setFormError(null);
+
+    if (step < TOTAL_STEPS - 1) {
+      setStep((current) => current + 1);
+      return;
+    }
+
     try {
-      if (!data.class) { setFormError('Please select a bike class'); return; }
-      const fullModel = data.brand ? `${data.brand} ${data.model}`.trim() : data.model;
-      // Note: VIN is collected for UX but not submitted to API (schema extension deferred)
-      const bike = await createBike.mutateAsync({
-        model: fullModel,
-        year: parseInt(data.year, 10),
-        plateNumber: data.plateNumber,
-        class: data.class as BikeClass,
-        currentMileage: parseInt(data.currentMileage, 10),
-      });
-      setActiveBikeId(bike.id);
-      router.back();
+      await submitBike();
     } catch (err) {
       setFormError((err as Error).message ?? 'Failed to add machine');
     }
+  };
   };
 
   const handleBack = () => {
