@@ -8,6 +8,7 @@ import { SafeScreen } from '../../components/ui/safe-screen';
 import { TextField } from '../../components/ui/text-field';
 import { loginSchema, LoginFormValues } from '../../lib/validation/auth-schema';
 import { useLogin } from '../../lib/api/use-auth';
+import { DevAuthToggle } from '../../components/dev/DevAuthToggle';
 
 export default function LoginScreen() {
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +36,9 @@ export default function LoginScreen() {
           <View className="w-16 h-16 bg-charcoal rounded-2xl items-center justify-center mb-lg">
             <Text className="text-4xl">🏍️</Text>
           </View>
-          <Text className="text-3xl font-sans-bold text-charcoal">Kickstand</Text>
+          <DevAuthToggle>
+            <Text className="text-3xl font-sans-bold text-charcoal">Kickstand</Text>
+          </DevAuthToggle>
           <Text className="text-sm font-sans text-sand mt-xs">Your bike's AI companion</Text>
         </View>
 
