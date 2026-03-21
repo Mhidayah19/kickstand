@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-surface-variant": "#4d463d",
+              "on-primary-container": "#474746",
+              "on-surface": "#1a1c1c",
+              "on-error-container": "#93000a",
+              "primary-fixed-dim": "#c8c6c5",
+              "on-primary": "#ffffff",
+              "surface": "#f9f9f9",
+              "on-error": "#ffffff",
+              "outline": "#7e766c",
+              "surface-bright": "#f9f9f9",
+              "on-secondary": "#ffffff",
+              "tertiary-fixed": "#f6dfc4",
+              "primary-container": "#b7b5b4",
+              "background": "#f9f9f9",
+              "secondary-fixed": "#ffe088",
+              "surface-container-high": "#e8e8e8",
+              "inverse-on-surface": "#f1f1f1",
+              "on-background": "#1a1c1c",
+              "secondary": "#735c00",
+              "on-tertiary-fixed-variant": "#534431",
+              "tertiary": "#6c5c47",
+              "inverse-primary": "#c8c6c5",
+              "primary-fixed": "#e5e2e1",
+              "on-tertiary-container": "#534431",
+              "surface-variant": "#e2e2e2",
+              "surface-container": "#eeeeee",
+              "on-secondary-fixed-variant": "#574500",
+              "error-container": "#ffdad6",
+              "tertiary-fixed-dim": "#d9c3a9",
+              "tertiary-container": "#c7b299",
+              "surface-tint": "#5f5e5e",
+              "surface-container-low": "#f3f3f3",
+              "error": "#ba1a1a",
+              "primary": "#5f5e5e",
+              "on-tertiary-fixed": "#251909",
+              "on-tertiary": "#ffffff",
+              "surface-container-highest": "#e2e2e2",
+              "on-secondary-fixed": "#241a00",
+              "on-secondary-container": "#765e00",
+              "outline-variant": "#d0c5ba",
+              "on-primary-fixed-variant": "#474746",
+              "surface-dim": "#dadada",
+              "surface-container-lowest": "#ffffff",
+              "secondary-container": "#fcda74",
+              "on-primary-fixed": "#1b1b1c",
+              "inverse-surface": "#2f3131",
+              "secondary-fixed-dim": "#e5c360"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-mesh-sand {
+            background-image: radial-gradient(at 0% 0%, #C7B299 0px, transparent 50%),
+                              radial-gradient(at 100% 100%, #C7B299 0px, transparent 50%);
+            opacity: 0.15;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface selection:bg-secondary-container">
+<!-- Note: TopAppBar and BottomNavBar suppressed per "Destination Rule" - Onboarding/Success screens hide navigation -->
+<main class="relative min-h-screen flex flex-col items-center justify-center px-6 overflow-hidden">
+<!-- Background Accents (Industrial Editorial Aesthetic) -->
+<div class="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+<div class="bg-mesh-sand absolute inset-0"></div>
+<!-- Abstract Asymmetrical Geometry -->
+<div class="absolute -top-24 -right-24 w-96 h-96 bg-tertiary-container/20 rounded-full blur-3xl"></div>
+<div class="absolute -bottom-48 -left-24 w-[32rem] h-[32rem] bg-secondary-fixed/10 rounded-full blur-[100px]"></div>
+<!-- Graphic Element: Mechanical Stamping Style -->
+<div class="absolute top-12 left-12 opacity-[0.03] select-none">
+<span class="font-label text-9xl font-extrabold tracking-tighter block">SHIFTED</span>
+<span class="font-label text-4xl font-bold tracking-[0.4em] block mt-[-2rem]">READY_SYSTEM_v1</span>
+</div>
+</div>
+<!-- Success Content Canvas -->
+<div class="relative z-10 w-full max-w-md flex flex-col items-center text-center">
+<!-- Central Icon Representation -->
+<div class="mb-12 relative">
+<!-- Precision Depth Shadow -->
+<div class="absolute inset-0 translate-y-6 blur-3xl bg-secondary-container/30 rounded-full"></div>
+<div class="relative w-48 h-48 md:w-56 md:h-56 bg-surface-container-lowest rounded-[2.5rem] flex items-center justify-center border border-outline-variant/10 shadow-sm">
+<!-- Industrial Logo/Icon Integration -->
+<div class="absolute inset-4 border-[0.5px] border-outline-variant/20 rounded-[2rem] pointer-events-none"></div>
+<span class="material-symbols-outlined text-secondary text-8xl md:text-9xl" style="font-variation-settings: 'FILL' 1;">
+                        motorcycle
+                    </span>
+<!-- Floating Key Accents -->
+<div class="absolute -bottom-4 -right-4 w-16 h-16 bg-primary text-on-primary rounded-2xl flex items-center justify-center shadow-lg transform rotate-12">
+<span class="material-symbols-outlined text-3xl">key</span>
+</div>
+</div>
+</div>
+<!-- Headline: Editorial Weight -->
+<h1 class="font-headline font-bold text-4xl md:text-5xl tracking-tight text-on-surface mb-4 leading-none">
+                You're All Set!
+            </h1>
+<!-- Subtext: Medium Weight -->
+<p class="font-body font-medium text-primary text-lg md:text-xl max-w-[20rem] mb-12 leading-relaxed">
+                Your digital garage is ready for your first machine. Let's get riding.
+            </p>
+<!-- Technical Detail Badge (Precision Badge) -->
+<div class="mb-16 inline-flex items-center gap-2 bg-primary-fixed px-4 py-2 rounded-lg">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'wght' 700;">verified</span>
+<span class="font-label text-[10px] font-bold uppercase tracking-[0.1em] text-on-primary-fixed-variant">Account Verified: Rider #2049</span>
+</div>
+<!-- Primary CTA: High Impact Vibrant Yellow -->
+<button class="w-full group relative overflow-hidden bg-secondary-container hover:bg-secondary-fixed transition-all duration-300 rounded-xl py-5 px-8 flex items-center justify-center gap-3 active:scale-95">
+<span class="font-headline font-bold text-on-secondary-container text-lg tracking-tight">Go to Dashboard</span>
+<span class="material-symbols-outlined text-on-secondary-container group-hover:translate-x-1 transition-transform">arrow_forward</span>
+<!-- Subtle Gradient Overlay for Depth -->
+<div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none"></div>
+</button>
+<!-- Secondary Support Link -->
+<button class="mt-8 font-label text-xs font-bold uppercase tracking-[0.2em] text-primary hover:text-on-surface transition-colors">
+                Setup notifications later
+            </button>
+</div>
+<!-- Progress Indicator (Task-Focused suppression of full shell) -->
+<div class="fixed bottom-12 flex gap-1.5 pointer-events-none">
+<div class="w-2 h-2 rounded-full bg-primary/10"></div>
+<div class="w-2 h-2 rounded-full bg-primary/10"></div>
+<div class="w-8 h-2 rounded-full bg-secondary transition-all duration-500"></div>
+</div>
+</main>
+<!-- Visual Polish: Surface Container Low Sectioning (Minimalist) -->
+<div class="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-secondary via-primary to-secondary/30 z-50"></div>
+</body></html>

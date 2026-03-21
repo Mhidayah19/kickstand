@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kickstand - My Garage</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#F9F9F9",
+              "on-surface": "#1E1E1E",
+              "charcoal": "#1E1E1E",
+              "sand": "#C7B299",
+              "vibrant-yellow": "#F2D06B",
+              "surface-container": "#EEEEEE",
+              "outline-variant": "#D0C5BA",
+              "primary": "#1E1E1E",
+              "secondary": "#F2D06B",
+              "tertiary": "#C7B299"
+            },
+            fontFamily: {
+              "sans": ["Plus Jakarta Sans", "sans-serif"],
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {
+              "DEFAULT": "0.25rem",
+              "lg": "0.5rem",
+              "xl": "0.75rem",
+              "2xl": "1rem",
+              "3xl": "1.5rem",
+              "full": "9999px"
+            },
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body {
+            min-height: 100dvh;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-charcoal min-h-screen pb-40">
+<!-- Shared Component: TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#F9F9F9]/70 backdrop-blur-xl flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-[#EEEEEE] overflow-hidden border-2 border-vibrant-yellow">
+<img alt="Mechanic Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnLp22nkT1AVuR-_mYsOPrbCQaoqfm98_iXkB0IaZozo6nHkYlpHcmpdr4Eo2yzHR8wMxSYwTKSZ34q2xkDhoMlEkaF5iqmq0BTnHIZDo9t1nUUO7A665uPef8KThe661_qBvzlV-0nCfDlDElPT66dl22cmFCI0l3_UEeXb0HBLZytHHiCfeVA7SGjtZ2GOMcRJJNs3sybNeL8Yli2OBUgs3BWroewSGLzChS8FM_hfxFNdefZj9FPf_nHYmNUBW1eYcl_xNbjiC1"/>
+</div>
+<span class="font-['Plus_Jakarta_Sans'] font-bold tracking-[0.2em] text-[#1E1E1E] text-sm uppercase">PRECISION ATELIER</span>
+</div>
+<button class="text-[#1E1E1E] hover:opacity-80 transition-opacity active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+</header>
+<main class="pt-24 px-6 max-w-lg mx-auto">
+<!-- Hero Header -->
+<div class="mb-8">
+<h1 class="text-4xl font-extrabold tracking-tight mb-1">My Garage</h1>
+<p class="text-sand font-bold tracking-[0.15em] uppercase text-xs">Your Fleet • 04 Machines</p>
+</div>
+<!-- Machine List -->
+<div class="space-y-6">
+<!-- Triumph Card -->
+<div class="group bg-white rounded-3xl overflow-hidden shadow-sm border border-black/5">
+<div class="relative h-56 overflow-hidden">
+<img alt="Triumph Scrambler 1200 XE" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCc9qZ37QqNfDXVc-YeOq6F5TKDsAu8DJwX0tcfRrwWMHcZuZ_FcNau5UaCurLt7P2zCMaBi2-FR_t7YIWT1pLAsA9bBm6GtNUCu5OuKq355ZyXJ1SMqN_59HwBe2ZnPWNeQwk-uUNX8Y_peaG9t4Aebfh_6Y6pojo7zJLO2Le-Bh0b5xT7vdNNOBrIR2gi2R3OyTuOrx9JXfzbCjk7U2fn3dQ4v-N3EuKH7Pib9r2MxvmtDp0jHXizYkbtVCrQB0Dg-vmU168GYWoq"/>
+<div class="absolute top-4 left-4">
+<span class="px-3 py-1 bg-vibrant-yellow text-charcoal font-extrabold text-[10px] tracking-widest uppercase rounded-full">Ready to Ride</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="text-[10px] font-bold text-sand tracking-widest uppercase mb-1">TRIUMPH</p>
+<h3 class="text-xl font-extrabold">Scrambler 1200 XE</h3>
+</div>
+<button class="text-charcoal/20 hover:text-charcoal transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex gap-3">
+<div class="flex-1 bg-surface-container/50 px-4 py-3 rounded-2xl">
+<p class="text-[9px] font-bold text-sand uppercase mb-1">Battery</p>
+<p class="text-sm font-bold">94% <span class="text-[10px] text-green-600 ml-1">Healthy</span></p>
+</div>
+<div class="flex-1 bg-surface-container/50 px-4 py-3 rounded-2xl">
+<p class="text-[9px] font-bold text-sand uppercase mb-1">Tires</p>
+<p class="text-sm font-bold">36 <span class="text-[10px] text-charcoal/50 font-medium ml-0.5">PSI</span></p>
+</div>
+</div>
+</div>
+</div>
+<!-- BMW Card -->
+<div class="group bg-white rounded-3xl overflow-hidden shadow-sm border border-black/5">
+<div class="relative h-56 overflow-hidden">
+<img alt="BMW R nineT Pure" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9YCgoSU5KBubVSGwLT6AShYHCCnFd4Qu1QDStkQ41iWaE2tPW8lUbs2riwA-7yHCSsezIwvd64CgkZ05FLL4b4ylJYk1PBQW-iKH0l4h45GsKDEQieEfC1-lYnuBUdNH4afvF_PQfZI7p3-MgQx_MSXosxcbNGwpvoxu-lUH7n1W1NRQOQRN0iu22UUkEkMVg3ToX09y3zatSjWy6Gfu3zuTTP4IkAajHQR3uMRTJ5XVRii91bBM-ip4jeYv_c3Rxvp7XGP8XPCY0"/>
+<div class="absolute top-4 left-4">
+<span class="px-3 py-1 bg-red-600 text-white font-extrabold text-[10px] tracking-widest uppercase rounded-full">Service Overdue</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<p class="text-[10px] font-bold text-sand tracking-widest uppercase mb-1">BMW MOTORRAD</p>
+<h3 class="text-xl font-extrabold">R nineT Pure</h3>
+</div>
+<button class="text-charcoal/20 hover:text-charcoal transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<div class="flex gap-3">
+<div class="flex-1 bg-surface-container/50 px-4 py-3 rounded-2xl">
+<p class="text-[9px] font-bold text-sand uppercase mb-1">Battery</p>
+<p class="text-sm font-bold text-red-600">12% <span class="text-[10px] ml-1">Critical</span></p>
+</div>
+<div class="flex-1 bg-surface-container/50 px-4 py-3 rounded-2xl">
+<p class="text-[9px] font-bold text-sand uppercase mb-1">Tires</p>
+<p class="text-sm font-bold">28 <span class="text-[10px] text-red-600 font-medium ml-0.5">Low</span></p>
+</div>
+</div>
+</div>
+</div>
+<!-- Expand Fleet Card -->
+<button class="w-full h-40 border-2 border-dashed border-sand/40 rounded-3xl flex flex-col items-center justify-center gap-2 group hover:border-vibrant-yellow transition-colors">
+<div class="w-12 h-12 rounded-full bg-sand/10 flex items-center justify-center group-hover:bg-vibrant-yellow transition-colors">
+<span class="material-symbols-outlined text-sand group-hover:text-charcoal transition-colors">add</span>
+</div>
+<span class="text-sm font-bold text-sand tracking-wide">Expand Your Fleet</span>
+</button>
+</div>
+<!-- Fleet Integrity Summary -->
+<section class="mt-12 mb-8">
+<div class="flex items-center gap-3 mb-4">
+<h2 class="text-lg font-extrabold">Fleet Integrity</h2>
+<div class="flex-grow h-[1px] bg-sand/20"></div>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<div class="text-center">
+<p class="text-2xl font-extrabold">03</p>
+<p class="text-[10px] font-bold text-sand uppercase tracking-wider">Active</p>
+</div>
+<div class="text-center border-x border-sand/20">
+<p class="text-2xl font-extrabold">124</p>
+<p class="text-[10px] font-bold text-sand uppercase tracking-wider">Logs</p>
+</div>
+<div class="text-center">
+<p class="text-2xl font-extrabold text-red-600">01</p>
+<p class="text-[10px] font-bold text-sand uppercase tracking-wider">Alert</p>
+</div>
+</div>
+</section>
+</main>
+<!-- Shared Component: BottomNavBar -->
+<nav class="fixed bottom-6 left-0 right-0 z-50 flex justify-between items-center mx-auto bg-[#1E1E1E]/80 backdrop-blur-2xl w-[90%] max-w-md rounded-[2rem] px-8 py-3 shadow-[0_20px_40px_rgba(0,0,0,0.1)]">
+<a class="text-[#C7B299] p-3 hover:text-[#F2D06B] transition-all active:scale-90 duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">home_repair_service</span>
+</a>
+<a class="bg-[#F2D06B] text-[#1E1E1E] rounded-full p-3 scale-110 shadow-[0_0_15px_rgba(242,208,107,0.4)] active:scale-90 duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">sports_motorsports</span>
+</a>
+<a class="text-[#C7B299] p-3 hover:text-[#F2D06B] transition-all active:scale-90 duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">analytics</span>
+</a>
+<a class="text-[#C7B299] p-3 hover:text-[#F2D06B] transition-all active:scale-90 duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined">settings</span>
+</a>
+</nav>
+</body></html>
