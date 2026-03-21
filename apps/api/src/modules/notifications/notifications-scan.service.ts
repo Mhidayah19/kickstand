@@ -6,7 +6,7 @@ import { WorkshopFreshnessJob } from './jobs/workshop-freshness.job';
 type ScanJobName = 'compliance' | 'maintenance' | 'freshness';
 type ScanTarget = ScanJobName | 'all';
 
-interface ScanResult {
+export interface ScanResult {
   usersNotified: number;
   notificationsSent: number;
 }
