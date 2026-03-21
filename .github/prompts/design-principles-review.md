@@ -6,8 +6,8 @@ in the changed code. Do NOT modify any files — analysis only.
 ## How to Review
 
 1. Run `git diff origin/<base-branch>...HEAD` to see what changed in this PR
-2. For each changed file, evaluate the modifications against the design principles below
-3. Output your findings as a structured review
+2. For each changed file, evaluate the **changed lines only** against the design principles below
+3. Output your findings as raw JSON — no markdown, no explanation, no code fences
 
 ## Design Principles to Evaluate Against
 
@@ -34,15 +34,30 @@ in the changed code. Do NOT modify any files — analysis only.
 
 ## Output Format
 
-For each violation found:
+Output ONLY a raw JSON object. No markdown. No explanation. No code fences. The JSON must match this structure exactly:
 
-### [Principle Name] — `file/path.ts`
-**Line(s):** approximate line range in the diff
-**Issue:** what the violation is
-**Suggestion:** how to fix it, with a brief code example if helpful
+{
+  "violations": [
+    {
+      "path": "apps/api/src/bikes/bikes.service.ts",
+      "line": 42,
+      "principle": "SRP",
+      "issue": "Service method handles both validation and persistence",
+      "suggestion": "extractValidation(dto);\nawait this.save(dto);"
+    }
+  ],
+  "summary": "Found 1 design principle violation."
+}
+
+Rules for each field:
+- `path`: relative to repo root (e.g. `apps/api/src/bikes/bikes.service.ts`)
+- `line`: the **end** line number of the violation in the current file. Must be a line visible in the PR diff — do not reference unchanged lines.
+- `start_line`: include only for multi-line violations (the first line of the range). Omit entirely for single-line violations.
+- `principle`: must be one of: SRP, OCP, LSP, ISP, DIP, DRY, KISS, SoC, Law of Demeter, CQS, Codebase Pattern
+- `suggestion`: the exact replacement code for the flagged line(s) — this will render as a GitHub "Apply suggestion" button
 
 ## Rules
 1. Only flag genuine principle violations — no cosmetic or style nitpicks
-2. Focus on the changed code, not pre-existing issues in unchanged files
-3. If no violations are found, respond with: "✅ No design principle violations found in this PR."
-4. Keep feedback actionable and concise
+2. Only report violations on lines that appear in the PR diff — never flag unchanged lines
+3. If no violations are found, output: {"violations": [], "summary": "No design principle violations found in this PR."}
+4. Keep issue descriptions actionable and concise
