@@ -284,7 +284,6 @@ export default function AddMachineScreen() {
       setFormError((err as Error).message ?? 'Failed to add machine');
     }
   };
-  };
 
   const handleBack = () => {
     if (step === 0) { router.back(); return; }
