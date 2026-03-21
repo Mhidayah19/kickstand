@@ -50,7 +50,7 @@ export class AuthService {
 
   private buildAuthResponse(
     session: SupabaseSession,
-    user: { id: string; email: string | null },
+    user: { id: string; email?: string | null },
   ) {
     return {
       ...this.buildTokenResponse(session),

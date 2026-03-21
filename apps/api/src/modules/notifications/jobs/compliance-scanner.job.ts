@@ -104,7 +104,7 @@ export class ComplianceScannerJob {
         const unsentFields: string[] = [];
 
         for (const field of DEADLINE_FIELDS) {
-          const value = row[field] as string | null;
+          const value = row[field];
           if (!value) continue;
 
           const deadline = new Date(value);
