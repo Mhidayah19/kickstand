@@ -8,7 +8,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["path", "line", "principle", "issue", "suggestion"],
+        "required": ["path", "line", "start_line", "principle", "issue", "suggestion"],
         "additionalProperties": false,
         "properties": {
           "path": {
@@ -21,9 +21,9 @@
             "description": "End line number in the current file. Must be a line within the PR diff."
           },
           "start_line": {
-            "type": "integer",
+            "type": ["integer", "null"],
             "minimum": 1,
-            "description": "Start line for multi-line violations. Omit for single-line violations."
+            "description": "Start line for multi-line violations. Null for single-line violations."
           },
           "principle": {
             "type": "string",
