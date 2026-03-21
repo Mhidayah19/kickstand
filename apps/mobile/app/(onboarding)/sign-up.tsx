@@ -7,7 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextField } from '../../components/ui/text-field';
 import { registerSchema, RegisterFormValues } from '../../lib/validation/auth-schema';
 import { useRegister } from '../../lib/api/use-auth';
-import { justRegisteredRef } from '../_layout';
+import { justRegisteredRef } from '../../lib/auth-state';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export default function SignUpScreen() {

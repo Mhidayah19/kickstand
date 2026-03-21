@@ -5,11 +5,11 @@ import React, { useEffect } from 'react';
 import { useAppFonts } from '../lib/theme';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../lib/store/auth-store';
+import { justRegisteredRef } from '../lib/auth-state';
 import '../global.css';
 
 SplashScreen.preventAutoHideAsync();
 
-const justRegisteredRef = { current: false };
 
 const queryClient = new QueryClient({
   defaultOptions: {
