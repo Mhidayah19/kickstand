@@ -13,6 +13,12 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 
+type SupabaseSession = {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+};
+
 @Injectable()
 export class AuthService {
   private readonly supabase: SupabaseClient;
@@ -32,6 +38,27 @@ export class AuthService {
         persistSession: false,
       },
     });
+  }
+
+  private buildTokenResponse(session: SupabaseSession) {
+    return {
+      access_token: session.access_token,
+      refresh_token: session.refresh_token,
+      expires_in: session.expires_in,
+    };
+  }
+
+  private buildAuthResponse(
+    session: SupabaseSession,
+    user: { id: string; email: string | null },
+  ) {
+    return {
+      ...this.buildTokenResponse(session),
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+    };
   }
 
   async register(dto: RegisterDto) {
@@ -75,15 +102,7 @@ export class AuthService {
       );
     }
 
-    return {
-      access_token: sessionData.session.access_token,
-      refresh_token: sessionData.session.refresh_token,
-      expires_in: sessionData.session.expires_in,
-      user: {
-        id: sessionData.user.id,
-        email: sessionData.user.email,
-      },
-    };
+    return this.buildAuthResponse(sessionData.session, sessionData.user);
   }
 
   async login(dto: LoginDto) {
@@ -98,15 +117,7 @@ export class AuthService {
       throw new UnauthorizedException(error?.message ?? 'Invalid credentials');
     }
 
-    return {
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-      expires_in: data.session.expires_in,
-      user: {
-        id: data.user.id,
-        email: data.user.email,
-      },
-    };
+    return this.buildAuthResponse(data.session, data.user);
   }
 
   async refresh(dto: RefreshDto) {
@@ -122,10 +133,6 @@ export class AuthService {
       );
     }
 
-    return {
-      access_token: data.session.access_token,
-      refresh_token: data.session.refresh_token,
-      expires_in: data.session.expires_in,
-    };
+    return this.buildTokenResponse(data.session);
   }
 }
