@@ -1,30 +1,35 @@
-import React from 'react';
-import { TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 
 interface ScreenHeaderProps {
   title: string;
+  label?: string;
   subtitle?: string;
   rightAction?: React.ReactNode;
   onTitlePress?: () => void;
+  size?: 'lg' | 'md';
 }
 
-export function ScreenHeader({ title, subtitle, rightAction, onTitlePress }: ScreenHeaderProps) {
+export function ScreenHeader({ title, label, subtitle, rightAction, onTitlePress, size = 'lg' }: ScreenHeaderProps) {
+  const titleSize = size === 'lg' ? 'text-4xl' : 'text-3xl';
+
   return (
-    <View className="flex-row items-center justify-between py-lg">
-      <View className="flex-1">
-        {subtitle ? (
-          <Text className="text-xs text-text-muted font-sans-medium">{subtitle}</Text>
-        ) : null}
-        {onTitlePress ? (
-          <TouchableOpacity onPress={onTitlePress}>
-            <Text className="text-2xl font-sans-bold text-text-primary">{title}</Text>
-          </TouchableOpacity>
-        ) : (
-          <Text className="text-2xl font-sans-bold text-text-primary">{title}</Text>
-        )}
+    <View className="mb-8">
+      {label && (
+        <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-2 mb-2">
+          {label}
+        </Text>
+      )}
+      <View className="flex-row items-center justify-between">
+        <Pressable onPress={onTitlePress} disabled={!onTitlePress}>
+          <Text className={`${titleSize} font-sans-xbold text-charcoal tracking-tight`}>{title}</Text>
+        </Pressable>
+        {rightAction}
       </View>
-      {rightAction ? <View>{rightAction}</View> : null}
+      {subtitle && (
+        <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mt-1">
+          {subtitle}
+        </Text>
+      )}
     </View>
   );
 }

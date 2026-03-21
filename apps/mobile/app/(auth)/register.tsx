@@ -38,7 +38,7 @@ export default function RegisterScreen() {
           title="Create account"
           rightAction={
             <TouchableOpacity onPress={() => router.back()}>
-              <Text className="text-accent font-sans-medium text-sm">Sign in</Text>
+              <Text className="text-yellow font-sans-medium text-sm">Sign in</Text>
             </TouchableOpacity>
           }
         />
@@ -112,12 +112,12 @@ export default function RegisterScreen() {
           />
 
           <TouchableOpacity
-            className="bg-hero rounded-full py-md items-center mt-sm"
+            className="bg-charcoal rounded-full py-md items-center mt-sm"
             onPress={handleSubmit(onSubmit)}
             disabled={isPending}
             activeOpacity={0.8}
           >
-            <Text className="text-hero-text font-sans-semibold text-sm">
+            <Text className="text-white font-sans-semibold text-sm">
               {isPending ? 'Creating account...' : 'Create account'}
             </Text>
           </TouchableOpacity>

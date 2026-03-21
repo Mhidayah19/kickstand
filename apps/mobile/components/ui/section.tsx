@@ -1,6 +1,4 @@
-import React from 'react';
-import { TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 
 interface SectionProps {
   label?: string;
@@ -11,21 +9,19 @@ interface SectionProps {
 
 export function Section({ label, action, onAction, children }: SectionProps) {
   return (
-    <View className="mb-lg">
-      {(label || action) ? (
-        <View className="flex-row items-center justify-between mb-sm">
-          {label ? (
-            <Text className="text-xs font-sans-semibold text-text-muted uppercase tracking-widest">
-              {label}
-            </Text>
-          ) : <View />}
-          {action && onAction ? (
-            <TouchableOpacity onPress={onAction}>
-              <Text className="text-xs font-sans-medium text-accent">{action}</Text>
-            </TouchableOpacity>
-          ) : null}
+    <View className="mb-6">
+      {(label || action) && (
+        <View className="flex-row items-center justify-between mb-4">
+          {label && (
+            <Text className="font-sans-bold text-xl text-charcoal tracking-tight">{label}</Text>
+          )}
+          {action && (
+            <Pressable onPress={onAction}>
+              <Text className="font-sans-bold text-sm text-charcoal">{action}</Text>
+            </Pressable>
+          )}
         </View>
-      ) : null}
+      )}
       {children}
     </View>
   );

@@ -18,7 +18,7 @@ interface SelectFieldProps {
 export function SelectField({ label, options, value, onValueChange, error }: SelectFieldProps) {
   return (
     <View className="mb-md">
-      <Text className="text-xs font-sans-medium text-text-secondary mb-xs">{label}</Text>
+      <Text className="text-xs font-sans-medium text-sand mb-xs">{label}</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-sm">
         {options.map((opt) => (
           <TouchableOpacity
@@ -26,13 +26,13 @@ export function SelectField({ label, options, value, onValueChange, error }: Sel
             onPress={() => onValueChange(opt.value)}
             className={`px-md py-sm rounded-full border ${
               value === opt.value
-                ? 'bg-hero border-hero'
-                : 'bg-surface border-border'
+                ? 'bg-charcoal border-charcoal'
+                : 'bg-surface border-outline'
             }`}
           >
             <Text
               className={`text-sm font-sans-medium ${
-                value === opt.value ? 'text-hero-text' : 'text-text-secondary'
+                value === opt.value ? 'text-white' : 'text-sand'
               }`}
             >
               {opt.label}

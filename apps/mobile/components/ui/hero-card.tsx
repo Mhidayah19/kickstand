@@ -1,4 +1,3 @@
-import React from 'react';
 import { View } from 'react-native';
 
 interface HeroCardProps {
@@ -9,8 +8,14 @@ interface HeroCardProps {
 export function HeroCard({ children, className = '' }: HeroCardProps) {
   return (
     <View
-      className={`bg-hero rounded-2xl p-xl mb-lg ${className}`}
-      style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 8 }}
+      className={`bg-charcoal rounded-3xl p-8 mb-6 overflow-hidden ${className}`}
+      style={{
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 25 },
+        shadowOpacity: 0.3,
+        shadowRadius: 50,
+        elevation: 12,
+      }}
     >
       {children}
     </View>

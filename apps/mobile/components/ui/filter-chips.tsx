@@ -1,39 +1,45 @@
-import React from 'react';
-import { ScrollView, TouchableOpacity } from 'react-native';
-import { Text } from 'react-native';
+import { ScrollView, View, Pressable, Text } from 'react-native';
 
 interface FilterChipsProps {
   options: string[];
   selected: string;
   onSelect: (value: string) => void;
+  wrap?: boolean;
 }
 
-export function FilterChips({ options, selected, onSelect }: FilterChipsProps) {
+export function FilterChips({ options, selected, onSelect, wrap = false }: FilterChipsProps) {
+  const chips = options.map((option) => {
+    const isSelected = option === selected;
+    return (
+      <Pressable
+        key={option}
+        onPress={() => onSelect(option)}
+        className={`px-6 py-2.5 rounded-full ${
+          isSelected ? 'bg-charcoal' : 'bg-surface-low'
+        }`}
+      >
+        <Text
+          className={`font-sans-bold text-sm ${
+            isSelected ? 'text-white' : 'text-sand'
+          }`}
+        >
+          {option}
+        </Text>
+      </Pressable>
+    );
+  });
+
+  if (wrap) {
+    return <View className="flex-row flex-wrap gap-3">{chips}</View>;
+  }
+
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerClassName="gap-sm px-xs py-xs"
+      contentContainerStyle={{ gap: 12, paddingHorizontal: 4, paddingVertical: 4 }}
     >
-      {options.map((option) => (
-        <TouchableOpacity
-          key={option}
-          onPress={() => onSelect(option)}
-          className={`px-md py-sm rounded-full border ${
-            selected === option
-              ? 'bg-hero border-hero'
-              : 'bg-surface border-border'
-          }`}
-        >
-          <Text
-            className={`text-sm font-sans-medium ${
-              selected === option ? 'text-hero-text' : 'text-text-secondary'
-            }`}
-          >
-            {option}
-          </Text>
-        </TouchableOpacity>
-      ))}
+      {chips}
     </ScrollView>
   );
 }

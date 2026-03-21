@@ -1,27 +1,51 @@
-import React from 'react';
-import { View } from 'react-native';
-import { Text } from 'react-native';
+import { View, Text } from 'react-native';
+
+type ProgressColor = 'yellow' | 'sand' | 'danger' | 'charcoal';
 
 interface ProgressBarProps {
-  progress: number; // 0-1
+  value: number;
+  color?: ProgressColor;
   label?: string;
-  showPercent?: boolean;
+  statusText?: string;
+  size?: 'sm' | 'md';
 }
 
-export function ProgressBar({ progress, label, showPercent = false }: ProgressBarProps) {
-  const clampedProgress = Math.max(0, Math.min(1, progress));
+const colorMap: Record<ProgressColor, string> = {
+  yellow: 'bg-yellow',
+  sand: 'bg-sand',
+  danger: 'bg-danger',
+  charcoal: 'bg-charcoal',
+};
+
+export function ProgressBar({
+  value,
+  color = 'yellow',
+  label,
+  statusText,
+  size = 'sm',
+}: ProgressBarProps) {
+  const height = size === 'md' ? 'h-3' : 'h-2';
+
   return (
     <View>
-      {(label || showPercent) ? (
-        <View className="flex-row justify-between mb-xs">
-          {label ? <Text className="text-xs text-text-muted font-sans">{label}</Text> : null}
-          {showPercent ? <Text className="text-xs text-text-muted font-sans">{Math.round(clampedProgress * 100)}%</Text> : null}
+      {(label || statusText) && (
+        <View className="flex-row justify-between items-end mb-2">
+          {label && (
+            <Text className="font-sans-bold text-sm text-charcoal uppercase tracking-wide-1">
+              {label}
+            </Text>
+          )}
+          {statusText && (
+            <Text className={`font-sans-bold text-xs ${color === 'danger' ? 'text-danger' : color === 'sand' ? 'text-sand' : 'text-yellow'}`}>
+              {statusText}
+            </Text>
+          )}
         </View>
-      ) : null}
-      <View className="h-1 bg-surface-muted rounded-sm overflow-hidden">
+      )}
+      <View className={`${height} w-full bg-surface-low rounded-full overflow-hidden`}>
         <View
-          className="h-full bg-hero rounded-sm"
-          style={{ width: `${clampedProgress * 100}%` }}
+          className={`h-full ${colorMap[color]} rounded-full`}
+          style={{ width: `${Math.min(100, Math.max(0, value))}%` }}
         />
       </View>
     </View>

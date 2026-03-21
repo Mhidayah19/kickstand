@@ -19,7 +19,7 @@ interface ToastProps {
 const variantStyles: Record<ToastVariant, string> = {
   success: 'bg-success',
   error: 'bg-danger',
-  info: 'bg-hero',
+  info: 'bg-charcoal',
 };
 
 export function Toast({ message, variant, onDismiss }: ToastProps) {

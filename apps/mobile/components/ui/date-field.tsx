@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar } from 'lucide-react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Platform, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -38,15 +38,15 @@ export function DateField({ label, value, onChange, error }: DateFieldProps) {
 
   return (
     <View className="mb-md">
-      <Text className="text-xs font-sans-medium text-text-secondary mb-xs">{label}</Text>
+      <Text className="text-xs font-sans-medium text-sand mb-xs">{label}</Text>
       <TouchableOpacity
-        className={`flex-row items-center bg-surface border rounded-lg px-md h-12 ${error ? 'border-danger' : 'border-border'}`}
+        className={`flex-row items-center bg-surface border rounded-lg px-md h-12 ${error ? 'border-danger' : 'border-outline'}`}
         onPress={() => setShow(true)}
       >
-        <Text className={`flex-1 text-sm font-sans ${value ? 'text-text-primary' : 'text-text-muted'}`}>
+        <Text className={`flex-1 text-sm font-sans ${value ? 'text-charcoal' : 'text-sand'}`}>
           {formatDisplay(value)}
         </Text>
-        <Calendar size={16} color="#a8a29e" accessibilityLabel="Open date picker" />
+        <MaterialCommunityIcons name="calendar" size={16} color="#D0C5BA" accessibilityLabel="Open date picker" />
       </TouchableOpacity>
       {show && (
         <DateTimePicker

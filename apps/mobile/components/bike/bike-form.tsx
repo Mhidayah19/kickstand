@@ -1,13 +1,12 @@
-import React from 'react';
-import { TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native';
-import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Section } from '../ui/section';
-import { TextField } from '../ui/text-field';
-import { SelectField } from '../ui/select-field';
+import React from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { Text, TouchableOpacity, View } from 'react-native';
 import { DateField } from '../ui/date-field';
-import { bikeSchema, BikeFormValues } from '../../lib/validation/bike-schema';
+import { Section } from '../ui/section';
+import { SelectField } from '../ui/select-field';
+import { TextField } from '../ui/text-field';
+import { type BikeFormValues, bikeSchema } from '../../lib/validation/bike-schema';
 
 const CLASS_OPTIONS = [
   { label: '2B', value: '2B' },
@@ -17,27 +16,30 @@ const CLASS_OPTIONS = [
 
 interface BikeFormProps {
   defaultValues?: Partial<BikeFormValues>;
-  onSubmit: (values: BikeFormValues) => void;
+  onSubmit: (values: BikeFormValues) => Promise<void> | void;
   submitLabel?: string;
-  isSubmitting?: boolean;
 }
 
-export function BikeForm({ defaultValues, onSubmit, submitLabel = 'Save', isSubmitting = false }: BikeFormProps) {
-  const { control, handleSubmit, formState: { errors } } = useForm<BikeFormValues>({
+export function BikeForm({ defaultValues, onSubmit, submitLabel = 'Save' }: BikeFormProps) {
+  const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm<BikeFormValues>({
     resolver: zodResolver(bikeSchema),
     defaultValues: {
       model: '',
       year: new Date().getFullYear(),
       plateNumber: '',
-      class: '2B',
+      class: '2A',
       currentMileage: 0,
+      coeExpiry: '',
+      roadTaxExpiry: '',
+      insuranceExpiry: '',
+      inspectionDue: '',
       ...defaultValues,
     },
   });
 
   return (
     <View>
-      <Section label="Bike">
+      <Section label="Bike Info">
         <Controller
           control={control}
           name="model"
@@ -58,11 +60,12 @@ export function BikeForm({ defaultValues, onSubmit, submitLabel = 'Save', isSubm
           render={({ field: { onChange, onBlur, value } }) => (
             <TextField
               label="Year"
-              keyboardType="number-pad"
-              onChangeText={(v) => onChange(parseInt(v, 10) || 0)}
-              onBlur={onBlur}
+              placeholder="2022"
               value={value ? String(value) : ''}
+              onChangeText={(text) => onChange(text ? parseInt(text, 10) : 0)}
+              onBlur={onBlur}
               error={errors.year?.message}
+              keyboardType="number-pad"
             />
           )}
         />
@@ -72,12 +75,12 @@ export function BikeForm({ defaultValues, onSubmit, submitLabel = 'Save', isSubm
           render={({ field: { onChange, onBlur, value } }) => (
             <TextField
               label="Plate Number"
-              placeholder="FBX1234A"
-              autoCapitalize="characters"
-              onChangeText={onChange}
-              onBlur={onBlur}
+              placeholder="FBR1234A"
               value={value}
+              onChangeText={(text) => onChange(text.toUpperCase())}
+              onBlur={onBlur}
               error={errors.plateNumber?.message}
+              autoCapitalize="characters"
             />
           )}
         />
@@ -86,7 +89,7 @@ export function BikeForm({ defaultValues, onSubmit, submitLabel = 'Save', isSubm
           name="class"
           render={({ field: { onChange, value } }) => (
             <SelectField
-              label="License Class"
+              label="Class"
               options={CLASS_OPTIONS}
               value={value}
               onValueChange={onChange}
@@ -100,11 +103,12 @@ export function BikeForm({ defaultValues, onSubmit, submitLabel = 'Save', isSubm
           render={({ field: { onChange, onBlur, value } }) => (
             <TextField
               label="Current Mileage (km)"
-              keyboardType="number-pad"
-              onChangeText={(v) => onChange(parseInt(v, 10) || 0)}
+              placeholder="15000"
+              value={value ? String(value) : ''}
+              onChangeText={(text) => onChange(text ? parseInt(text, 10) : 0)}
               onBlur={onBlur}
-              value={value ? String(value) : '0'}
               error={errors.currentMileage?.message}
+              keyboardType="number-pad"
             />
           )}
         />
@@ -162,12 +166,12 @@ export function BikeForm({ defaultValues, onSubmit, submitLabel = 'Save', isSubm
       </Section>
 
       <TouchableOpacity
-        className="bg-hero rounded-full py-md items-center mb-2xl"
         onPress={handleSubmit(onSubmit)}
         disabled={isSubmitting}
-        activeOpacity={0.8}
+        className="bg-charcoal rounded-full py-md items-center mt-sm mb-xl"
+        activeOpacity={0.85}
       >
-        <Text className="text-hero-text font-sans-semibold text-sm">
+        <Text className="text-base font-sans-bold text-white">
           {isSubmitting ? 'Saving...' : submitLabel}
         </Text>
       </TouchableOpacity>

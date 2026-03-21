@@ -30,20 +30,20 @@ export function ConfirmationDialog({
         onPress={onCancel}
       >
         <TouchableOpacity activeOpacity={1} className="w-full bg-surface rounded-2xl p-xl">
-          <Text className="text-lg font-sans-bold text-text-primary mb-sm">{title}</Text>
-          <Text className="text-sm font-sans text-text-muted mb-xl">{body}</Text>
+          <Text className="text-lg font-sans-bold text-charcoal mb-sm">{title}</Text>
+          <Text className="text-sm font-sans text-sand mb-xl">{body}</Text>
           <View className="flex-row gap-sm">
             <TouchableOpacity
               onPress={onCancel}
-              className="flex-1 py-md rounded-full bg-surface-muted items-center"
+              className="flex-1 py-md rounded-full bg-surface-low items-center"
               activeOpacity={0.7}
             >
-              <Text className="text-sm font-sans-semibold text-text-secondary">Cancel</Text>
+              <Text className="text-sm font-sans-semibold text-sand">Cancel</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={onConfirm}
               className={`flex-1 py-md rounded-full items-center ${
-                confirmVariant === 'danger' ? 'bg-danger' : 'bg-accent'
+                confirmVariant === 'danger' ? 'bg-danger' : 'bg-yellow'
               }`}
               activeOpacity={0.8}
             >

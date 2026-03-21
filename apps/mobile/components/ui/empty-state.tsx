@@ -1,28 +1,31 @@
-import React from 'react';
-import { TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 interface EmptyStateProps {
   title: string;
-  description: string;
+  description?: string;
   actionLabel?: string;
   onAction?: () => void;
 }
 
 export function EmptyState({ title, description, actionLabel, onAction }: EmptyStateProps) {
   return (
-    <View className="flex-1 items-center justify-center py-3xl px-lg">
-      <Text className="text-base font-sans-bold text-text-primary text-center mb-sm">{title}</Text>
-      <Text className="text-sm font-sans text-text-muted text-center mb-xl">{description}</Text>
-      {actionLabel && onAction ? (
-        <TouchableOpacity
-          className="bg-hero px-xl py-md rounded-full"
-          onPress={onAction}
-          activeOpacity={0.8}
-        >
-          <Text className="text-hero-text font-sans-semibold text-sm">{actionLabel}</Text>
-        </TouchableOpacity>
-      ) : null}
-    </View>
+    <Pressable
+      onPress={onAction}
+      disabled={!onAction}
+      className="h-40 border-2 border-dashed border-sand/40 rounded-3xl items-center justify-center gap-2 active:border-yellow"
+    >
+      <View className="w-12 h-12 rounded-full bg-sand/10 items-center justify-center">
+        <MaterialCommunityIcons name="plus" size={24} color="#C7B299" />
+      </View>
+      <Text className="font-sans-bold text-sm text-sand tracking-wide-1">
+        {actionLabel || title}
+      </Text>
+      {description && (
+        <Text className="font-sans-medium text-xs text-sand/70 text-center px-6">
+          {description}
+        </Text>
+      )}
+    </Pressable>
   );
 }
