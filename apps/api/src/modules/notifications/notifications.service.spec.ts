@@ -180,7 +180,10 @@ describe('NotificationsService', () => {
       await service.sendPush('not-a-valid-expo-token', 'Title', 'Body');
 
       expect(mockExpoPushNotificationsAsync).not.toHaveBeenCalled();
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid Expo push token'));
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.objectContaining({ expoToken: 'not-a-valid-expo-token' }),
+        'Invalid Expo push token',
+      );
       warnSpy.mockRestore();
     });
 
