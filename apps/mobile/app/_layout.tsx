@@ -9,6 +9,8 @@ import '../global.css';
 
 SplashScreen.preventAutoHideAsync();
 
+export const justRegisteredRef = { current: false };
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -39,6 +41,8 @@ export default function RootLayout() {
           activeBikeId: null,
           expoToken: null,
         });
+      } else {
+        router.replace('/(onboarding)' as any);
       }
     });
 
@@ -52,10 +56,14 @@ export default function RootLayout() {
           activeBikeId: null,
           expoToken: null,
         });
+        if (justRegisteredRef.current) {
+          justRegisteredRef.current = false;
+          return;
+        }
         router.replace('/(tabs)' as any);
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
-        router.replace('/(auth)/login' as any);
+        router.replace('/(onboarding)' as any);
       }
     });
 
@@ -69,6 +77,7 @@ export default function RootLayout() {
   return (
     <QueryClientProvider client={queryClient}>
       <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="(onboarding)" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="+not-found" />
