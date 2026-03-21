@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["violations", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "violations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["path", "line", "principle", "issue", "suggestion"],
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "File path relative to repo root (e.g. apps/api/src/bikes/bikes.service.ts)"
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "End line number in the current file. Must be a line within the PR diff."
+          },
+          "start_line": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Start line for multi-line violations. Omit for single-line violations."
+          },
+          "principle": {
+            "type": "string",
+            "enum": ["SRP", "OCP", "LSP", "ISP", "DIP", "DRY", "KISS", "SoC", "Law of Demeter", "CQS", "Codebase Pattern"]
+          },
+          "issue": {
+            "type": "string",
+            "description": "Description of the violation"
+          },
+          "suggestion": {
+            "type": "string",
+            "description": "Exact replacement code for the flagged line(s)"
+          }
+        }
+      }
+    },
+    "summary": {
+      "type": "string",
+      "description": "Human-readable summary of all findings"
+    }
+  }
+}

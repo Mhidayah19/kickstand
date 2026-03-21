@@ -31,21 +31,118 @@ jobs:
         with:
           openai-api-key: ${{ secrets.OPENAI_API_KEY }}
           prompt-file: .github/prompts/design-principles-review.md
+          output-schema-file: .github/schemas/design-review-output.json
+          output-file: /tmp/codex-review-output.json
           model: gpt-5.4-mini
           safety-strategy: drop-sudo
           sandbox: read-only
 
-      - name: Post review feedback
-        if: steps.codex.outputs.final-message != ''
+      - name: Post inline review
+        if: always()
         uses: actions/github-script@v7
         with:
           github-token: ${{ github.token }}
           script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body: process.env.CODEX_FINAL_MESSAGE,
+            const fs = require('fs');
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const pull_number = context.payload.pull_request.number;
+            const commit_id = context.payload.pull_request.head.sha;
+
+            // Guard: Codex step may have failed without writing an output file — skip silently
+            if (!fs.existsSync('/tmp/codex-review-output.json')) {
+              console.warn('No Codex output file found — Codex step may have failed. Skipping review post.');
+              return;
+            }
+
+            // Read and parse Codex output
+            let parsed;
+            try {
+              const raw = fs.readFileSync('/tmp/codex-review-output.json', 'utf8');
+              try {
+                parsed = JSON.parse(raw);
+              } catch {
+                // Try extracting JSON from markdown fences
+                const match = raw.match(/```(?:json)?\n([\s\S]*?)\n```/i);
+                if (match) {
+                  parsed = JSON.parse(match[1]);
+                } else {
+                  throw new Error('Could not parse Codex output as JSON');
+                }
+              }
+            } catch (err) {
+              console.error('Parse error:', err.message);
+              await github.rest.pulls.createReview({
+                owner, repo, pull_number, commit_id,
+                event: 'COMMENT',
+                body: '⚠️ Design review could not parse results. Check workflow logs.',
+              });
+              return;
+            }
+
+            const { violations, summary } = parsed;
+
+            // Dismiss previous CHANGES_REQUESTED bot reviews to avoid stale feedback.
+            // We filter to CHANGES_REQUESTED only — GitHub's dismissReview API rejects COMMENT-state
+            // reviews with a 422, so narrowing here avoids spurious errors.
+            // Use paginate to handle PRs with many review cycles (>30 reviews).
+            const existingReviews = await github.paginate(github.rest.pulls.listReviews, { owner, repo, pull_number });
+            for (const review of existingReviews) {
+              if (review.user.login === 'github-actions[bot]' && review.state === 'CHANGES_REQUESTED') {
+                try {
+                  await github.rest.pulls.dismissReview({
+                    owner, repo, pull_number,
+                    review_id: review.id,
+                    message: 'Superseded by new review',
+                  });
+                } catch (dismissErr) {
+                  console.warn(`Could not dismiss review ${review.id}:`, dismissErr.message);
+                }
+              }
+            }
+
+            // No violations — post clean review and exit
+            if (!violations || violations.length === 0) {
+              await github.rest.pulls.createReview({
+                owner, repo, pull_number, commit_id,
+                event: 'COMMENT',
+                body: '✅ No design principle violations found in this PR.',
+              });
+              return;
+            }
+
+            // Build inline comments
+            const comments = violations.map(v => {
+              const comment = {
+                path: v.path,
+                line: v.line,
+                side: 'RIGHT',
+                body: `**${v.principle}**: ${v.issue}\n\n\`\`\`suggestion\n${v.suggestion}\n\`\`\``,
+              };
+              if (v.start_line) {
+                comment.start_line = v.start_line;
+                comment.start_side = 'RIGHT';
+              }
+              return comment;
             });
-        env:
-          CODEX_FINAL_MESSAGE: ${{ steps.codex.outputs.final-message }}
+
+            // Attempt to post as a single formal review with inline comments.
+            // On failure (e.g. lines outside the diff), fall back to plain-text summary.
+            try {
+              await github.rest.pulls.createReview({
+                owner, repo, pull_number, commit_id,
+                event: 'REQUEST_CHANGES',
+                body: summary,
+                comments,
+              });
+            } catch (err) {
+              console.warn('Inline review failed, falling back to plain-text summary:', err.message);
+              const fallback = violations.map(v =>
+                `- **${v.principle}** \`${v.path}:${v.line}\`: ${v.issue}`
+              ).join('\n');
+              await github.rest.pulls.createReview({
+                owner, repo, pull_number, commit_id,
+                event: 'REQUEST_CHANGES',
+                body: `${summary}\n\n**Could not post as inline comments (lines may be outside the diff):**\n\n${fallback}`,
+              });
+            }
