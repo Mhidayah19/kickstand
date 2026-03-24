@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { colors } from '../../lib/colors';
 import { SafeScreen } from '../../components/ui/safe-screen';
 import { ProfileHero } from '../../components/ui/profile-hero';
 import { ListCard } from '../../components/ui/list-card';
@@ -50,7 +51,7 @@ export default function SettingsScreen() {
           {/* Dark Mode Row */}
           <View className="flex-row items-center justify-between mb-6">
             <View className="flex-row items-center gap-3">
-              <MaterialCommunityIcons name="moon-waning-crescent" size={20} color="#1E1E1E" />
+              <MaterialCommunityIcons name="moon-waning-crescent" size={20} color={colors.charcoal} />
               <Text className="font-sans-bold text-sm text-charcoal">Dark Mode</Text>
             </View>
             {/* Toggle (OFF position, non-interactive) */}
@@ -62,14 +63,14 @@ export default function SettingsScreen() {
           {/* Accent Color Row */}
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center gap-3">
-              <MaterialCommunityIcons name="palette" size={20} color="#1E1E1E" />
+              <MaterialCommunityIcons name="palette" size={20} color={colors.charcoal} />
               <Text className="font-sans-bold text-sm text-charcoal">Accent Color</Text>
             </View>
             <View className="flex-row items-center gap-3">
               {/* Yellow — selected */}
               <View
                 className="w-8 h-8 rounded-full bg-yellow"
-                style={{ borderWidth: 2, borderColor: '#F2D06B', margin: 2 }}
+                style={{ borderWidth: 2, borderColor: colors.yellow, margin: 2 }}
               />
               {/* Sand */}
               <View className="w-8 h-8 rounded-full bg-sand" />

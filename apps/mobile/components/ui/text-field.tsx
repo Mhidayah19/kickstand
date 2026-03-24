@@ -1,4 +1,5 @@
 import { View, Text, TextInput, TextInputProps } from 'react-native';
+import { colors } from '../../lib/colors';
 
 interface TextFieldProps extends TextInputProps {
   label: string;
@@ -18,11 +19,11 @@ export function TextField({ label, error, prefix, ...props }: TextFieldProps) {
         )}
         <TextInput
           className="flex-1 text-2xl font-sans-bold text-charcoal p-0"
-          placeholderTextColor="#D0C5BA"
+          placeholderTextColor={colors.outline}
           {...props}
         />
       </View>
-      {error && <Text className="text-xs text-danger font-sans mt-2">{error}</Text>}
+      {error && <Text className="text-xs text-danger font-sans-medium mt-2">{error}</Text>}
     </View>
   );
 }

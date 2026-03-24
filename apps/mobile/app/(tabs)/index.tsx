@@ -14,6 +14,7 @@ import { Skeleton } from '../../components/ui/skeleton';
 import { StatusCard } from '../../components/ui/status-card';
 import { useBikes } from '../../lib/api/use-bikes';
 import { useBikeStore } from '../../lib/store/bike-store';
+import { colors } from '../../lib/colors';
 import { daysUntil, getComplianceVariant } from '../../lib/theme';
 
 export default function HomeScreen() {
@@ -122,7 +123,7 @@ export default function HomeScreen() {
       <View className="flex-row gap-4 mb-6">
         <StatusCard
           icon="tire"
-          iconColor="#F2D06B"
+          iconColor={colors.yellow}
           title={'Tire\nPressure'}
           status={tireStatus.status}
           statusVariant={tireStatus.variant}
@@ -130,7 +131,7 @@ export default function HomeScreen() {
         />
         <StatusCard
           icon="oil"
-          iconColor="#DC2626"
+          iconColor={colors.danger}
           title={'Oil\nLife'}
           status={oilStatus.status}
           statusVariant={oilStatus.variant}
@@ -144,21 +145,21 @@ export default function HomeScreen() {
           <ListCard
             icon="wrench"
             iconBg="bg-sand/20"
-            iconColor="#C7B299"
+            iconColor={colors.sand}
             title="Oil Change"
             subtitle="12 Mar 2026"
           />
           <ListCard
             icon="tire"
             iconBg="bg-yellow/20"
-            iconColor="#F2D06B"
+            iconColor={colors.yellow}
             title="Tire Rotation"
             subtitle="28 Feb 2026"
           />
           <ListCard
             icon="engine"
             iconBg="bg-surface-low"
-            iconColor="#1E1E1E"
+            iconColor={colors.charcoal}
             title="Chain Adjustment"
             subtitle="15 Feb 2026"
           />

@@ -1,5 +1,6 @@
 import { View, Text, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { colors } from '../../lib/colors';
 
 type TimelineColor = 'yellow' | 'charcoal' | 'danger';
 
@@ -15,9 +16,9 @@ interface TimelineEntryProps {
 }
 
 const nodeColors: Record<TimelineColor, string> = {
-  yellow: '#F2D06B',
-  charcoal: '#1E1E1E',
-  danger: '#DC2626',
+  yellow: colors.yellow,
+  charcoal: colors.charcoal,
+  danger: colors.danger,
 };
 
 export function TimelineEntry({
@@ -37,11 +38,11 @@ export function TimelineEntry({
         className="absolute left-0 top-1 w-8 h-8 rounded-full items-center justify-center z-10"
         style={{ backgroundColor: nodeColors[color] }}
       >
-        <MaterialCommunityIcons name={icon as any} size={14} color="#FFFFFF" />
+        <MaterialCommunityIcons name={icon as any} size={14} color={colors.white} />
       </View>
 
       {/* Card */}
-      <View className="bg-surface-card p-6 rounded-2xl border border-outline/10">
+      <View className="bg-surface-card p-6 rounded-2xl">
         <View className="flex-row justify-between items-start mb-4">
           <View className="flex-1 mr-4">
             <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-widest mb-1">

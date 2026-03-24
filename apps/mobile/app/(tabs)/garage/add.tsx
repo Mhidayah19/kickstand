@@ -10,7 +10,9 @@ import { useCreateBike } from '../../../lib/api/use-bikes';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import type { BikeClass } from '../../../lib/types/bike';
 
-const PLACEHOLDER_COLOR = '#D0C5BA'; // matches TextField component
+import { colors } from '../../../lib/colors';
+
+const PLACEHOLDER_COLOR = colors.outline;
 
 // ── Constants ───────────────────────────────────────────────────
 const BRANDS = ['Ducati', 'Triumph', 'BMW', 'Honda', 'Kawasaki', 'Yamaha', 'Suzuki', 'KTM'];
@@ -41,7 +43,7 @@ function StepHeader({ step, onBack }: { step: number; onBack: () => void }) {
         accessibilityLabel="Go back"
         accessibilityRole="button"
       >
-        <MaterialCommunityIcons name="chevron-left" size={28} color="#1E1E1E" />
+        <MaterialCommunityIcons name="chevron-left" size={28} color={colors.charcoal} />
       </TouchableOpacity>
       <View className="flex-1 ml-sm">
         <Text className="text-xs font-sans-bold text-yellow tracking-widest uppercase">{stepLabels[step]}</Text>
@@ -59,7 +61,7 @@ function StepBrand({ selected, onSelect }: { selected: string; onSelect: (b: str
   return (
     <View>
       <TextInput
-        className="bg-surface-low rounded-xl px-md py-sm font-sans text-charcoal mb-md"
+        className="bg-surface-low rounded-xl px-md py-sm font-sans-medium text-charcoal mb-md"
         placeholder="Search brands (e.g. Ducati, Triumph)"
         placeholderTextColor={PLACEHOLDER_COLOR}
         value={search}
@@ -102,7 +104,7 @@ function StepModel({
         </View>
       ) : null}
       <TextInput
-        className="bg-surface-low rounded-xl px-md py-sm font-sans text-charcoal"
+        className="bg-surface-low rounded-xl px-md py-sm font-sans-medium text-charcoal"
         placeholder="Enter model (e.g. Scrambler, Street Triple)"
         placeholderTextColor={PLACEHOLDER_COLOR}
         value={value}
@@ -128,7 +130,7 @@ function StepDetails({
       <View>
         <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-xs">Year</Text>
         <TextInput
-          className="bg-surface-low rounded-xl px-md py-sm font-sans text-charcoal"
+          className="bg-surface-low rounded-xl px-md py-sm font-sans-medium text-charcoal"
           placeholder="e.g. 2022"
           placeholderTextColor={PLACEHOLDER_COLOR}
           keyboardType="number-pad"
@@ -159,7 +161,7 @@ function StepDetails({
       <View>
         <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-xs">Plate Number</Text>
         <TextInput
-          className="bg-surface-low rounded-xl px-md py-sm font-sans text-charcoal"
+          className="bg-surface-low rounded-xl px-md py-sm font-sans-medium text-charcoal"
           placeholder="e.g. SBA1234A"
           placeholderTextColor={PLACEHOLDER_COLOR}
           autoCapitalize="characters"
@@ -170,7 +172,7 @@ function StepDetails({
       <View>
         <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-xs">Current Mileage (km)</Text>
         <TextInput
-          className="bg-surface-low rounded-xl px-md py-sm font-sans text-charcoal"
+          className="bg-surface-low rounded-xl px-md py-sm font-sans-medium text-charcoal"
           placeholder="e.g. 12000"
           placeholderTextColor={PLACEHOLDER_COLOR}
           keyboardType="number-pad"
@@ -212,7 +214,7 @@ function StepVin({ value, onChange }: { value: string; onChange: (v: string) => 
         onPress={() => { /* camera scan — out of scope */ }}
         accessibilityLabel="Scan VIN from registration card"
       >
-        <MaterialCommunityIcons name="camera-outline" size={16} color="#1E1E1E" />
+        <MaterialCommunityIcons name="camera-outline" size={16} color={colors.charcoal} />
         <Text className="font-sans-semibold text-charcoal text-sm">Scan VIN from Registration</Text>
       </TouchableOpacity>
     </View>

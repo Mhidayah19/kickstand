@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { colors } from '../../lib/colors';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const motorcycleImage = require('../../assets/images/motorcycle.png');
@@ -106,8 +107,8 @@ function SlideMaintenance({
       title: 'Oil & Filter Change',
       subtitle: 'Motul 7100 10W40 Full Synth',
       iconName: 'oil',
-      iconBg: '#F2D06B',
-      iconColor: '#1E1E1E',
+      iconBg: colors.yellow,
+      iconColor: colors.charcoal,
     },
     {
       label: 'UPCOMING',
@@ -115,15 +116,15 @@ function SlideMaintenance({
       subtitle: 'Scheduled for 12,000mi Service',
       iconName: 'cog',
       iconBg: '#E8E0D5',
-      iconColor: '#1E1E1E',
+      iconColor: colors.charcoal,
     },
     {
       label: 'RECORDED TODAY',
       title: 'Valve Clearance Check',
       subtitle: 'Precision alignment verified',
       iconName: 'wrench',
-      iconBg: '#1E1E1E',
-      iconColor: '#F2D06B',
+      iconBg: colors.charcoal,
+      iconColor: colors.yellow,
     },
   ];
 
@@ -244,7 +245,7 @@ function SlideFleet({
           <View>
             <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest">Location</Text>
             <View className="flex-row items-center gap-1 mt-1">
-              <MaterialCommunityIcons name="map-marker-outline" size={11} color="#C7B299" />
+              <MaterialCommunityIcons name="map-marker-outline" size={11} color={colors.sand} />
               <Text className="font-sans-medium text-sand text-xs">Warehouse Dist.</Text>
             </View>
           </View>

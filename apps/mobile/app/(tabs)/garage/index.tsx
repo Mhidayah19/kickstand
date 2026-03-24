@@ -103,9 +103,7 @@ export default function GarageScreen() {
       {/* Fleet Integrity Summary */}
       {bikes && bikes.length > 0 && (
         <Section label="Fleet Integrity">
-          <View className="flex-row items-center mb-4 gap-3">
-            <View className="h-px bg-sand/20 flex-1" />
-          </View>
+          <View className="mb-4" />
           <View className="flex-row gap-4">
             <View className="flex-1 bg-surface-card rounded-2xl p-5 items-center">
               <Text className="font-sans-xbold text-2xl text-charcoal">{fleetStats.active}</Text>

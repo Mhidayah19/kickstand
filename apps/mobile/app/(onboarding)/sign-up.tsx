@@ -9,6 +9,7 @@ import { registerSchema, RegisterFormValues } from '../../lib/validation/auth-sc
 import { useRegister } from '../../lib/api/use-auth';
 import { justRegisteredRef } from '../../lib/auth-state';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { colors } from '../../lib/colors';
 
 export default function SignUpScreen() {
   const [error, setError] = useState<string | null>(null);
@@ -42,7 +43,7 @@ export default function SignUpScreen() {
             accessibilityLabel="Go back"
             accessibilityRole="button"
           >
-            <MaterialCommunityIcons name="chevron-left" size={28} color="#1E1E1E" />
+            <MaterialCommunityIcons name="chevron-left" size={28} color={colors.charcoal} />
           </TouchableOpacity>
 
           {/* Logo */}

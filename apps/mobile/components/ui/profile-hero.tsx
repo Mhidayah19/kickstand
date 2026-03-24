@@ -1,4 +1,5 @@
 import { View, Text, Image } from 'react-native';
+import { colors } from '../../lib/colors';
 
 interface ProfileHeroProps {
   name: string;
@@ -21,7 +22,7 @@ export function ProfileHero({ name, role, avatarUri }: ProfileHeroProps) {
 
       {/* Content */}
       <View className="z-10 items-center">
-        <View className="w-24 h-24 rounded-full overflow-hidden mb-4" style={{ borderWidth: 4, borderColor: '#FFFFFF' }}>
+        <View className="w-24 h-24 rounded-full overflow-hidden mb-4" style={{ borderWidth: 4, borderColor: colors.surfaceCard }}>
           {avatarUri ? (
             <Image source={{ uri: avatarUri }} className="w-full h-full" />
           ) : (

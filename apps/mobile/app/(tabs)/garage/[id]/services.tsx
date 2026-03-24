@@ -1,5 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { colors } from '../../../../lib/colors';
 import React, { useState } from 'react';
 import { Text, TextInput, View } from 'react-native';
 import { FilterChips } from '../../../../components/ui/filter-chips';
@@ -100,11 +101,11 @@ export default function ServiceLogScreen() {
           value={notes}
           onChangeText={setNotes}
           placeholder="Add any notes about this service..."
-          placeholderTextColor="#D0C5BA"
+          placeholderTextColor={colors.outline}
           multiline
           numberOfLines={4}
           textAlignVertical="top"
-          className="bg-surface-low rounded-xl p-5 text-base font-sans text-charcoal"
+          className="bg-surface-low rounded-xl p-5 text-base font-sans-medium text-charcoal"
           style={{ minHeight: 120 }}
         />
       </View>
@@ -117,7 +118,7 @@ export default function ServiceLogScreen() {
         <View
           className="border-2 border-dashed border-outline rounded-xl py-8 items-center justify-center"
         >
-          <MaterialCommunityIcons name="camera-outline" size={28} color="#D0C5BA" />
+          <MaterialCommunityIcons name="camera-outline" size={28} color={colors.outline} />
           <Text className="font-sans-bold text-sm text-outline mt-2">
             Upload Evidence
           </Text>
