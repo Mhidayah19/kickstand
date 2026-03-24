@@ -3,6 +3,7 @@ import { NotificationsController } from './notifications.controller';
 import { NotificationsService } from './notifications.service';
 import { NotificationsScanService } from './notifications-scan.service';
 import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
+import { DRIZZLE } from '../../database/database.module';
 import { ApiKeyGuard } from './guards/api-key.guard';
 
 describe('NotificationsController', () => {
@@ -22,6 +23,7 @@ describe('NotificationsController', () => {
       providers: [
         { provide: NotificationsService, useValue: mockService },
         { provide: NotificationsScanService, useValue: mockScanService },
+        { provide: DRIZZLE, useValue: {} },
       ],
     })
       .overrideGuard(SupabaseAuthGuard)
