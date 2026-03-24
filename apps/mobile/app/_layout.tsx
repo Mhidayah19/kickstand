@@ -41,6 +41,7 @@ export default function RootLayout() {
           activeBikeId: null,
           expoToken: null,
         });
+        router.replace('/(tabs)' as any);
       } else if (__DEV__ && process.env.EXPO_PUBLIC_DEV_EMAIL && process.env.EXPO_PUBLIC_DEV_PASSWORD) {
         await supabase.auth.signInWithPassword({
           email: process.env.EXPO_PUBLIC_DEV_EMAIL,
