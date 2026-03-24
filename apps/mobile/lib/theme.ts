@@ -17,6 +17,13 @@ export function getComplianceVariant(daysLeft: number | null): 'expired' | 'dang
   return 'expired';
 }
 
+export function getComplianceStatus(dateStr: string | null): { status: string; variant: 'danger' | 'surface' } {
+  const days = daysUntil(dateStr);
+  const variant = getComplianceVariant(days);
+  if (variant === 'expired' || variant === 'danger') return { status: 'Warning', variant: 'danger' };
+  return { status: 'Good', variant: 'surface' };
+}
+
 export function daysUntil(dateStr: string | null): number | null {
   if (!dateStr) return null;
   const target = new Date(dateStr);

@@ -9,7 +9,7 @@ import { colors } from '../../lib/colors';
 const TAB_ICONS: Record<string, string> = {
   index: 'wrench',
   'garage/index': 'motorbike',
-  agent: 'microphone',
+  agent: 'waveform',
   log: 'chart-bar',
   settings: 'cog',
 };
