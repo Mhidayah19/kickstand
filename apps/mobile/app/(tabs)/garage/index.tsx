@@ -82,7 +82,7 @@ export default function GarageScreen() {
                 make={make}
                 model={modelName}
                 status={status}
-                tires={{ value: mileage, unit: 'km', status: mileage > 0 ? undefined : 'New' }}
+                mileage={{ value: mileage, unit: 'km' }}
                 onPress={() => router.push(`/(tabs)/garage/${bike.id}` as any)}
               />
             );
@@ -103,7 +103,6 @@ export default function GarageScreen() {
       {/* Fleet Integrity Summary */}
       {bikes && bikes.length > 0 && (
         <Section label="Fleet Integrity">
-          <View className="mb-4" />
           <View className="flex-row gap-4">
             <View className="flex-1 bg-surface-card rounded-2xl p-5 items-center">
               <Text className="font-sans-xbold text-2xl text-charcoal">{fleetStats.active}</Text>
@@ -112,7 +111,7 @@ export default function GarageScreen() {
               </Text>
             </View>
             <View className="flex-1 bg-surface-card rounded-2xl p-5 items-center">
-              <Text className="font-sans-xbold text-2xl text-charcoal">{fleetStats.logs}</Text>
+              <Text className="font-sans-xbold text-2xl text-charcoal">{fleetStats.logs > 0 ? fleetStats.logs : '—'}</Text>
               <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mt-1">
                 Logs
               </Text>

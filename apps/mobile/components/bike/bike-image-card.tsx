@@ -9,6 +9,7 @@ interface BikeImageCardProps {
   status: 'ready' | 'overdue';
   battery?: { value: number; status: string };
   tires?: { value: number; unit: string; status?: string };
+  mileage?: { value: number; unit: string };
   onPress: () => void;
   onMenuPress?: () => void;
 }
@@ -20,6 +21,7 @@ export function BikeImageCard({
   status,
   battery,
   tires,
+  mileage,
   onPress,
   onMenuPress,
 }: BikeImageCardProps) {
@@ -88,6 +90,17 @@ export function BikeImageCard({
                 {tires.value}{' '}
                 <Text className={`text-xxs font-sans-medium ${tires.status === 'Low' ? 'text-danger' : 'text-charcoal/50'}`}>
                   {tires.unit}
+                </Text>
+              </Text>
+            </View>
+          )}
+          {mileage && (
+            <View className="flex-1 bg-surface-low/50 px-4 py-3 rounded-2xl">
+              <Text className="font-sans-bold text-xxs text-sand uppercase mb-1">Mileage</Text>
+              <Text className="font-sans-bold text-sm text-charcoal">
+                {mileage.value.toLocaleString()}{' '}
+                <Text className="text-xxs font-sans-medium text-charcoal/50">
+                  {mileage.unit}
                 </Text>
               </Text>
             </View>
