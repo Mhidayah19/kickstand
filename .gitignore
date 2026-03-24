@@ -22,6 +22,9 @@ supabase/.temp/
 .worktrees/
 .superpowers/
 
+# Plan docs
+docs/plan/
+
 # Mobile env
 apps/mobile/.env
 apps/mobile/.env.local
