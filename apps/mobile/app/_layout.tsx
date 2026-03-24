@@ -32,7 +32,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     // Check initial session
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       if (data.session?.user) {
         setUser({
           id: data.session.user.id,
@@ -40,6 +40,11 @@ export default function RootLayout() {
           name: data.session.user.user_metadata?.name ?? '',
           activeBikeId: null,
           expoToken: null,
+        });
+      } else if (__DEV__ && process.env.EXPO_PUBLIC_DEV_EMAIL && process.env.EXPO_PUBLIC_DEV_PASSWORD) {
+        await supabase.auth.signInWithPassword({
+          email: process.env.EXPO_PUBLIC_DEV_EMAIL,
+          password: process.env.EXPO_PUBLIC_DEV_PASSWORD,
         });
       } else {
         router.replace('/(onboarding)' as any);
