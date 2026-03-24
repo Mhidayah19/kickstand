@@ -24,6 +24,7 @@ supabase/.temp/
 
 # Plan docs
 docs/plan/
+docs/research/
 
 # Mobile env
 apps/mobile/.env
