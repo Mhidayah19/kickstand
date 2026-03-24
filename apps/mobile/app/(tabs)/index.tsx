@@ -4,7 +4,6 @@ import { Text, View } from 'react-native';
 import { EmptyState } from '../../components/ui/empty-state';
 import { HeroCard } from '../../components/ui/hero-card';
 import { ListCard } from '../../components/ui/list-card';
-import { PillBadge } from '../../components/ui/pill-badge';
 import { ProgressBar } from '../../components/ui/progress-bar';
 import { DevAuthToggle } from '../../components/dev/DevAuthToggle';
 import { SafeScreen } from '../../components/ui/safe-screen';
@@ -13,9 +12,10 @@ import { Section } from '../../components/ui/section';
 import { Skeleton } from '../../components/ui/skeleton';
 import { StatusCard } from '../../components/ui/status-card';
 import { useBikes } from '../../lib/api/use-bikes';
+import { useServiceLogs } from '../../lib/api/use-service-logs';
 import { useBikeStore } from '../../lib/store/bike-store';
 import { colors } from '../../lib/colors';
-import { daysUntil, getComplianceVariant } from '../../lib/theme';
+import { getComplianceStatus } from '../../lib/theme';
 
 export default function HomeScreen() {
   const { data: bikes, isLoading } = useBikes();
@@ -26,6 +26,9 @@ export default function HomeScreen() {
     return bikes.find((b) => b.id === activeBikeId) ?? bikes[0];
   }, [bikes, activeBikeId]);
 
+  const { data: serviceLogsData } = useServiceLogs(activeBike?.id ?? null);
+  const recentServices = serviceLogsData?.data ?? [];
+
   // Compute mileage progress toward next service (every 5,000 km)
   const mileage = activeBike?.currentMileage ?? 0;
   const serviceInterval = 5000;
@@ -33,22 +36,15 @@ export default function HomeScreen() {
   const mileageProgress = mileage > 0 ? Math.round((mileage / nextServiceAt) * 100) : 0;
   const kmUntilService = nextServiceAt - mileage;
 
-  // Compute compliance status
-  const tireStatus = useMemo(() => {
-    if (!activeBike) return { status: 'Good', variant: 'surface' as const };
-    const inspDays = daysUntil(activeBike.inspectionDue);
-    const variant = getComplianceVariant(inspDays);
-    if (variant === 'expired' || variant === 'danger') return { status: 'Warning', variant: 'danger' as const };
-    return { status: 'Good', variant: 'surface' as const };
-  }, [activeBike]);
+  const inspectionStatus = useMemo(
+    () => getComplianceStatus(activeBike?.inspectionDue ?? null),
+    [activeBike],
+  );
 
-  const oilStatus = useMemo(() => {
-    if (!activeBike) return { status: 'Good', variant: 'surface' as const };
-    const rtDays = daysUntil(activeBike.roadTaxExpiry);
-    const variant = getComplianceVariant(rtDays);
-    if (variant === 'expired' || variant === 'danger') return { status: 'Warning', variant: 'danger' as const };
-    return { status: 'Good', variant: 'surface' as const };
-  }, [activeBike]);
+  const roadTaxStatus = useMemo(
+    () => getComplianceStatus(activeBike?.roadTaxExpiry ?? null),
+    [activeBike],
+  );
 
   // Loading state
   if (isLoading) {
@@ -98,7 +94,7 @@ export default function HomeScreen() {
           className="absolute bg-yellow/10 rounded-full"
           style={{ width: 192, height: 192, top: -40, right: -40 }}
         />
-        <Text className="text-xs font-sans-bold text-yellow uppercase tracking-widest mb-3">
+        <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-3">
           Total Distance
         </Text>
         <View className="flex-row items-baseline">
@@ -122,60 +118,48 @@ export default function HomeScreen() {
       {/* Compliance Grid */}
       <View className="flex-row gap-4 mb-6">
         <StatusCard
-          icon="tire"
-          iconColor={colors.yellow}
-          title={'Tire\nPressure'}
-          status={tireStatus.status}
-          statusVariant={tireStatus.variant}
+          icon="clipboard-check-outline"
+          iconColor={colors.charcoal}
+          title={'Inspection'}
+          status={inspectionStatus.status}
+          statusVariant={inspectionStatus.variant}
           bgClass="bg-sand/30"
         />
         <StatusCard
-          icon="oil"
-          iconColor={colors.danger}
-          title={'Oil\nLife'}
-          status={oilStatus.status}
-          statusVariant={oilStatus.variant}
+          icon="file-document-outline"
+          iconColor={colors.charcoal}
+          title={'Road\nTax'}
+          status={roadTaxStatus.status}
+          statusVariant={roadTaxStatus.variant}
           bgClass="bg-surface-low"
         />
       </View>
 
       {/* Recent Services */}
-      <Section label="Recent Services" action="View All" onAction={() => {}}>
+      <Section label="Recent Services" action="View All" onAction={() => router.push('/(tabs)/log')}>
         <View className="gap-3">
-          <ListCard
-            icon="wrench"
-            iconBg="bg-sand/20"
-            iconColor={colors.sand}
-            title="Oil Change"
-            subtitle="12 Mar 2026"
-          />
-          <ListCard
-            icon="tire"
-            iconBg="bg-yellow/20"
-            iconColor={colors.yellow}
-            title="Tire Rotation"
-            subtitle="28 Feb 2026"
-          />
-          <ListCard
-            icon="engine"
-            iconBg="bg-surface-low"
-            iconColor={colors.charcoal}
-            title="Chain Adjustment"
-            subtitle="15 Feb 2026"
-          />
+          {recentServices.length === 0 ? (
+            <Text className="text-sm font-sans-medium text-sand/60 py-4 text-center">
+              No service logs yet
+            </Text>
+          ) : (
+            recentServices.map((log) => (
+              <ListCard
+                key={log.id}
+                icon="wrench"
+                iconBg="bg-sand/20"
+                iconColor={colors.sand}
+                title={log.serviceType}
+                subtitle={new Date(log.date).toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric',
+                })}
+              />
+            ))
+          )}
         </View>
       </Section>
-
-      {/* Precision Badge */}
-      <View className="bg-charcoal rounded-3xl p-6 items-center mb-2">
-        <Text className="font-sans-bold text-xs text-sand/60 uppercase tracking-widest mb-2">
-          Precision Atelier
-        </Text>
-        <Text className="font-sans-xbold text-lg text-white text-center mb-3">
-          Every detail, dialed in.
-        </Text>
-        <PillBadge label={`ID: ${activeBike.plateNumber}`} variant="surface" />
-      </View>
     </SafeScreen>
   );
 }
