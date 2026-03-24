@@ -4,6 +4,7 @@ import { Text } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeScreen } from '../../components/ui/safe-screen';
 import { TextField } from '../../components/ui/text-field';
 import { loginSchema, LoginFormValues } from '../../lib/validation/auth-schema';
@@ -34,7 +35,7 @@ export default function LoginScreen() {
         {/* Logo area */}
         <View className="items-center pt-3xl pb-2xl">
           <View className="w-16 h-16 bg-charcoal rounded-2xl items-center justify-center mb-lg">
-            <Text className="text-4xl">🏍️</Text>
+            <MaterialCommunityIcons name="motorbike" size={24} color="white" />
           </View>
           <DevAuthToggle>
             <Text className="text-3xl font-sans-bold text-charcoal">Kickstand</Text>
@@ -95,7 +96,7 @@ export default function LoginScreen() {
         </View>
 
         {/* Separator */}
-        <View className="items-center my-xl">
+        <View className="items-center my-2xl">
           <Text className="text-xs text-sand font-sans-medium">or</Text>
         </View>
 
