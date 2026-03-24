@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { colors } from '../../lib/colors';
 import { Platform, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -43,10 +44,10 @@ export function DateField({ label, value, onChange, error }: DateFieldProps) {
         className={`flex-row items-center bg-surface border rounded-lg px-md h-12 ${error ? 'border-danger' : 'border-outline'}`}
         onPress={() => setShow(true)}
       >
-        <Text className={`flex-1 text-sm font-sans ${value ? 'text-charcoal' : 'text-sand'}`}>
+        <Text className={`flex-1 text-sm font-sans-medium ${value ? 'text-charcoal' : 'text-sand'}`}>
           {formatDisplay(value)}
         </Text>
-        <MaterialCommunityIcons name="calendar" size={16} color="#D0C5BA" accessibilityLabel="Open date picker" />
+        <MaterialCommunityIcons name="calendar" size={16} color={colors.outline} accessibilityLabel="Open date picker" />
       </TouchableOpacity>
       {show && (
         <DateTimePicker
@@ -56,7 +57,7 @@ export function DateField({ label, value, onChange, error }: DateFieldProps) {
           onChange={handleChange}
         />
       )}
-      {error ? <Text className="text-xs text-danger font-sans mt-xs">{error}</Text> : null}
+      {error ? <Text className="text-xs text-danger font-sans-medium mt-xs">{error}</Text> : null}
     </View>
   );
 }

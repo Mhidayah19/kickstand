@@ -1,5 +1,6 @@
 import { View, Text, Pressable } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { colors } from '../../lib/colors';
 
 interface ListCardProps {
   icon?: string;
@@ -14,7 +15,7 @@ interface ListCardProps {
 export function ListCard({
   icon,
   iconBg = 'bg-surface-low',
-  iconColor = '#1E1E1E',
+  iconColor = colors.charcoal,
   title,
   subtitle,
   onPress,
@@ -41,7 +42,7 @@ export function ListCard({
         </View>
       </View>
       {onPress && (
-        <MaterialCommunityIcons name="chevron-right" size={20} color="#D0C5BA" />
+        <MaterialCommunityIcons name="chevron-right" size={20} color={colors.outline} />
       )}
     </Pressable>
   );

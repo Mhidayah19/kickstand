@@ -4,6 +4,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { useState, useEffect } from 'react';
+import { colors } from '../../lib/colors';
 
 const TAB_ICONS: Record<string, string> = {
   index: 'wrench',
@@ -34,13 +35,6 @@ export function FloatingTabBar({ state, navigation, onAgentPress }: FloatingTabB
         intensity={80}
         tint="dark"
         className="w-[90%] max-w-md rounded-3xl overflow-hidden"
-        style={{
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 20 },
-          shadowOpacity: 0.1,
-          shadowRadius: 40,
-          elevation: 10,
-        }}
       >
         <View className="flex-row items-center justify-between px-8 py-3">
           {state.routes.map((route, index) => {
@@ -70,7 +64,7 @@ export function FloatingTabBar({ state, navigation, onAgentPress }: FloatingTabB
                   className="bg-yellow rounded-full p-3 active:opacity-80"
                   style={{ transform: [{ scale: 1.1 }] }}
                 >
-                  <MaterialCommunityIcons name={iconName as any} size={24} color="#1E1E1E" />
+                  <MaterialCommunityIcons name={iconName as any} size={24} color={colors.charcoal} />
                 </Pressable>
               );
             }
@@ -84,7 +78,7 @@ export function FloatingTabBar({ state, navigation, onAgentPress }: FloatingTabB
                 <MaterialCommunityIcons
                   name={iconName as any}
                   size={24}
-                  color={isFocused ? '#F2D06B' : '#C7B299'}
+                  color={isFocused ? colors.yellow : colors.sand}
                 />
               </Pressable>
             );

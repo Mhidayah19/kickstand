@@ -1,5 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { colors } from '../../../../lib/colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
 import { ScrollView, Text, View } from 'react-native';
@@ -54,10 +55,10 @@ export default function BikeDetailScreen() {
         {/* Hero Image Section */}
         <View style={{ height: 400, width: '100%' }}>
           <View className="flex-1 bg-surface-low items-center justify-center">
-            <MaterialCommunityIcons name="motorbike" size={80} color="#D0C5BA" />
+            <MaterialCommunityIcons name="motorbike" size={80} color={colors.outline} />
           </View>
           <LinearGradient
-            colors={['transparent', '#F9F9F9']}
+            colors={['transparent', colors.surface]}
             style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 200 }}
           />
           <View className="absolute bottom-6 left-6">
@@ -123,7 +124,7 @@ export default function BikeDetailScreen() {
               <ListCard
                 icon="oil"
                 iconBg="bg-yellow/20"
-                iconColor="#F2D06B"
+                iconColor={colors.yellow}
                 title="Oil Change"
                 subtitle="12 Mar 2026 • 24,500 km"
                 onPress={() => {}}
@@ -131,7 +132,7 @@ export default function BikeDetailScreen() {
               <ListCard
                 icon="link-variant"
                 iconBg="bg-sand/20"
-                iconColor="#C7B299"
+                iconColor={colors.sand}
                 title="Chain Adjustment"
                 subtitle="28 Feb 2026 • 23,800 km"
                 onPress={() => {}}

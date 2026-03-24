@@ -1,5 +1,6 @@
 import { View, Text, Image, Pressable } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { colors } from '../../lib/colors';
 
 interface BikeImageCardProps {
   make: string;
@@ -30,7 +31,6 @@ export function BikeImageCard({
       className="bg-surface-card rounded-3xl overflow-hidden border border-charcoal/5"
       style={({ pressed }) => [
         pressed && { transform: [{ scale: 0.98 }], opacity: 0.95 },
-        { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
       ]}
     >
       {/* Hero Image */}
@@ -39,7 +39,7 @@ export function BikeImageCard({
           <Image source={{ uri: imageUri }} className="w-full h-full" resizeMode="cover" />
         ) : (
           <View className="w-full h-full bg-surface-low items-center justify-center">
-            <MaterialCommunityIcons name="motorbike" size={48} color="#D0C5BA" />
+            <MaterialCommunityIcons name="motorbike" size={48} color={colors.outline} />
           </View>
         )}
         {/* Status Badge */}
@@ -63,7 +63,7 @@ export function BikeImageCard({
           </View>
           {onMenuPress && (
             <Pressable onPress={onMenuPress} hitSlop={8} className="active:opacity-70">
-              <MaterialCommunityIcons name="dots-vertical" size={20} color="#D0C5BA" />
+              <MaterialCommunityIcons name="dots-vertical" size={20} color={colors.outline} />
             </Pressable>
           )}
         </View>

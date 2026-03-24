@@ -3,6 +3,7 @@ import { Dimensions, View, Text, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { colors } from '../../lib/colors';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -37,7 +38,7 @@ export default function SuccessScreen() {
           Your atelier is ready. Add your first machine to begin the record.
         </Text>
         <View className="flex-row items-center gap-xs mt-lg">
-          <MaterialCommunityIcons name="check-circle-outline" size={14} color="#C7B299" />
+          <MaterialCommunityIcons name="check-circle-outline" size={14} color={colors.sand} />
           <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest">
             Account Created
           </Text>

@@ -1,5 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { colors } from '../../lib/colors';
 
 interface PrimaryButtonProps {
   label: string;
@@ -13,7 +14,7 @@ export function PrimaryButton({
   label,
   onPress,
   icon,
-  iconColor = '#F2D06B',
+  iconColor = colors.yellow,
   disabled = false,
 }: PrimaryButtonProps) {
   return (
@@ -28,7 +29,7 @@ export function PrimaryButton({
     >
       {icon && (
         <View className="w-10 h-10 rounded-full items-center justify-center" style={{ backgroundColor: iconColor }}>
-          <MaterialCommunityIcons name={icon as any} size={20} color="#1E1E1E" />
+          <MaterialCommunityIcons name={icon as any} size={20} color={colors.charcoal} />
         </View>
       )}
       <Text className="font-sans-bold text-sm text-white uppercase tracking-wide-1">

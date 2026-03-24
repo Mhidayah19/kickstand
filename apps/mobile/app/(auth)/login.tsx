@@ -39,13 +39,13 @@ export default function LoginScreen() {
           <DevAuthToggle>
             <Text className="text-3xl font-sans-bold text-charcoal">Kickstand</Text>
           </DevAuthToggle>
-          <Text className="text-sm font-sans text-sand mt-xs">Your bike's AI companion</Text>
+          <Text className="text-sm font-sans-medium text-sand mt-xs">Your bike's AI companion</Text>
         </View>
 
         {/* Error banner */}
         {error ? (
           <View className="bg-danger-surface rounded-lg px-lg py-md mb-lg">
-            <Text className="text-sm text-danger font-sans">{error}</Text>
+            <Text className="text-sm text-danger font-sans-medium">{error}</Text>
           </View>
         ) : null}
 
@@ -94,11 +94,9 @@ export default function LoginScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Divider */}
-        <View className="flex-row items-center my-xl gap-md">
-          <View className="flex-1 h-px bg-outline" />
-          <Text className="text-xs text-sand font-sans">or</Text>
-          <View className="flex-1 h-px bg-outline" />
+        {/* Separator */}
+        <View className="items-center my-xl">
+          <Text className="text-xs text-sand font-sans-medium">or</Text>
         </View>
 
         {/* Create account */}

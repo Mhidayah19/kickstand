@@ -1,7 +1,8 @@
-import { View, Text, Pressable, Image } from 'react-native';
+import { View, Text, Pressable } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors } from '../../lib/colors';
 
 interface TopAppBarProps {
   onNotificationPress?: () => void;
@@ -18,11 +19,8 @@ export function TopAppBar({ onNotificationPress }: TopAppBarProps) {
     >
       <View className="flex-row items-center justify-between px-6 pb-4" style={{ paddingTop: insets.top + 8 }}>
         <View className="flex-row items-center gap-3">
-          <View className="w-8 h-8 rounded-full bg-sand/30 overflow-hidden">
-            <Image
-              source={{ uri: 'https://via.placeholder.com/32' }}
-              className="w-full h-full"
-            />
+          <View className="w-8 h-8 rounded-full bg-sand/30 items-center justify-center">
+            <MaterialCommunityIcons name="account-circle" size={28} color={colors.sand} />
           </View>
           <Text className="font-sans-bold text-sm text-charcoal uppercase tracking-wide-2">
             PRECISION ATELIER
@@ -33,7 +31,7 @@ export function TopAppBar({ onNotificationPress }: TopAppBarProps) {
           hitSlop={8}
           className="active:opacity-70"
         >
-          <MaterialCommunityIcons name="bell-outline" size={24} color="#1E1E1E" />
+          <MaterialCommunityIcons name="bell-outline" size={24} color={colors.charcoal} />
         </Pressable>
       </View>
     </BlurView>
