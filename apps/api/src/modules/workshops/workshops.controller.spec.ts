@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { WorkshopsController } from './workshops.controller';
 import { WorkshopsService } from './workshops.service';
 import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
+import { DRIZZLE } from '../../database/database.module';
 
 describe('WorkshopsController', () => {
   let controller: WorkshopsController;
@@ -17,6 +18,7 @@ describe('WorkshopsController', () => {
       controllers: [WorkshopsController],
       providers: [
         { provide: WorkshopsService, useValue: mockWorkshopsService },
+        { provide: DRIZZLE, useValue: {} },
       ],
     })
       .overrideGuard(SupabaseAuthGuard)

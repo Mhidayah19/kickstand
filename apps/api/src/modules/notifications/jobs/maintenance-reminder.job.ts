@@ -30,10 +30,7 @@ export class MaintenanceReminderJob {
   }
 
   async run(): Promise<{ usersNotified: number; notificationsSent: number }> {
-    const users = await this.db
-      .select()
-      .from(schema.users)
-      .execute();
+    const users = await this.db.select().from(schema.users).execute();
 
     if (users.length === 0) {
       return { usersNotified: 0, notificationsSent: 0 };

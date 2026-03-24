@@ -3,6 +3,7 @@ import { BikesController } from './bikes.controller';
 import { BikesService } from './bikes.service';
 import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
 import { AuthUser } from '../../common/decorators/current-user.decorator';
+import { DRIZZLE } from '../../database/database.module';
 
 describe('BikesController', () => {
   let controller: BikesController;
@@ -19,7 +20,10 @@ describe('BikesController', () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       controllers: [BikesController],
-      providers: [{ provide: BikesService, useValue: mockBikesService }],
+      providers: [
+        { provide: BikesService, useValue: mockBikesService },
+        { provide: DRIZZLE, useValue: {} },
+      ],
     })
       .overrideGuard(SupabaseAuthGuard)
       .useValue({ canActivate: () => true })

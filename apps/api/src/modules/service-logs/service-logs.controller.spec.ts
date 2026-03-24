@@ -3,6 +3,7 @@ import { validate } from 'class-validator';
 import { ServiceLogsController } from './service-logs.controller';
 import { ServiceLogsService } from './service-logs.service';
 import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
+import { DRIZZLE } from '../../database/database.module';
 import { ListServiceLogsDto } from './dto/list-service-logs.dto';
 
 describe('ServiceLogsController', () => {
@@ -18,7 +19,10 @@ describe('ServiceLogsController', () => {
     jest.clearAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ServiceLogsController],
-      providers: [{ provide: ServiceLogsService, useValue: mockService }],
+      providers: [
+        { provide: ServiceLogsService, useValue: mockService },
+        { provide: DRIZZLE, useValue: {} },
+      ],
     })
       .overrideGuard(SupabaseAuthGuard)
       .useValue({ canActivate: () => true })
@@ -59,21 +63,30 @@ describe('ServiceLogsController', () => {
     });
 
     it('should reject limit > 100 at the DTO level', async () => {
-      const dto = Object.assign(new ListServiceLogsDto(), { limit: 200, page: 1 });
+      const dto = Object.assign(new ListServiceLogsDto(), {
+        limit: 200,
+        page: 1,
+      });
       const errors = await validate(dto);
-      expect(errors.some(e => e.property === 'limit')).toBe(true);
+      expect(errors.some((e) => e.property === 'limit')).toBe(true);
     });
 
     it('should reject limit < 1 at the DTO level', async () => {
-      const dto = Object.assign(new ListServiceLogsDto(), { limit: 0, page: 1 });
+      const dto = Object.assign(new ListServiceLogsDto(), {
+        limit: 0,
+        page: 1,
+      });
       const errors = await validate(dto);
-      expect(errors.some(e => e.property === 'limit')).toBe(true);
+      expect(errors.some((e) => e.property === 'limit')).toBe(true);
     });
 
     it('should reject page < 1 at the DTO level', async () => {
-      const dto = Object.assign(new ListServiceLogsDto(), { page: 0, limit: 20 });
+      const dto = Object.assign(new ListServiceLogsDto(), {
+        page: 0,
+        limit: 20,
+      });
       const errors = await validate(dto);
-      expect(errors.some(e => e.property === 'page')).toBe(true);
+      expect(errors.some((e) => e.property === 'page')).toBe(true);
     });
   });
 

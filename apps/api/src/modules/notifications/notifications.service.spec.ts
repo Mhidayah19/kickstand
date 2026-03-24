@@ -15,13 +15,19 @@ jest.mock('expo-server-sdk', () => {
     sendPushNotificationsAsync: mockSend,
     chunkPushNotifications: mockChunk,
   }));
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   (Expo as any).isExpoPushToken = mockIsToken;
-  return { Expo, mockSendPushNotificationsAsync: mockSend, mockIsExpoPushToken: mockIsToken };
+  return {
+    Expo,
+    mockSendPushNotificationsAsync: mockSend,
+    mockIsExpoPushToken: mockIsToken,
+  };
 });
 
-const { mockSendPushNotificationsAsync: mockExpoPushNotificationsAsync, mockIsExpoPushToken } =
-  jest.requireMock('expo-server-sdk');
+const {
+  mockSendPushNotificationsAsync: mockExpoPushNotificationsAsync,
+  mockIsExpoPushToken,
+} = jest.requireMock('expo-server-sdk');
 
 describe('NotificationsService', () => {
   let service: NotificationsService;
@@ -172,7 +178,9 @@ describe('NotificationsService', () => {
     });
 
     it('should skip sending and log a warning for an invalid token format', async () => {
-      const warnSpy = jest.spyOn(service['logger'], 'warn').mockImplementation();
+      const warnSpy = jest
+        .spyOn(service['logger'], 'warn')
+        .mockImplementation();
 
       await service.sendPush('not-a-valid-expo-token', 'Title', 'Body');
 
@@ -188,7 +196,9 @@ describe('NotificationsService', () => {
       mockExpoPushNotificationsAsync.mockRejectedValue(
         new Error('Expo API unavailable'),
       );
-      const errorSpy = jest.spyOn(service['logger'], 'error').mockImplementation();
+      const errorSpy = jest
+        .spyOn(service['logger'], 'error')
+        .mockImplementation();
 
       await service.sendPush('ExponentPushToken[abc123]', 'Title', 'Body');
 
@@ -243,8 +253,12 @@ describe('NotificationsService', () => {
     });
 
     it('should log an error when Expo API throws during batch send', async () => {
-      mockExpoPushNotificationsAsync.mockRejectedValue(new Error('Expo API unavailable'));
-      const errorSpy = jest.spyOn(service['logger'], 'error').mockImplementation();
+      mockExpoPushNotificationsAsync.mockRejectedValue(
+        new Error('Expo API unavailable'),
+      );
+      const errorSpy = jest
+        .spyOn(service['logger'], 'error')
+        .mockImplementation();
 
       await service.sendBatchPush([
         { to: 'ExponentPushToken[abc]', title: 'T', body: 'B' },

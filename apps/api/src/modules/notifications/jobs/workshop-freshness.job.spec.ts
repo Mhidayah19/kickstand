@@ -29,10 +29,7 @@ describe('WorkshopFreshnessJob', () => {
     jest.setSystemTime(TODAY);
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        WorkshopFreshnessJob,
-        { provide: DRIZZLE, useValue: mockDb },
-      ],
+      providers: [WorkshopFreshnessJob, { provide: DRIZZLE, useValue: mockDb }],
     }).compile();
 
     job = module.get<WorkshopFreshnessJob>(WorkshopFreshnessJob);
