@@ -26,6 +26,11 @@ export class BikesController {
     return this.bikesService.findAllByUser(user.id);
   }
 
+  @Get(':id')
+  findOne(@Param('id') id: string, @CurrentUser() user: AuthUser) {
+    return this.bikesService.findOneByUser(id, user.id);
+  }
+
   @Post()
   create(@CurrentUser() user: AuthUser, @Body() dto: CreateBikeDto) {
     return this.bikesService.create(user.id, dto);
