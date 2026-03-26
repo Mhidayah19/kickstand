@@ -7,6 +7,7 @@ import {
   timestamp,
   decimal,
   jsonb,
+  unique,
 } from 'drizzle-orm/pg-core';
 
 export const serviceTypes = pgTable('service_types', {
@@ -28,6 +29,23 @@ export const users = pgTable('users', {
     .defaultNow(),
 });
 
+export const bikeCatalog = pgTable(
+  'bike_catalog',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    make: text('make').notNull(),
+    model: text('model').notNull(),
+    engineCc: integer('engine_cc'),
+    bikeType: text('bike_type').notNull(),
+    licenseClass: text('license_class').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    unique('bike_catalog_make_model_unique').on(table.make, table.model),
+  ],
+);
+
 export const bikes = pgTable('bikes', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id')
@@ -42,6 +60,10 @@ export const bikes = pgTable('bikes', {
   roadTaxExpiry: date('road_tax_expiry'),
   insuranceExpiry: date('insurance_expiry'),
   inspectionDue: date('inspection_due'),
+  make: text('make'),
+  engineCc: integer('engine_cc'),
+  bikeType: text('bike_type'),
+  catalogId: uuid('catalog_id').references(() => bikeCatalog.id),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),
