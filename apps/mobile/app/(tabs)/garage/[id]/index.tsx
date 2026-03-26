@@ -3,7 +3,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../../../lib/colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Image, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BentoStat } from '../../../../components/ui/bento-stat';
 import { ConfirmationDialog } from '../../../../components/ui/confirmation-dialog';
@@ -47,16 +47,24 @@ export default function BikeDetailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      <TopAppBar />
+      <TopAppBar onMorePress={() => setShowDeleteDialog(true)} />
       <ScrollView
         contentContainerStyle={{ paddingBottom: 128 }}
         showsVerticalScrollIndicator={false}
       >
         {/* Hero Image Section */}
         <View style={{ height: 400, width: '100%' }}>
-          <View className="flex-1 bg-surface-low items-center justify-center">
-            <MaterialCommunityIcons name="motorbike" size={80} color={colors.outline} />
-          </View>
+          {bike.imageUrl ? (
+            <Image
+              source={{ uri: bike.imageUrl }}
+              style={{ width: '100%', height: '100%' }}
+              resizeMode="cover"
+            />
+          ) : (
+            <View className="flex-1 bg-surface-low items-center justify-center">
+              <MaterialCommunityIcons name="motorbike" size={80} color={colors.outline} />
+            </View>
+          )}
           <LinearGradient
             colors={['transparent', colors.surface]}
             style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 200 }}
