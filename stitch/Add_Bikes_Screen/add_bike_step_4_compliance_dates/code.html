@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#e5c360",
+              "primary-container": "#b7b5b4",
+              "outline-variant": "#d0c5ba",
+              "on-background": "#1a1c1c",
+              "surface": "#f9f9f9",
+              "surface-container-low": "#f3f3f3",
+              "surface-bright": "#f9f9f9",
+              "primary-fixed-dim": "#c8c6c5",
+              "tertiary": "#6c5c47",
+              "primary-fixed": "#e5e2e1",
+              "primary": "#5f5e5e",
+              "on-tertiary": "#ffffff",
+              "on-secondary-fixed-variant": "#574500",
+              "on-secondary-fixed": "#241a00",
+              "background": "#f9f9f9",
+              "on-secondary-container": "#765e00",
+              "secondary-container": "#fcda74",
+              "error-container": "#ffdad6",
+              "on-primary": "#ffffff",
+              "inverse-on-surface": "#f1f1f1",
+              "tertiary-container": "#c7b299",
+              "surface-container-lowest": "#ffffff",
+              "outline": "#7e766c",
+              "surface-variant": "#e2e2e2",
+              "on-surface": "#1a1c1c",
+              "secondary-fixed": "#ffe088",
+              "surface-container": "#eeeeee",
+              "inverse-primary": "#c8c6c5",
+              "tertiary-fixed": "#f6dfc4",
+              "on-tertiary-fixed": "#251909",
+              "on-surface-variant": "#4d463d",
+              "surface-container-high": "#e8e8e8",
+              "inverse-surface": "#2f3131",
+              "on-primary-container": "#474746",
+              "secondary": "#735c00",
+              "on-tertiary-container": "#534431",
+              "surface-dim": "#dadada",
+              "surface-container-highest": "#e2e2e2",
+              "error": "#ba1a1a",
+              "on-secondary": "#ffffff",
+              "on-primary-fixed-variant": "#474746",
+              "on-tertiary-fixed-variant": "#534431",
+              "on-error-container": "#93000a",
+              "on-error": "#ffffff",
+              "on-primary-fixed": "#1b1b1c",
+              "tertiary-fixed-dim": "#d9c3a9",
+              "surface-tint": "#5f5e5e"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-24">
+<!-- Top Navigation Anchor -->
+<header class="flex items-center justify-between px-6 h-16 w-full bg-[#F9F9F9] dark:bg-[#1E1E1E] sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[#5F5E5E] dark:text-[#C7B299]">arrow_back</span>
+</button>
+<span class="font-['Plus_Jakarta_SANS'] font-bold tracking-[-2%] text-[#5F5E5E] dark:text-[#C7B299]">Add Machine</span>
+</div>
+<div class="bg-[#C7B299] h-1 w-24 absolute bottom-0 left-0"></div>
+</header>
+<main class="px-6 py-8 max-w-lg mx-auto">
+<!-- Progress Indicator -->
+<div class="flex gap-2 mb-8">
+<div class="h-1.5 flex-1 bg-primary rounded-full"></div>
+<div class="h-1.5 flex-1 bg-primary rounded-full"></div>
+<div class="h-1.5 flex-1 bg-primary rounded-full"></div>
+<div class="h-1.5 flex-1 bg-primary rounded-full"></div>
+</div>
+<!-- Step Header -->
+<div class="mb-8">
+<p class="text-secondary font-bold text-[10px] tracking-[5%] uppercase mb-1">Step 04</p>
+<h1 class="text-3xl font-extrabold tracking-tight text-on-surface mb-2">Compliance Dates</h1>
+<p class="text-on-surface-variant body-md font-medium">All dates are optional. You can add or update them later.</p>
+</div>
+<!-- Date Input Stack -->
+<section class="flex flex-col gap-6 mb-12">
+<!-- COE Expiry -->
+<div class="group">
+<label class="block text-[10px] font-bold tracking-[5%] text-on-surface-variant uppercase mb-2">COE Expiry</label>
+<div class="relative flex items-center bg-surface-container-high rounded-xl overflow-hidden focus-within:bg-surface-container-highest transition-colors">
+<input class="w-full bg-transparent border-none focus:ring-0 py-4 px-4 font-medium text-on-surface placeholder:text-outline/50" placeholder="YYYY-MM-DD" type="text"/>
+<span class="material-symbols-outlined text-on-surface-variant px-4">calendar_today</span>
+<div class="absolute bottom-0 left-0 h-0.5 w-0 group-focus-within:w-full bg-secondary transition-all duration-300"></div>
+</div>
+</div>
+<!-- Road Tax Expiry -->
+<div class="group">
+<label class="block text-[10px] font-bold tracking-[5%] text-on-surface-variant uppercase mb-2">Road Tax Expiry</label>
+<div class="relative flex items-center bg-surface-container-high rounded-xl overflow-hidden focus-within:bg-surface-container-highest transition-colors">
+<input class="w-full bg-transparent border-none focus:ring-0 py-4 px-4 font-medium text-on-surface placeholder:text-outline/50" placeholder="YYYY-MM-DD" type="text"/>
+<span class="material-symbols-outlined text-on-surface-variant px-4">calendar_today</span>
+<div class="absolute bottom-0 left-0 h-0.5 w-0 group-focus-within:w-full bg-secondary transition-all duration-300"></div>
+</div>
+</div>
+<!-- Insurance Expiry -->
+<div class="group">
+<label class="block text-[10px] font-bold tracking-[5%] text-on-surface-variant uppercase mb-2">Insurance Expiry</label>
+<div class="relative flex items-center bg-surface-container-high rounded-xl overflow-hidden focus-within:bg-surface-container-highest transition-colors">
+<input class="w-full bg-transparent border-none focus:ring-0 py-4 px-4 font-medium text-on-surface placeholder:text-outline/50" placeholder="YYYY-MM-DD" type="text"/>
+<span class="material-symbols-outlined text-on-surface-variant px-4">calendar_today</span>
+<div class="absolute bottom-0 left-0 h-0.5 w-0 group-focus-within:w-full bg-secondary transition-all duration-300"></div>
+</div>
+</div>
+<!-- Inspection Due -->
+<div class="group">
+<label class="block text-[10px] font-bold tracking-[5%] text-on-surface-variant uppercase mb-2">Inspection Due</label>
+<div class="relative flex items-center bg-surface-container-high rounded-xl overflow-hidden focus-within:bg-surface-container-highest transition-colors">
+<input class="w-full bg-transparent border-none focus:ring-0 py-4 px-4 font-medium text-on-surface placeholder:text-outline/50" placeholder="YYYY-MM-DD" type="text"/>
+<span class="material-symbols-outlined text-on-surface-variant px-4">calendar_today</span>
+<div class="absolute bottom-0 left-0 h-0.5 w-0 group-focus-within:w-full bg-secondary transition-all duration-300"></div>
+</div>
+</div>
+</section>
+<!-- Review Summary Section -->
+<section class="bg-tertiary-container/30 rounded-2xl p-6 relative overflow-hidden mb-8">
+<div class="relative z-10 flex items-center justify-between">
+<div>
+<h3 class="text-[10px] font-bold tracking-[5%] text-on-tertiary-container uppercase mb-1">Machine Summary</h3>
+<p class="text-xl font-extrabold text-on-surface">Triumph Tiger 900</p>
+<p class="text-sm font-medium text-on-surface-variant">Rally Pro Edition • 2024</p>
+</div>
+<div class="w-16 h-16 bg-surface-container-lowest rounded-xl flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-primary text-3xl">two_wheeler</span>
+</div>
+</div>
+<!-- Abstract Geometry Decoration -->
+<div class="absolute -right-4 -bottom-4 w-24 h-24 bg-secondary-fixed/20 rounded-full blur-2xl"></div>
+</section>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex items-center gap-4 bg-transparent px-6 py-4">
+<button class="text-[#5F5E5E] dark:text-[#C7B299] flex items-center justify-center p-3 hover:brightness-110 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">close</span>
+</button>
+<button class="bg-[#F2D06B] text-[#1E1E1E] rounded-full px-8 py-4 font-bold flex items-center justify-center grow hover:brightness-110 transition-all active:scale-[0.98] shadow-lg">
+<span class="font-['Plus_Jakarta_SANS'] font-bold tracking-[-1%] mr-2">Add Machine</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</nav>
+<!-- Background Glass Blur for Bottom Nav -->
+<div class="fixed bottom-0 left-0 w-full h-24 bg-[#F9F9F9]/70 dark:bg-[#1E1E1E]/70 backdrop-blur-xl -z-10 pointer-events-none shadow-[0_-4px_40px_rgba(30,30,30,0.05)]"></div>
+</body></html>

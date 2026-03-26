@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#e5c360",
+              "primary-container": "#b7b5b4",
+              "outline-variant": "#d0c5ba",
+              "on-background": "#1a1c1c",
+              "surface": "#f9f9f9",
+              "surface-container-low": "#f3f3f3",
+              "surface-bright": "#f9f9f9",
+              "primary-fixed-dim": "#c8c6c5",
+              "tertiary": "#6c5c47",
+              "primary-fixed": "#e5e2e1",
+              "primary": "#5f5e5e",
+              "on-tertiary": "#ffffff",
+              "on-secondary-fixed-variant": "#574500",
+              "on-secondary-fixed": "#241a00",
+              "background": "#f9f9f9",
+              "on-secondary-container": "#765e00",
+              "secondary-container": "#fcda74",
+              "error-container": "#ffdad6",
+              "on-primary": "#ffffff",
+              "inverse-on-surface": "#f1f1f1",
+              "tertiary-container": "#c7b299",
+              "surface-container-lowest": "#ffffff",
+              "outline": "#7e766c",
+              "surface-variant": "#e2e2e2",
+              "on-surface": "#1a1c1c",
+              "secondary-fixed": "#ffe088",
+              "surface-container": "#eeeeee",
+              "inverse-primary": "#c8c6c5",
+              "tertiary-fixed": "#f6dfc4",
+              "on-tertiary-fixed": "#251909",
+              "on-surface-variant": "#4d463d",
+              "surface-container-high": "#e8e8e8",
+              "inverse-surface": "#2f3131",
+              "on-primary-container": "#474746",
+              "secondary": "#735c00",
+              "on-tertiary-container": "#534431",
+              "surface-dim": "#dadada",
+              "surface-container-highest": "#e2e2e2",
+              "error": "#ba1a1a",
+              "on-secondary": "#ffffff",
+              "on-primary-fixed-variant": "#474746",
+              "on-tertiary-fixed-variant": "#534431",
+              "on-error-container": "#93000a",
+              "on-error": "#ffffff",
+              "on-primary-fixed": "#1b1b1c",
+              "tertiary-fixed-dim": "#d9c3a9",
+              "surface-tint": "#5f5e5e"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface selection:bg-secondary-container">
+<!-- Top Navigation Bar -->
+<nav class="flex items-center justify-between px-6 h-16 w-full bg-[#F9F9F9] dark:bg-[#1E1E1E] sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<button class="text-[#5F5E5E] dark:text-[#C7B299] hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<span class="text-[10px] font-bold uppercase tracking-[5%] text-secondary">STEP 02</span>
+<h1 class="font-headline font-bold tracking-[-2%] text-[#1E1E1E] dark:text-[#F9F9F9] text-xl">Add Machine</h1>
+</div>
+</div>
+<div class="bg-[#C7B299] h-1 w-24 rounded-full overflow-hidden absolute bottom-0 left-0 right-0 mx-auto mb-1 opacity-20"></div>
+</nav>
+<main class="max-w-md mx-auto px-6 pt-4 pb-32">
+<!-- Progress Bar -->
+<div class="flex gap-2 mb-8 h-1.5 w-full">
+<div class="flex-1 bg-primary rounded-full"></div>
+<div class="flex-1 bg-primary rounded-full"></div>
+<div class="flex-1 bg-surface-container-high rounded-full"></div>
+<div class="flex-1 bg-surface-container-high rounded-full"></div>
+</div>
+<!-- Selected Brand Banner -->
+<div class="relative overflow-hidden bg-tertiary-container rounded-2xl p-6 mb-8 text-on-tertiary-container">
+<div class="relative z-10">
+<h2 class="font-headline text-2xl font-extrabold tracking-tight">Honda</h2>
+<p class="text-sm opacity-80 font-medium">select a model</p>
+</div>
+<!-- Abstract Geometry -->
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-secondary-container opacity-20 rounded-full blur-2xl"></div>
+<div class="absolute right-4 bottom-0 w-24 h-24 bg-primary opacity-10 rounded-full"></div>
+</div>
+<!-- Model List -->
+<div class="space-y-4">
+<!-- Selected Card -->
+<div class="bg-surface-container-low rounded-2xl p-5 border-l-4 border-secondary-container flex items-center justify-between group cursor-pointer hover:bg-surface-container transition-colors shadow-sm">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-headline font-extrabold text-lg text-on-surface">CB400X</span>
+<span class="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded-full tracking-widest uppercase">2A</span>
+</div>
+<div class="flex gap-3 text-sm font-medium text-primary">
+<span>399cc</span>
+<span class="opacity-30">•</span>
+<span>Adventure</span>
+</div>
+</div>
+<div class="w-16 h-16 rounded-xl overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="front profile of a sleek modern white and red adventure touring motorcycle parked on a clean studio floor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRdXADjjnbJ2bVuW9-sqpLviTMHjezIXvGWYcAW8qq7RiEHq6hb_PfLj8UQcaux-JAjOlD8RHrmqF2ne4YAi31u75S9BKojctcUxDJ87XSXVbUwqEeq-WnXsQ5YI0iKtkY1XnW9tBGTgGgWVuynKANGiPzCeZ0aKr2mfbAqNCAlz3FNAKooTz4kJ6kpvoM9UBxZi8clJUUDA_OtAD11-KBWYAUn2V5POnXEWAQZ-_OeB46_DDRYnBpeylz-Ver7PwYAaOrzhQ1C7yK"/>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-low rounded-2xl p-5 flex items-center justify-between group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-headline font-extrabold text-lg text-on-surface">CB1000R</span>
+<span class="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded-full tracking-widest uppercase">CLASS 2</span>
+</div>
+<div class="flex gap-3 text-sm font-medium text-primary">
+<span>998cc</span>
+<span class="opacity-30">•</span>
+<span>Neo Sports Café</span>
+</div>
+</div>
+<div class="w-16 h-16 rounded-xl overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="side view of a black naked sports motorcycle with exposed engine components under soft industrial lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaWZf75bvLO1r-EUD7qeeRis0wkDDgP4E4K76QzjBgFwQMPnYTrViXKO_lo5KmJohM03izbTR8oCiPNs2UmqA9Fj---O48_ANSMeZVf2bGZ8s4fNWy2u_kd3g626oth0aa51B6ZXTGgUxtQqVlGRfMkKB9FfWcyurfxoyQQLNj3BpGSqFnv0rdudmJOGbN_nJPZ9BsadegW_R17PL7kYLcmABxdyIUdek4zNS0Np6ZcLpPwNOx0BBjPHiQI9GT-2MSJkdei4-uQ0Pu"/>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-low rounded-2xl p-5 flex items-center justify-between group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-headline font-extrabold text-lg text-on-surface">CBR600RR</span>
+<span class="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded-full tracking-widest uppercase">CLASS 2</span>
+</div>
+<div class="flex gap-3 text-sm font-medium text-primary">
+<span>599cc</span>
+<span class="opacity-30">•</span>
+<span>Super Sport</span>
+</div>
+</div>
+<div class="w-16 h-16 rounded-xl overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="aerodynamic red racing motorcycle profile focused on the fairing and windshield against a blurred racetrack background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBj9-EADmoYq5HZE1BOwpZqHaus1wWLOYCaEmaNixigM-0lJvE47kGlb1htox5pjnmqdpcGmruDMoe7LUBl3yhQZvJTGCszYt1JjwS_8l7t6bLmLwtJgzCRZIrHcQosloNligLU39WIR7GNyyIEWFfCXysp4ZZDEw7KsF1M6joT06VQFikWdE_J6A5v-P5mkkoR2ZUF23iMJMCJ3beYp9qq6Rr8rEprCie8b0dRd1h0H7xWAZTE7rT-DBEQJ1r4VkaePbO_qqLOtnUd"/>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-low rounded-2xl p-5 flex items-center justify-between group cursor-pointer hover:bg-surface-container transition-colors">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2">
+<span class="font-headline font-extrabold text-lg text-on-surface">X-ADV</span>
+<span class="bg-primary text-on-primary text-[10px] font-bold px-2 py-0.5 rounded-full tracking-widest uppercase">CLASS 2</span>
+</div>
+<div class="flex gap-3 text-sm font-medium text-primary">
+<span>745cc</span>
+<span class="opacity-30">•</span>
+<span>Urban Adventure</span>
+</div>
+</div>
+<div class="w-16 h-16 rounded-xl overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="silver dual-sport scooter motorcycle detail showing rugged tires and modern headlights in urban setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAfDuYOwNQpnvt4ozSpgRiOj5ByiTMceS44B5Zs5cQO_gMs19W6apUHNuLl0s8IBwbSXFfC6cC-mvxapcsTOeww5wre6zRCyqxERIAHSgDT8aQ2N13QycG1pW-75m3xzCBbQRrFrqaSF_G9xVjYs4VlzHKYq_0-HgL8Vih6pLZaOqeJITnjQoZBdNhoMRs3r2LLXfRAcV5rVTpV_21LJmd8rw1m9zVrXuJWdb3OB1pbGFnKfzuYr6JAzAYl7_2xfgDtEsfDlPkVykMC"/>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<div class="fixed bottom-0 left-0 w-full z-50 flex items-center gap-4 bg-[#F9F9F9]/70 dark:bg-[#1E1E1E]/70 backdrop-blur-xl px-6 py-6 shadow-[0_-4px_40px_rgba(30,30,30,0.05)]">
+<button class="text-[#5F5E5E] dark:text-[#C7B299] flex items-center justify-center p-3 hover:brightness-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined">close</span>
+</button>
+<button class="bg-[#F2D06B] text-[#1E1E1E] rounded-full px-8 py-4 font-bold flex items-center justify-center grow hover:brightness-110 transition-all active:scale-[0.98] duration-200 shadow-lg">
+<span class="font-headline uppercase tracking-[5%] text-xs flex items-center gap-2">
+                Next Step
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</span>
+</button>
+</div>
+</body></html>

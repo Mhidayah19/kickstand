@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Add Machine - Select Brand</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#e5c360",
+              "primary-container": "#b7b5b4",
+              "outline-variant": "#d0c5ba",
+              "on-background": "#1a1c1c",
+              "surface": "#f9f9f9",
+              "surface-container-low": "#f3f3f3",
+              "surface-bright": "#f9f9f9",
+              "primary-fixed-dim": "#c8c6c5",
+              "tertiary": "#6c5c47",
+              "primary-fixed": "#e5e2e1",
+              "primary": "#5f5e5e",
+              "on-tertiary": "#ffffff",
+              "on-secondary-fixed-variant": "#574500",
+              "on-secondary-fixed": "#241a00",
+              "background": "#f9f9f9",
+              "on-secondary-container": "#765e00",
+              "secondary-container": "#fcda74",
+              "error-container": "#ffdad6",
+              "on-primary": "#ffffff",
+              "inverse-on-surface": "#f1f1f1",
+              "tertiary-container": "#c7b299",
+              "surface-container-lowest": "#ffffff",
+              "outline": "#7e766c",
+              "surface-variant": "#e2e2e2",
+              "on-surface": "#1a1c1c",
+              "secondary-fixed": "#ffe088",
+              "surface-container": "#eeeeee",
+              "inverse-primary": "#c8c6c5",
+              "tertiary-fixed": "#f6dfc4",
+              "on-tertiary-fixed": "#251909",
+              "on-surface-variant": "#4d463d",
+              "surface-container-high": "#e8e8e8",
+              "inverse-surface": "#2f3131",
+              "on-primary-container": "#474746",
+              "secondary": "#735c00",
+              "on-tertiary-container": "#534431",
+              "surface-dim": "#dadada",
+              "surface-container-highest": "#e2e2e2",
+              "error": "#ba1a1a",
+              "on-secondary": "#ffffff",
+              "on-primary-fixed-variant": "#474746",
+              "on-tertiary-fixed-variant": "#534431",
+              "on-error-container": "#93000a",
+              "on-error": "#ffffff",
+              "on-primary-fixed": "#1b1b1c",
+              "tertiary-fixed-dim": "#d9c3a9",
+              "surface-tint": "#5f5e5e"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #F9F9F9;
+        }
+        /* Custom scrollbar suppression for a clean industrial look */
+        ::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="flex items-center justify-between px-6 h-16 w-full sticky top-0 z-50 bg-[#F9F9F9] dark:bg-[#1E1E1E]">
+<div class="flex items-center gap-4">
+<button class="text-[#5F5E5E] dark:text-[#C7B299] hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-[#1E1E1E] dark:text-[#F9F9F9] font-['Plus_Jakarta_SANS'] font-bold tracking-[-2%] text-lg">Add Machine</h1>
+</div>
+<div class="w-10"></div> <!-- Spacer -->
+</header>
+<!-- TopAppBar Separation Logic -->
+<div class="bg-[#C7B299] h-1 w-full"></div>
+<main class="flex-grow px-6 pt-8 pb-32 max-w-2xl mx-auto w-full">
+<!-- Step Indicator & Header -->
+<div class="mb-8">
+<span class="text-secondary font-bold text-[10px] uppercase tracking-[5%] font-label mb-2 block">STEP 01</span>
+<h2 class="text-3xl font-bold tracking-tight text-on-surface mb-6 font-headline">Select Brand</h2>
+<!-- Progress Bar -->
+<div class="flex gap-2 h-1.5 w-full mb-8">
+<div class="flex-1 bg-primary rounded-full"></div>
+<div class="flex-1 bg-surface-container-highest rounded-full"></div>
+<div class="flex-1 bg-surface-container-highest rounded-full"></div>
+<div class="flex-1 bg-surface-container-highest rounded-full"></div>
+</div>
+</div>
+<!-- Search Bar -->
+<div class="relative mb-8 group">
+<div class="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline">search</span>
+</div>
+<input class="w-full h-14 pl-12 pr-4 bg-surface-container-high border-none rounded-xl text-on-surface placeholder:text-outline focus:ring-0 focus:bg-surface-container-highest transition-colors" placeholder="Search brands (e.g. Ducati, Triumph)" type="text"/>
+<div class="absolute bottom-0 left-0 h-0.5 bg-secondary-container w-0 group-focus-within:w-full transition-all duration-300"></div>
+</div>
+<!-- Section Label -->
+<div class="mb-4">
+<h3 class="text-[11px] font-bold uppercase tracking-[5%] text-primary opacity-60 font-label">Popular Manufacturers</h3>
+</div>
+<!-- Brand Chips Bento-ish Wrap -->
+<div class="flex flex-wrap gap-3 mb-12">
+<!-- Brand Chip Template -->
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">motorcycle</span>
+<span class="text-sm font-medium">Honda</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">electric_moped</span>
+<span class="text-sm font-medium">Yamaha</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">sports_motorsports</span>
+<span class="text-sm font-medium">Kawasaki</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">speed</span>
+<span class="text-sm font-medium">Ducati</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">engineering</span>
+<span class="text-sm font-medium">BMW</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">shield</span>
+<span class="text-sm font-medium">Triumph</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">flash_on</span>
+<span class="text-sm font-medium">KTM</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">route</span>
+<span class="text-sm font-medium">Harley-Davidson</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">history_edu</span>
+<span class="text-sm font-medium">Royal Enfield</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">airline_stops</span>
+<span class="text-sm font-medium">Aprilia</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">stars</span>
+<span class="text-sm font-medium">Moto Guzzi</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">tire_repair</span>
+<span class="text-sm font-medium">Suzuki</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">pentagon</span>
+<span class="text-sm font-medium">Benelli</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">hexagon</span>
+<span class="text-sm font-medium">Husqvarna</span>
+</button>
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">hiking</span>
+<span class="text-sm font-medium">Indian</span>
+</button>
+<!-- Others Chip -->
+<button class="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-full border border-dashed border-outline/30 hover:bg-tertiary-container transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-lg">add</span>
+<span class="text-sm font-medium">Others</span>
+</button>
+</div>
+<!-- Visual Delight Element -->
+<div class="relative w-full h-48 rounded-2xl overflow-hidden bg-surface-container-low mb-8 group">
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10"></div>
+<img class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" data-alt="Modern high-performance motorcycle detail with shallow depth of field, sand-blasted metal textures and warm industrial lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5ehayIm-PDojsdUuQT9N4V8MFk7lNG1OjMjhuimkouAyBDAIn0bUUsg11G4_U35NvJCzFbYwRFHEu_om8mCyDHGWsVxbZaRjyZrrmRR3x2udIrXAs4rOJmlsDJg0JGBysa4hMZTsMPfLs6SlxbRTKCdMfxdP9WvFZz_iEtlTqqJMHekVctlIiTGjx-ybuW4_bMQsehPj5NUPnZGmi4fvUX3ZMvDHS_NA1OOC834V_oa1jZkgOataDV-EaqSrn32qHVTVsDB1ZOfYC"/>
+<div class="absolute bottom-4 left-4 z-20">
+<p class="text-white text-xs font-label uppercase tracking-widest opacity-80">Precision Atelier</p>
+<p class="text-white text-lg font-bold font-headline">Craftsmanship Redefined</p>
+</div>
+<!-- Abstract Geometry Overlay -->
+<div class="absolute -top-12 -right-12 w-40 h-40 bg-secondary/10 rounded-full blur-3xl"></div>
+</div>
+</main>
+<!-- BottomNavBar (Action Shell) -->
+<div class="fixed bottom-0 left-0 w-full z-50 flex items-center gap-4 bg-transparent px-6 py-6 backdrop-blur-md">
+<button class="text-[#5F5E5E] dark:text-[#C7B299] flex items-center justify-center p-3 hover:brightness-110 transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">close</span>
+</button>
+<button class="bg-[#F2D06B] text-[#1E1E1E] rounded-xl px-8 py-4 font-bold flex items-center justify-center grow hover:brightness-110 transition-all active:scale-[0.98] duration-200 shadow-lg shadow-secondary/20">
+<span class="mr-2 uppercase text-xs tracking-widest font-label">Next Step</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</body></html>
