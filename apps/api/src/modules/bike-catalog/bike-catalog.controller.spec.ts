@@ -47,7 +47,7 @@ describe('BikeCatalogController', () => {
         },
       ];
       jest.spyOn(service, 'findModelsByMake').mockResolvedValue(models as any);
-      expect(await controller.getModels('Honda')).toEqual(models);
+      expect(await controller.getModels({ make: 'Honda' })).toEqual(models);
     });
   });
 

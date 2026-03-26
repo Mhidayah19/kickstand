@@ -21,19 +21,24 @@ export class BikesService {
   ) {}
 
   async create(userId: string, dto: CreateBikeDto) {
-    if (dto.catalogId) {
-      const catalog = await this.bikeCatalogService.findOneById(dto.catalogId);
-      dto.make = catalog.make;
-      dto.engineCc = catalog.engineCc ?? undefined;
-      dto.bikeType = catalog.bikeType;
-      dto.class = catalog.licenseClass;
-    }
-
+    const values = await this.resolveCatalogFields(dto);
     const [bike] = await this.db
       .insert(schema.bikes)
-      .values({ userId, ...dto })
+      .values({ userId, ...values })
       .returning();
     return bike;
+  }
+
+  private async resolveCatalogFields(dto: CreateBikeDto): Promise<CreateBikeDto> {
+    if (!dto.catalogId) return dto;
+    const catalog = await this.bikeCatalogService.findOneById(dto.catalogId);
+    return {
+      ...dto,
+      make: catalog.make,
+      engineCc: catalog.engineCc ?? undefined,
+      bikeType: catalog.bikeType,
+      class: catalog.licenseClass,
+    };
   }
 
   async findAllByUser(userId: string) {
