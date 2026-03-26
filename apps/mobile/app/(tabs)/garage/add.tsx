@@ -3,7 +3,7 @@ import {
   View, Text, TouchableOpacity, TextInput,
   ScrollView, KeyboardAvoidingView, Platform,
   ActivityIndicator, LayoutChangeEvent,
-  Animated,
+  Animated, InteractionManager,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -17,13 +17,11 @@ import { TOP_BRANDS, getDisplayBrands } from '../../../lib/brand-picker';
 
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
+// ── Constants ───────────────────────────────────────────────────
 const PLACEHOLDER_COLOR = colors.outline;
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const BIKE_CLASSES: BikeClass[] = ['2B', '2A', '2'];
 const CLASS_LABELS: Record<BikeClass, string> = { '2B': '\u2264 200cc', '2A': '\u2264 400cc', '2': 'No limit' };
-
-// ── Constants ───────────────────────────────────────────────────
-export { TOP_BRANDS, getDisplayBrands } from '../../../lib/brand-picker';
 
 const BRAND_ICONS: Record<string, IconName> = {
   Honda: 'motorbike',
@@ -70,7 +68,7 @@ function FadeIn({ children }: { children: React.ReactNode }) {
       Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
       Animated.timing(translateY, { toValue: 0, duration: 300, useNativeDriver: true }),
     ]).start();
-  }, [opacity, translateY]);
+  }, []);
 
   return (
     <Animated.View style={{ opacity, transform: [{ translateY }] }}>
@@ -356,7 +354,7 @@ export default function AddMachineScreen() {
       return updated;
     });
     setFormError(null);
-    setTimeout(() => scrollToSection(next), 100);
+    InteractionManager.runAfterInteractions(() => scrollToSection(next));
   };
 
   const reopenSection = (key: SectionKey) => {
@@ -382,7 +380,7 @@ export default function AddMachineScreen() {
       setSelectedCatalogEntry(null);
     }
     setFormError(null);
-    setTimeout(() => scrollToSection(key), 100);
+    InteractionManager.runAfterInteractions(() => scrollToSection(key));
   };
 
   const handleChange = (field: keyof FormData, value: string) => {
