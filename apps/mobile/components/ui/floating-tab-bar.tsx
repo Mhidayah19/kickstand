@@ -27,7 +27,8 @@ export function FloatingTabBar({ state, navigation, onAgentPress }: FloatingTabB
     return () => { showSub.remove(); hideSub.remove(); };
   }, []);
 
-  if (keyboardVisible) return null;
+  const currentRouteName = state.routes[state.index]?.name;
+  if (keyboardVisible || !TAB_ICONS[currentRouteName]) return null;
 
   return (
     <View className="absolute bottom-6 left-0 right-0 items-center">
