@@ -38,8 +38,12 @@ export const bikeCatalog = pgTable(
     engineCc: integer('engine_cc'),
     bikeType: text('bike_type').notNull(),
     licenseClass: text('license_class').notNull(),
-    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     unique('bike_catalog_make_model_unique').on(table.make, table.model),

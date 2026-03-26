@@ -56,7 +56,10 @@ export class MaintenanceReminderJob {
             or(
               eq(schema.maintenanceSchedules.bikeModel, bike.model),
               bike.make
-                ? eq(schema.maintenanceSchedules.bikeModel, `${bike.make} ${bike.model}`)
+                ? eq(
+                    schema.maintenanceSchedules.bikeModel,
+                    `${bike.make} ${bike.model}`,
+                  )
                 : undefined,
             ),
           )

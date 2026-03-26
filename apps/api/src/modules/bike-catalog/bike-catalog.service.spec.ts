@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Test, TestingModule } from '@nestjs/testing';
 import { BikeCatalogService } from './bike-catalog.service';
 import { DRIZZLE } from '../../database/database.module';
@@ -16,10 +19,7 @@ describe('BikeCatalogService', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        BikeCatalogService,
-        { provide: DRIZZLE, useValue: mockDb },
-      ],
+      providers: [BikeCatalogService, { provide: DRIZZLE, useValue: mockDb }],
     }).compile();
 
     service = module.get<BikeCatalogService>(BikeCatalogService);
@@ -46,7 +46,14 @@ describe('BikeCatalogService', () => {
   describe('findModelsByMake', () => {
     it('should return catalog entries filtered by make', async () => {
       const mockEntries = [
-        { id: '1', make: 'Honda', model: 'CB400X', engineCc: 399, bikeType: 'Adventure', licenseClass: '2A' },
+        {
+          id: '1',
+          make: 'Honda',
+          model: 'CB400X',
+          engineCc: 399,
+          bikeType: 'Adventure',
+          licenseClass: '2A',
+        },
       ];
       mockDb.orderBy.mockResolvedValue(mockEntries);
 
@@ -57,7 +64,14 @@ describe('BikeCatalogService', () => {
 
   describe('findOneById', () => {
     it('should return a single catalog entry', async () => {
-      const mockEntry = { id: '1', make: 'Honda', model: 'CB400X', engineCc: 399, bikeType: 'Adventure', licenseClass: '2A' };
+      const mockEntry = {
+        id: '1',
+        make: 'Honda',
+        model: 'CB400X',
+        engineCc: 399,
+        bikeType: 'Adventure',
+        licenseClass: '2A',
+      };
       mockDb.where.mockResolvedValue([mockEntry]);
 
       const result = await service.findOneById('1');
@@ -67,7 +81,9 @@ describe('BikeCatalogService', () => {
     it('should throw NotFoundException for invalid id', async () => {
       mockDb.where.mockResolvedValue([]);
 
-      await expect(service.findOneById('999')).rejects.toThrow('Catalog entry 999 not found');
+      await expect(service.findOneById('999')).rejects.toThrow(
+        'Catalog entry 999 not found',
+      );
     });
   });
 });
