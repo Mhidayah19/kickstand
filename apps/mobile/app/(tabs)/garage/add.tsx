@@ -267,13 +267,11 @@ function StepBrand({
         </View>
       )}
 
-      {/* Divider */}
-      <View className="flex-row items-center gap-sm mb-md">
-        <View className="flex-1 h-px bg-sand/40" />
+      {/* Separator label */}
+      <View className="items-center mb-md mt-xs">
         <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest">
           or search all brands
         </Text>
-        <View className="flex-1 h-px bg-sand/40" />
       </View>
 
       {/* Search */}
