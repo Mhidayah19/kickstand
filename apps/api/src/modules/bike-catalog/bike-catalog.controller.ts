@@ -1,11 +1,6 @@
-import {
-  BadRequestException,
-  Controller,
-  Get,
-  Param,
-  Query,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { BikeCatalogService } from './bike-catalog.service';
+import { GetModelsQueryDto } from './dto/get-models-query.dto';
 
 @Controller('bike-catalog')
 export class BikeCatalogController {
@@ -17,11 +12,8 @@ export class BikeCatalogController {
   }
 
   @Get('models')
-  getModels(@Query('make') make: string) {
-    if (!make) {
-      throw new BadRequestException('make query parameter is required');
-    }
-    return this.bikeCatalogService.findModelsByMake(make);
+  getModels(@Query() query: GetModelsQueryDto) {
+    return this.bikeCatalogService.findModelsByMake(query.make);
   }
 
   @Get(':id')
