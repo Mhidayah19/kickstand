@@ -252,6 +252,18 @@ npx drizzle-kit push
 npm run seed:service-types
 ```
 
+### 4. Seed the bike catalog
+
+The bike catalog data is not checked into git. Generate and seed it:
+
+```bash
+# From repo root — scrapes catalog data (requires internet)
+npx ts-node scripts/scrape-bike-catalog.ts
+
+# Then seed into the database
+npx ts-node scripts/seed-bike-catalog.ts
+```
+
 ### 4. Start the API
 
 ```bash

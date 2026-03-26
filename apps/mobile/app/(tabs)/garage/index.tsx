@@ -1,8 +1,10 @@
 import { router } from 'expo-router';
 import React, { useMemo } from 'react';
-import { Text, View } from 'react-native';
+import { Text, View, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BikeImageCard } from '../../../components/bike/bike-image-card';
 import { EmptyState } from '../../../components/ui/empty-state';
+import { colors } from '../../../lib/colors';
 import { SafeScreen } from '../../../components/ui/safe-screen';
 import { ScreenHeader } from '../../../components/ui/screen-header';
 import { Section } from '../../../components/ui/section';
@@ -73,14 +75,19 @@ export default function GarageScreen() {
       {bikes && bikes.length > 0 && (
         <View className="gap-6 mb-6">
           {bikes.map((bike) => {
-            const { make, modelName } = parseMakeModel(bike.model);
+            // Bikes with a catalog entry have separate make + model fields.
+            // Legacy bikes (pre-catalog) store the full "Honda CB400X" in model.
+            const { make: parsedMake, modelName: parsedModel } = parseMakeModel(bike.model);
+            const make = bike.make ?? parsedMake;
+            const model = bike.make ? bike.model : parsedModel;
             const status = getBikeStatus(bike);
             const mileage = bike.currentMileage;
             return (
               <BikeImageCard
                 key={bike.id}
                 make={make}
-                model={modelName}
+                model={model}
+                imageUri={bike.imageUrl ?? undefined}
                 status={status}
                 mileage={{ value: mileage, unit: 'km' }}
                 onPress={() => router.push(`/(tabs)/garage/${bike.id}` as any)}
@@ -90,14 +97,29 @@ export default function GarageScreen() {
         </View>
       )}
 
-      {/* Expand Your Fleet */}
+      {/* Add machine */}
       <View className="mb-8">
-        <EmptyState
-          title="Expand Your Fleet"
-          actionLabel="Expand Your Fleet"
-          description="Add another machine to your garage"
-          onAction={() => router.push('/(tabs)/garage/add' as any)}
-        />
+        {bikes && bikes.length > 0 ? (
+          <TouchableOpacity
+            className="border-2 border-dashed border-sand/40 rounded-2xl px-md py-md flex-row items-center gap-sm active:border-yellow"
+            onPress={() => router.push('/(tabs)/garage/add' as any)}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Add another machine"
+          >
+            <View className="w-8 h-8 rounded-full bg-sand/10 items-center justify-center">
+              <MaterialCommunityIcons name="plus" size={20} color={colors.sand} />
+            </View>
+            <Text className="font-sans-bold text-sm text-sand">Add another machine</Text>
+          </TouchableOpacity>
+        ) : (
+          <EmptyState
+            title="Expand Your Fleet"
+            actionLabel="Add a Machine"
+            description="Add a machine to your garage"
+            onAction={() => router.push('/(tabs)/garage/add' as any)}
+          />
+        )}
       </View>
 
       {/* Fleet Integrity Summary */}

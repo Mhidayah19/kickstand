@@ -26,6 +26,9 @@ supabase/.temp/
 docs/plan/
 docs/research/
 
+# Bike catalog seed data (re-generate via scripts/scrape-bike-catalog.ts)
+scripts/data/bike-catalog-seed.json
+
 # Mobile env
 apps/mobile/.env
 apps/mobile/.env.local

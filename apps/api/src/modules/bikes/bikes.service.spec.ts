@@ -7,6 +7,7 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { BikesService } from './bikes.service';
 import { DRIZZLE } from '../../database/database.module';
 import { CreateBikeDto } from './dto/create-bike.dto';
+import { BikeCatalogService } from '../bike-catalog/bike-catalog.service';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
 
 const mockDb: any = {};
@@ -14,6 +15,7 @@ mockDb.insert = jest.fn(() => mockDb);
 mockDb.values = jest.fn(() => mockDb);
 mockDb.select = jest.fn(() => mockDb);
 mockDb.from = jest.fn(() => mockDb);
+mockDb.leftJoin = jest.fn(() => mockDb);
 mockDb.where = jest.fn(() => mockDb);
 mockDb.set = jest.fn(() => mockDb);
 mockDb.update = jest.fn(() => mockDb);
@@ -27,7 +29,11 @@ describe('BikesService', () => {
     jest.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [BikesService, { provide: DRIZZLE, useValue: mockDb }],
+      providers: [
+        BikesService,
+        { provide: DRIZZLE, useValue: mockDb },
+        { provide: BikeCatalogService, useValue: { findOneById: jest.fn() } },
+      ],
     }).compile();
 
     service = module.get<BikesService>(BikesService);
@@ -63,15 +69,17 @@ describe('BikesService', () => {
         { id: 'bike-uuid-1', userId, model: 'Honda CB400X' },
         { id: 'bike-uuid-2', userId, model: 'Yamaha MT-07' },
       ];
+      const rows = bikes.map((bike) => ({ bike, imageUrl: null }));
 
-      mockDb.where.mockResolvedValue(bikes);
+      mockDb.where.mockResolvedValue(rows);
 
       const result = await service.findAllByUser(userId);
 
       expect(mockDb.select).toHaveBeenCalled();
       expect(mockDb.from).toHaveBeenCalled();
+      expect(mockDb.leftJoin).toHaveBeenCalled();
       expect(mockDb.where).toHaveBeenCalled();
-      expect(result).toEqual(bikes);
+      expect(result).toEqual(bikes.map((b) => ({ ...b, imageUrl: null })));
     });
   });
 
@@ -81,11 +89,11 @@ describe('BikesService', () => {
       const userId = 'user-uuid-1';
       const bike = { id: bikeId, userId, model: 'Honda CB400X' };
 
-      mockDb.where.mockResolvedValue([bike]);
+      mockDb.where.mockResolvedValue([{ bike, imageUrl: null }]);
 
       const result = await service.findOneByUser(bikeId, userId);
 
-      expect(result).toEqual(bike);
+      expect(result).toEqual({ ...bike, imageUrl: null });
     });
 
     it('should throw NotFoundException if bike not found', async () => {
@@ -112,8 +120,8 @@ describe('BikesService', () => {
       };
       const dto: UpdateMileageDto = { currentMileage: 5000 };
 
-      // findOneByUser calls select().from().where() — use mockResolvedValueOnce
-      mockDb.where.mockResolvedValueOnce([existingBike]);
+      // findOneByUser calls select().from().leftJoin().where() — return { bike, imageUrl } shape
+      mockDb.where.mockResolvedValueOnce([{ bike: existingBike, imageUrl: null }]);
 
       await expect(service.updateMileage(bikeId, userId, dto)).rejects.toThrow(
         BadRequestException,
@@ -132,9 +140,9 @@ describe('BikesService', () => {
       const dto: UpdateMileageDto = { currentMileage: 15000 };
       const updatedBike = { ...existingBike, currentMileage: 15000 };
 
-      // First call: findOneByUser → where resolves with existing bike (select terminal)
+      // First call: findOneByUser → where resolves with { bike, imageUrl } shape
       mockDb.where.mockImplementationOnce(() =>
-        Promise.resolve([existingBike]),
+        Promise.resolve([{ bike: existingBike, imageUrl: null }]),
       );
       // Subsequent calls: where returns mockDb so the update chain can call .returning()
       mockDb.where.mockImplementation(() => mockDb);

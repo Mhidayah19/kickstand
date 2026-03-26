@@ -1,5 +1,14 @@
 export type BikeClass = '2B' | '2A' | '2';
 
+export interface BikeCatalogEntry {
+  id: string;
+  make: string;
+  model: string;
+  engineCc: number | null;
+  bikeType: string;
+  licenseClass: BikeClass;
+}
+
 export interface Bike {
   id: string;
   userId: string;
@@ -12,6 +21,11 @@ export interface Bike {
   roadTaxExpiry: string | null;
   insuranceExpiry: string | null;
   inspectionDue: string | null;
+  make: string | null;
+  engineCc: number | null;
+  bikeType: string | null;
+  catalogId: string | null;
+  imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -26,6 +40,10 @@ export interface CreateBikeInput {
   roadTaxExpiry?: string;
   insuranceExpiry?: string;
   inspectionDue?: string;
+  make?: string;
+  engineCc?: number;
+  bikeType?: string;
+  catalogId?: string;
 }
 
 export type UpdateBikeInput = Partial<CreateBikeInput>;

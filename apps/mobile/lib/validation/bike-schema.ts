@@ -17,6 +17,10 @@ export const bikeSchema = z.object({
   roadTaxExpiry: isoDateOrEmpty,
   insuranceExpiry: isoDateOrEmpty,
   inspectionDue: isoDateOrEmpty,
+  make: z.string().min(1, 'Brand is required').optional(),
+  engineCc: z.number().int().min(0).optional(),
+  bikeType: z.string().optional(),
+  catalogId: z.string().uuid().optional(),
 });
 
 export const updateMileageSchema = z.object({

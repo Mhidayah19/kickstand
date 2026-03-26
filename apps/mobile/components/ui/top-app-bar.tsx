@@ -6,9 +6,10 @@ import { colors } from '../../lib/colors';
 
 interface TopAppBarProps {
   onNotificationPress?: () => void;
+  onMorePress?: () => void;
 }
 
-export function TopAppBar({ onNotificationPress }: TopAppBarProps) {
+export function TopAppBar({ onNotificationPress, onMorePress }: TopAppBarProps) {
   const insets = useSafeAreaInsets();
 
   return (
@@ -26,13 +27,15 @@ export function TopAppBar({ onNotificationPress }: TopAppBarProps) {
             PRECISION ATELIER
           </Text>
         </View>
-        <Pressable
-          onPress={onNotificationPress}
-          hitSlop={8}
-          className="active:opacity-70"
-        >
-          <MaterialCommunityIcons name="bell-outline" size={24} color={colors.charcoal} />
-        </Pressable>
+        {onMorePress ? (
+          <Pressable onPress={onMorePress} hitSlop={8} className="active:opacity-70">
+            <MaterialCommunityIcons name="dots-vertical" size={24} color={colors.charcoal} />
+          </Pressable>
+        ) : (
+          <Pressable onPress={onNotificationPress} hitSlop={8} className="active:opacity-70">
+            <MaterialCommunityIcons name="bell-outline" size={24} color={colors.charcoal} />
+          </Pressable>
+        )}
       </View>
     </BlurView>
   );

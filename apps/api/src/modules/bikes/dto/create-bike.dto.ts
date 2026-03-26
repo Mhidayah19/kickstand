@@ -4,6 +4,7 @@ import {
   IsIn,
   IsOptional,
   IsDateString,
+  IsUUID,
   Min,
 } from 'class-validator';
 
@@ -41,4 +42,21 @@ export class CreateBikeDto {
   @IsOptional()
   @IsDateString()
   inspectionDue?: string;
+
+  @IsOptional()
+  @IsString()
+  make?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  engineCc?: number;
+
+  @IsOptional()
+  @IsString()
+  bikeType?: string;
+
+  @IsOptional()
+  @IsUUID()
+  catalogId?: string;
 }

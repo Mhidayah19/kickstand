@@ -11,36 +11,63 @@ import * as schema from '../../database/schema';
 import { CreateBikeDto } from './dto/create-bike.dto';
 import { UpdateBikeDto } from './dto/update-bike.dto';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
+import { BikeCatalogService } from '../bike-catalog/bike-catalog.service';
 
 @Injectable()
 export class BikesService {
-  constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: DrizzleDB,
+    private readonly bikeCatalogService: BikeCatalogService,
+  ) {}
 
   async create(userId: string, dto: CreateBikeDto) {
+    const values = await this.resolveCatalogFields(dto);
     const [bike] = await this.db
       .insert(schema.bikes)
-      .values({ userId, ...dto })
+      .values({ userId, ...values })
       .returning();
     return bike;
   }
 
+  private async resolveCatalogFields(dto: CreateBikeDto): Promise<CreateBikeDto> {
+    if (!dto.catalogId) return dto;
+    const catalog = await this.bikeCatalogService.findOneById(dto.catalogId);
+    return {
+      ...dto,
+      make: catalog.make,
+      engineCc: catalog.engineCc ?? undefined,
+      bikeType: catalog.bikeType,
+      class: catalog.licenseClass,
+    };
+  }
+
   async findAllByUser(userId: string) {
-    return this.db
-      .select()
+    const rows = await this.db
+      .select({
+        bike: schema.bikes,
+        imageUrl: schema.bikeCatalog.imageUrl,
+      })
       .from(schema.bikes)
+      .leftJoin(schema.bikeCatalog, eq(schema.bikes.catalogId, schema.bikeCatalog.id))
       .where(eq(schema.bikes.userId, userId));
+
+    return rows.map(({ bike, imageUrl }) => ({ ...bike, imageUrl: imageUrl ?? null }));
   }
 
   async findOneByUser(bikeId: string, userId: string) {
-    const [bike] = await this.db
-      .select()
+    const [row] = await this.db
+      .select({
+        bike: schema.bikes,
+        imageUrl: schema.bikeCatalog.imageUrl,
+      })
       .from(schema.bikes)
+      .leftJoin(schema.bikeCatalog, eq(schema.bikes.catalogId, schema.bikeCatalog.id))
       .where(and(eq(schema.bikes.id, bikeId), eq(schema.bikes.userId, userId)));
 
-    if (!bike) {
+    if (!row) {
       throw new NotFoundException(`Bike ${bikeId} not found`);
     }
-    return bike;
+    return { ...row.bike, imageUrl: row.imageUrl ?? null };
   }
 
   async update(bikeId: string, userId: string, dto: UpdateBikeDto) {

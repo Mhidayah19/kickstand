@@ -12,6 +12,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { WorkshopsModule } from './modules/workshops/workshops.module';
 import { ServiceLogsModule } from './modules/service-logs/service-logs.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { BikeCatalogModule } from './modules/bike-catalog/bike-catalog.module';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -57,6 +58,7 @@ const isProd = process.env.NODE_ENV === 'production';
     TerminusModule,
     DatabaseModule,
     BikesModule,
+    BikeCatalogModule,
     AuthModule,
     WorkshopsModule,
     ServiceLogsModule,
