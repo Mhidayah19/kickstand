@@ -11,12 +11,24 @@ import * as schema from '../../database/schema';
 import { CreateBikeDto } from './dto/create-bike.dto';
 import { UpdateBikeDto } from './dto/update-bike.dto';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
+import { BikeCatalogService } from '../bike-catalog/bike-catalog.service';
 
 @Injectable()
 export class BikesService {
-  constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: DrizzleDB,
+    private readonly bikeCatalogService: BikeCatalogService,
+  ) {}
 
   async create(userId: string, dto: CreateBikeDto) {
+    if (dto.catalogId) {
+      const catalog = await this.bikeCatalogService.findOneById(dto.catalogId);
+      dto.make = catalog.make;
+      dto.engineCc = catalog.engineCc ?? undefined;
+      dto.bikeType = catalog.bikeType;
+      dto.class = catalog.licenseClass;
+    }
+
     const [bike] = await this.db
       .insert(schema.bikes)
       .values({ userId, ...dto })

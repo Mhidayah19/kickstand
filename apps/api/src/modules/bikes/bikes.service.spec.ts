@@ -7,6 +7,7 @@ import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { BikesService } from './bikes.service';
 import { DRIZZLE } from '../../database/database.module';
 import { CreateBikeDto } from './dto/create-bike.dto';
+import { BikeCatalogService } from '../bike-catalog/bike-catalog.service';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
 
 const mockDb: any = {};
@@ -27,7 +28,11 @@ describe('BikesService', () => {
     jest.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [BikesService, { provide: DRIZZLE, useValue: mockDb }],
+      providers: [
+        BikesService,
+        { provide: DRIZZLE, useValue: mockDb },
+        { provide: BikeCatalogService, useValue: { findOneById: jest.fn() } },
+      ],
     }).compile();
 
     service = module.get<BikesService>(BikesService);
