@@ -8,6 +8,7 @@ interface CatalogEntry {
   engineCc: number | null;
   bikeType: string;
   licenseClass: string;
+  imageUrl: string | null;
 }
 
 const BASE_URL = 'https://sgbikemart.com.sg/listing/newbikes/listing/';
@@ -107,8 +108,14 @@ async function scrapePage(page: number): Promise<CatalogEntry[]> {
     const validClasses = ['2B', '2A', '2'];
     const normalizedClass = validClasses.includes(licenseClass) ? licenseClass : '2';
 
+    // Extract listing image
+    const imgSrc = $(card).find('.card-img img').attr('src') || null;
+    const imageUrl = imgSrc
+      ? `https://sgbikemart.com.sg${imgSrc}`
+      : null;
+
     if (make && model) {
-      entries.push({ make, model, engineCc, bikeType, licenseClass: normalizedClass });
+      entries.push({ make, model, engineCc, bikeType, licenseClass: normalizedClass, imageUrl });
     }
   });
 

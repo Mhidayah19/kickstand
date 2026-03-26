@@ -12,6 +12,7 @@ interface CatalogEntry {
   engineCc: number | null;
   bikeType: string;
   licenseClass: string;
+  imageUrl?: string | null;
 }
 
 async function seed() {
@@ -40,6 +41,7 @@ async function seed() {
           engineCc: sql`excluded.engine_cc`,
           bikeType: sql`excluded.bike_type`,
           licenseClass: sql`excluded.license_class`,
+          imageUrl: sql`excluded.image_url`,
           updatedAt: new Date(),
         },
       });

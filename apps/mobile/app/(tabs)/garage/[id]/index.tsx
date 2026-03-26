@@ -24,6 +24,7 @@ export default function BikeDetailScreen() {
 
   const handleDelete = async () => {
     await deleteBike.mutateAsync();
+    setShowDeleteDialog(false);
     router.replace('/(tabs)/garage' as any);
   };
 

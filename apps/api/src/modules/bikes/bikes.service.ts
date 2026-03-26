@@ -37,22 +37,32 @@ export class BikesService {
   }
 
   async findAllByUser(userId: string) {
-    return this.db
-      .select()
+    const rows = await this.db
+      .select({
+        bike: schema.bikes,
+        imageUrl: schema.bikeCatalog.imageUrl,
+      })
       .from(schema.bikes)
+      .leftJoin(schema.bikeCatalog, eq(schema.bikes.catalogId, schema.bikeCatalog.id))
       .where(eq(schema.bikes.userId, userId));
+
+    return rows.map(({ bike, imageUrl }) => ({ ...bike, imageUrl: imageUrl ?? null }));
   }
 
   async findOneByUser(bikeId: string, userId: string) {
-    const [bike] = await this.db
-      .select()
+    const [row] = await this.db
+      .select({
+        bike: schema.bikes,
+        imageUrl: schema.bikeCatalog.imageUrl,
+      })
       .from(schema.bikes)
+      .leftJoin(schema.bikeCatalog, eq(schema.bikes.catalogId, schema.bikeCatalog.id))
       .where(and(eq(schema.bikes.id, bikeId), eq(schema.bikes.userId, userId)));
 
-    if (!bike) {
+    if (!row) {
       throw new NotFoundException(`Bike ${bikeId} not found`);
     }
-    return bike;
+    return { ...row.bike, imageUrl: row.imageUrl ?? null };
   }
 
   async update(bikeId: string, userId: string, dto: UpdateBikeDto) {

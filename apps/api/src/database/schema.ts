@@ -38,6 +38,7 @@ export const bikeCatalog = pgTable(
     engineCc: integer('engine_cc'),
     bikeType: text('bike_type').notNull(),
     licenseClass: text('license_class').notNull(),
+    imageUrl: text('image_url'),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),

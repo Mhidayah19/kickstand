@@ -25,6 +25,7 @@ export interface Bike {
   engineCc: number | null;
   bikeType: string | null;
   catalogId: string | null;
+  imageUrl: string | null;
   createdAt: string;
   updatedAt: string;
 }
