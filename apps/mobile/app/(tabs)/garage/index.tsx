@@ -115,8 +115,8 @@ export default function GarageScreen() {
         ) : (
           <EmptyState
             title="Expand Your Fleet"
-            actionLabel="Expand Your Fleet"
-            description="Add another machine to your garage"
+            actionLabel="Add a Machine"
+            description="Add a machine to your garage"
             onAction={() => router.push('/(tabs)/garage/add' as any)}
           />
         )}
