@@ -1,6 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { eq, and, desc } from 'drizzle-orm';
+import { eq, and, desc, or } from 'drizzle-orm';
 import { DRIZZLE } from '../../../database/database.module';
 import type { DrizzleDB } from '../../../database/database.types';
 import * as schema from '../../../database/schema';
@@ -52,7 +52,14 @@ export class MaintenanceReminderJob {
         const schedules = await this.db
           .select()
           .from(schema.maintenanceSchedules)
-          .where(eq(schema.maintenanceSchedules.bikeModel, bike.model))
+          .where(
+            or(
+              eq(schema.maintenanceSchedules.bikeModel, bike.model),
+              bike.make
+                ? eq(schema.maintenanceSchedules.bikeModel, `${bike.make} ${bike.model}`)
+                : undefined,
+            ),
+          )
           .execute();
 
         if (schedules.length === 0) continue;
