@@ -48,3 +48,5 @@ export const SERVICE_FILTER_GROUPS = {
 
 export type FilterGroupKey = keyof typeof SERVICE_FILTER_GROUPS;
 export const FILTER_OPTIONS = Object.keys(SERVICE_FILTER_GROUPS) as FilterGroupKey[];
+
+export const SERVICE_CHIP_OPTIONS = SERVICE_TYPE_KEYS.map((key) => SERVICE_TYPE_LABELS[key]);

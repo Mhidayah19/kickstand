@@ -41,12 +41,11 @@ export function useServiceLogs(bikeId: string | null, limit?: number) {
 export function useCreateServiceLog(bikeId: string | null) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateServiceLogInput) => {
-      if (!bikeId) throw new Error('No bike selected');
-      return apiClient.post<ServiceLog>(`/bikes/${bikeId}/services`, input);
-    },
+    mutationFn: (input: CreateServiceLogInput) =>
+      apiClient.post<ServiceLog>(`/bikes/${bikeId}/services`, input),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: serviceLogsKeys.byBike(bikeId!) });
+      if (!bikeId) return;
+      queryClient.invalidateQueries({ queryKey: serviceLogsKeys.byBike(bikeId) });
       queryClient.invalidateQueries({ queryKey: serviceLogsKeys.all });
     },
   });

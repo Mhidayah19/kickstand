@@ -6,10 +6,19 @@ import {
 } from '../constants/service-types';
 import type { ServiceTypeKey } from '../constants/service-types';
 
-export const SERVICE_CHIP_OPTIONS = SERVICE_TYPE_KEYS.map((key) => SERVICE_TYPE_LABELS[key]);
-
 function todayISO(): string {
   return new Date().toISOString().split('T')[0];
+}
+
+function validateForm(mileage: string, date: string, cost: string, notes: string): number {
+  const mileageNum = parseInt(mileage, 10);
+  if (isNaN(mileageNum) || !date || !notes.trim() || !cost.trim()) {
+    throw new Error('Please fill in all required fields (type, mileage, date, cost, notes).');
+  }
+  if (isNaN(new Date(date).getTime())) {
+    throw new Error('Please enter a valid date in YYYY-MM-DD format.');
+  }
+  return mileageNum;
 }
 
 export function useServiceLogForm(bikeId: string | null) {
@@ -22,16 +31,7 @@ export function useServiceLogForm(bikeId: string | null) {
   const [notes, setNotes] = useState('');
 
   const handleSave = async () => {
-    const mileageNum = parseInt(mileage, 10);
-    if (isNaN(mileageNum) || !date || !notes.trim() || !cost.trim()) {
-      throw new Error('Please fill in all required fields (type, mileage, date, cost, notes).');
-    }
-
-    const parsedDate = new Date(date);
-    if (isNaN(parsedDate.getTime())) {
-      throw new Error('Please enter a valid date in YYYY-MM-DD format.');
-    }
-
+    const mileageNum = validateForm(mileage, date, cost, notes);
     return createLog.mutateAsync({
       serviceType: serviceTypeKey,
       mileageAt: mileageNum,
