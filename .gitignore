@@ -22,9 +22,8 @@ supabase/.temp/
 .worktrees/
 .superpowers/
 
-# Plan docs
-docs/plan/
-docs/research/
+# Docs
+docs/
 
 # Bike catalog seed data (re-generate via scripts/scrape-bike-catalog.ts)
 scripts/data/bike-catalog-seed.json

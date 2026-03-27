@@ -2,15 +2,20 @@ import { View, Text, Pressable } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { usePathname } from 'expo-router';
 import { colors } from '../../lib/colors';
+
+const MAIN_TAB_PATHS = new Set(['/', '/garage', '/agent', '/log', '/settings']);
 
 interface TopAppBarProps {
   onNotificationPress?: () => void;
-  onMorePress?: () => void;
 }
 
-export function TopAppBar({ onNotificationPress, onMorePress }: TopAppBarProps) {
+export function TopAppBar({ onNotificationPress }: TopAppBarProps) {
   const insets = useSafeAreaInsets();
+  const pathname = usePathname();
+
+  if (!MAIN_TAB_PATHS.has(pathname)) return null;
 
   return (
     <BlurView
@@ -27,15 +32,9 @@ export function TopAppBar({ onNotificationPress, onMorePress }: TopAppBarProps) 
             PRECISION ATELIER
           </Text>
         </View>
-        {onMorePress ? (
-          <Pressable onPress={onMorePress} hitSlop={8} className="active:opacity-70">
-            <MaterialCommunityIcons name="dots-vertical" size={24} color={colors.charcoal} />
-          </Pressable>
-        ) : (
-          <Pressable onPress={onNotificationPress} hitSlop={8} className="active:opacity-70">
-            <MaterialCommunityIcons name="bell-outline" size={24} color={colors.charcoal} />
-          </Pressable>
-        )}
+        <Pressable onPress={onNotificationPress} hitSlop={8} className="active:opacity-70">
+          <MaterialCommunityIcons name="bell-outline" size={24} color={colors.charcoal} />
+        </Pressable>
       </View>
     </BlurView>
   );
