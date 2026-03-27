@@ -7,12 +7,46 @@ interface SafeScreenProps {
   scrollable?: boolean;
   showAppBar?: boolean;
   className?: string;
+  activeBike?: {
+    id: string;
+    model: string;
+    year: number;
+  };
+  bikes?: Array<{
+    id: string;
+    model: string;
+    year: number;
+  }>;
+  onBikeChange?: (bikeId: string) => void;
+  onAddBikePress?: () => void;
+  onNotificationPress?: () => void;
+  unreadNotifications?: number;
 }
 
-export function SafeScreen({ children, scrollable = true, showAppBar = true, className = '' }: SafeScreenProps) {
+export function SafeScreen({
+  children,
+  scrollable = true,
+  showAppBar = true,
+  className = '',
+  activeBike,
+  bikes,
+  onBikeChange,
+  onAddBikePress,
+  onNotificationPress,
+  unreadNotifications,
+}: SafeScreenProps) {
   return (
     <SafeAreaView className={`flex-1 bg-surface ${className}`}>
-      {showAppBar && <TopAppBar />}
+      {showAppBar && (
+        <TopAppBar
+          activeBike={activeBike}
+          bikes={bikes}
+          onBikeChange={onBikeChange}
+          onAddBikePress={onAddBikePress}
+          onNotificationPress={onNotificationPress}
+          unreadNotifications={unreadNotifications}
+        />
+      )}
       {scrollable ? (
         <ScrollView
           contentContainerStyle={{ paddingTop: 80, paddingBottom: 128, paddingHorizontal: 24 }}

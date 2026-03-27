@@ -5,20 +5,19 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { useState, useEffect } from 'react';
 import { colors } from '../../lib/colors';
+import { useRouter } from 'expo-router';
 
 const TAB_ICONS: Record<string, string> = {
-  index: 'wrench',
+  index: 'home',
   'garage/index': 'motorbike',
-  agent: 'waveform',
   'service/index': 'clipboard-text-outline',
-  settings: 'cog',
+  settings: 'account-circle',
 };
 
-interface FloatingTabBarProps extends BottomTabBarProps {
-  onAgentPress?: () => void;
-}
+const TAB_ORDER = ['index', 'garage/index', 'service/index', 'settings'];
 
-export function FloatingTabBar({ state, navigation, onAgentPress }: FloatingTabBarProps) {
+export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
+  const router = useRouter();
   const [keyboardVisible, setKeyboardVisible] = useState(false);
 
   useEffect(() => {
@@ -28,62 +27,95 @@ export function FloatingTabBar({ state, navigation, onAgentPress }: FloatingTabB
   }, []);
 
   const currentRouteName = state.routes[state.index]?.name;
-  if (keyboardVisible || !TAB_ICONS[currentRouteName]) return null;
+  const isValidRoute = TAB_ORDER.includes(currentRouteName as string);
+  if (keyboardVisible || !isValidRoute) return null;
+
+  const getRouteKey = (name: string) => state.routes.find((r) => r.name === name)?.key ?? '';
+
+  const handleTabPress = (routeName: string) => {
+    const routeKey = getRouteKey(routeName);
+    const event = navigation.emit({ type: 'tabPress', target: routeKey, canPreventDefault: true });
+    if (currentRouteName !== routeName && !event.defaultPrevented) {
+      navigation.navigate(routeName);
+    }
+  };
+
+  const handleAddService = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    router.push('/(tabs)/service/add');
+  };
 
   return (
     <View className="absolute bottom-6 left-0 right-0 items-center">
       <BlurView
         intensity={80}
         tint="dark"
-        className="w-[90%] max-w-md rounded-3xl overflow-hidden"
+        className="w-[90%] max-w-lg rounded-3xl overflow-hidden"
       >
-        <View className="flex-row items-center justify-between px-8 py-3">
-          {state.routes.map((route, index) => {
-            const iconName = TAB_ICONS[route.name];
-            if (!iconName) return null; // skip hidden routes (garage/[id], etc.)
+        <View className="flex-row items-center justify-between px-6 py-3">
+          {/* Dashboard */}
+          <Pressable
+            onPress={() => handleTabPress('index')}
+            className="p-3 active:opacity-70"
+            hitSlop={8}
+          >
+            <MaterialCommunityIcons
+              name="home"
+              size={24}
+              color={currentRouteName === 'index' ? colors.yellow : colors.sand}
+            />
+          </Pressable>
 
-            const isFocused = state.index === index;
-            const isCenter = route.name === 'agent';
+          {/* Garage */}
+          <Pressable
+            onPress={() => handleTabPress('garage/index')}
+            className="p-3 active:opacity-70"
+            hitSlop={8}
+          >
+            <MaterialCommunityIcons
+              name="motorbike"
+              size={24}
+              color={currentRouteName === 'garage/index' ? colors.yellow : colors.sand}
+            />
+          </Pressable>
 
-            const onPress = () => {
-              if (isCenter) {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                onAgentPress?.();
-                return;
-              }
-              const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
-              if (!isFocused && !event.defaultPrevented) {
-                navigation.navigate(route.name);
-              }
-            };
+          {/* Center: Add Service Button */}
+          <Pressable
+            onPress={handleAddService}
+            className="bg-yellow rounded-full p-3 active:opacity-80 mx-2"
+            style={{ transform: [{ scale: 1.15 }] }}
+            hitSlop={8}
+          >
+            <MaterialCommunityIcons name="plus" size={28} color={colors.charcoal} />
+          </Pressable>
 
-            if (isCenter) {
-              return (
-                <Pressable
-                  key={route.key}
-                  onPress={onPress}
-                  className="bg-yellow rounded-full p-3 active:opacity-80"
-                  style={{ transform: [{ scale: 1.1 }] }}
-                >
-                  <MaterialCommunityIcons name={iconName as any} size={24} color={colors.charcoal} />
-                </Pressable>
-              );
-            }
+          {/* Services */}
+          <Pressable
+            onPress={() => handleTabPress('service/index')}
+            className="p-3 active:opacity-70"
+            hitSlop={8}
+          >
+            <MaterialCommunityIcons
+              name="clipboard-text-outline"
+              size={24}
+              color={currentRouteName === 'service/index' ? colors.yellow : colors.sand}
+            />
+          </Pressable>
 
-            return (
-              <Pressable
-                key={route.key}
-                onPress={onPress}
-                className="p-3 active:opacity-70"
-              >
-                <MaterialCommunityIcons
-                  name={iconName as any}
-                  size={24}
-                  color={isFocused ? colors.yellow : colors.sand}
-                />
-              </Pressable>
-            );
-          })}
+          {/* Profile/Settings */}
+          <Pressable
+            onPress={() => handleTabPress('settings')}
+            className="p-3 active:opacity-70"
+            hitSlop={8}
+          >
+            <View className="w-6 h-6 rounded-full bg-sand/40 items-center justify-center">
+              <MaterialCommunityIcons
+                name="account-circle"
+                size={24}
+                color={currentRouteName === 'settings' ? colors.yellow : colors.sand}
+              />
+            </View>
+          </Pressable>
         </View>
       </BlurView>
     </View>

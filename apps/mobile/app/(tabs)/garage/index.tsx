@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BikeImageCard } from '../../../components/bike/bike-image-card';
@@ -10,6 +10,7 @@ import { ScreenHeader } from '../../../components/ui/screen-header';
 import { Section } from '../../../components/ui/section';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { useBikes } from '../../../lib/api/use-bikes';
+import { useBikeStore } from '../../../lib/store/bike-store';
 import { daysUntil, getComplianceVariant } from '../../../lib/theme';
 import type { Bike } from '../../../lib/types/bike';
 
@@ -32,9 +33,15 @@ function parseMakeModel(model: string): { make: string; modelName: string } {
 }
 
 export default function GarageScreen() {
-  const { data: bikes, isLoading } = useBikes();
+  const { data: bikes = [], isLoading } = useBikes();
+  const { activeBikeId, setActiveBikeId } = useBikeStore();
+  const activeBike = bikes?.find((b) => b.id === activeBikeId);
 
   const bikeCount = bikes?.length ?? 0;
+
+  const handleAddBike = useCallback(() => {
+    router.push('/(tabs)/garage/add' as any);
+  }, []);
 
   // Fleet integrity stats
   const fleetStats = useMemo(() => {
@@ -54,7 +61,13 @@ export default function GarageScreen() {
   // Loading state
   if (isLoading) {
     return (
-      <SafeScreen scrollable>
+      <SafeScreen
+        scrollable
+        bikes={bikes?.map((b) => ({ id: b.id, model: b.model, year: b.year })) ?? []}
+        activeBike={activeBike && { id: activeBike.id, model: activeBike.model, year: activeBike.year }}
+        onBikeChange={setActiveBikeId}
+        onAddBikePress={handleAddBike}
+      >
         <Skeleton height={20} className="rounded-md mb-2 w-24" />
         <Skeleton height={36} className="rounded-md mb-2 w-40" />
         <Skeleton height={16} className="rounded-md mb-8 w-48" />
@@ -65,7 +78,12 @@ export default function GarageScreen() {
   }
 
   return (
-    <SafeScreen scrollable>
+    <SafeScreen
+      scrollable
+      bikes={bikes?.map((b) => ({ id: b.id, model: b.model, year: b.year })) ?? []}
+      activeBike={activeBike && { id: activeBike.id, model: activeBike.model, year: activeBike.year }}
+      onBikeChange={setActiveBikeId}
+    >
       <ScreenHeader
         title="My Garage"
         subtitle={`Your Fleet \u2022 ${bikeCount} Machine${bikeCount !== 1 ? 's' : ''}`}

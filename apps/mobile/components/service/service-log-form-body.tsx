@@ -1,10 +1,9 @@
-import React from 'react';
-import { Text, TextInput, View } from 'react-native';
+import React, { useState } from 'react';
+import { Text, TextInput, View, Pressable } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
 import { FilterChips } from '../ui/filter-chips';
 import { PrimaryButton } from '../ui/primary-button';
-import { SafeScreen } from '../ui/safe-screen';
 import { ScreenHeader } from '../ui/screen-header';
 import { Section } from '../ui/section';
 import { TextField } from '../ui/text-field';
@@ -15,12 +14,27 @@ interface ServiceLogFormBodyProps {
   form: ReturnType<typeof useServiceLogForm>;
   bikeLabel: string;
   onSave: () => Promise<void>;
+  onExit?: () => void;
 }
 
-export function ServiceLogFormBody({ form, bikeLabel, onSave }: ServiceLogFormBodyProps) {
+export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit }: ServiceLogFormBodyProps) {
+  const [notesFocused, setNotesFocused] = useState(false);
+
   return (
-    <SafeScreen scrollable>
-      <ScreenHeader title="New Service Log" subtitle={bikeLabel} />
+    <View>
+      <ScreenHeader
+        title="New Service Log"
+        subtitle={bikeLabel}
+        rightAction={
+          <Pressable
+            onPress={onExit}
+            hitSlop={8}
+            className="w-10 h-10 rounded-full bg-sand/20 items-center justify-center active:opacity-70"
+          >
+            <MaterialCommunityIcons name="close" size={24} color={colors.charcoal} />
+          </Pressable>
+        }
+      />
 
       {/* Service Type Selector */}
       <View className="mb-8">
@@ -43,7 +57,7 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave }: ServiceLogFormBo
               placeholder="24,500"
               keyboardType="numeric"
             />
-            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mt-1 self-end pr-2">
+            <Text className="font-sans-bold text-xs text-sand uppercase tracking-wide-1 mt-1 self-end pr-2">
               KM
             </Text>
           </View>
@@ -73,20 +87,27 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave }: ServiceLogFormBo
 
       {/* Notes */}
       <View className="mb-8">
-        <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mb-2">
+        <Text className="font-sans-bold text-xs text-sand uppercase tracking-wide-1 mb-2">
           Notes
         </Text>
-        <TextInput
-          value={form.notes}
-          onChangeText={form.setNotes}
-          placeholder="Add any notes about this service..."
-          placeholderTextColor={colors.outline}
-          multiline
-          numberOfLines={4}
-          textAlignVertical="top"
-          className="bg-surface-low rounded-xl p-5 text-base font-sans-medium text-charcoal"
-          style={{ minHeight: 120 }}
-        />
+        <View
+          className="bg-surface-low rounded-xl overflow-hidden"
+          style={notesFocused ? { borderBottomWidth: 2, borderBottomColor: colors.yellow } : undefined}
+        >
+          <TextInput
+            value={form.notes}
+            onChangeText={form.setNotes}
+            onFocus={() => setNotesFocused(true)}
+            onBlur={() => setNotesFocused(false)}
+            placeholder="Add any notes about this service..."
+            placeholderTextColor={colors.outline}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+            className="p-5 text-base font-sans-medium text-charcoal"
+            style={{ minHeight: 120 }}
+          />
+        </View>
       </View>
 
       {/* Evidence & Documentation (UI placeholder only) */}
@@ -106,6 +127,6 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave }: ServiceLogFormBo
           disabled={form.isPending}
         />
       </View>
-    </SafeScreen>
+    </View>
   );
 }

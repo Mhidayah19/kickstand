@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -10,7 +10,7 @@ import { FilterChips } from '../../../components/ui/filter-chips';
 import { TimelineEntry } from '../../../components/ui/timeline-entry';
 import { PrimaryButton } from '../../../components/ui/primary-button';
 import { useServiceLogs } from '../../../lib/api/use-service-logs';
-import { useBike } from '../../../lib/api/use-bikes';
+import { useBike, useBikes } from '../../../lib/api/use-bikes';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { colors } from '../../../lib/colors';
 import {
@@ -48,8 +48,9 @@ function mapLogToTimeline(log: ServiceLog) {
 
 export default function ServiceScreen() {
   const router = useRouter();
-  const activeBikeId = useBikeStore((s) => s.activeBikeId);
+  const { activeBikeId, setActiveBikeId } = useBikeStore();
   const { data: bike } = useBike(activeBikeId);
+  const { data: bikes } = useBikes();
   const { data: logsResponse, isLoading } = useServiceLogs(activeBikeId);
   const [selectedFilter, setSelectedFilter] = useState<FilterGroupKey>('All');
 
@@ -71,11 +72,20 @@ export default function ServiceScreen() {
     router.push('/(tabs)/service/add');
   };
 
+  const handleAddBike = useCallback(() => {
+    router.push('/(tabs)/garage/add' as any);
+  }, []);
+
   const isEmpty = !isLoading && logs.length === 0;
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      <TopAppBar />
+      <TopAppBar
+        activeBike={bike && { id: bike.id, model: bike.model, year: bike.year }}
+        bikes={bikes?.map((b) => ({ id: b.id, model: b.model, year: b.year })) ?? []}
+        onBikeChange={setActiveBikeId}
+        onAddBikePress={handleAddBike}
+      />
 
       {/* Fixed header */}
       <View className="px-6" style={{ paddingTop: 80 }}>
@@ -90,8 +100,8 @@ export default function ServiceScreen() {
 
         {/* Total spend */}
         {logs.length > 0 && (
-          <View className="bg-yellow self-start px-4 py-2 rounded-xl mb-6">
-            <Text className="font-sans-xbold text-lg text-charcoal">{totalSpend}</Text>
+          <View className="bg-charcoal self-start px-4 py-2 rounded-xl mb-6">
+            <Text className="font-sans-xbold text-lg text-surface-card">{totalSpend}</Text>
           </View>
         )}
       </View>
@@ -120,7 +130,7 @@ export default function ServiceScreen() {
             No services logged yet
           </Text>
           <Text className="font-sans-medium text-sm text-sand text-center mb-8">
-            Tap the button below to log your first service
+            Log your first service to start tracking your maintenance history.
           </Text>
           <PrimaryButton label="Log First Service" onPress={handleAdd} icon="plus" />
         </View>
