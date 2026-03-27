@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, Pressable } from 'react-native';
+import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -98,7 +98,7 @@ export default function ServiceScreen() {
 
       {/* Filter chips */}
       {logs.length > 0 && (
-        <View className="mb-4">
+        <View className="mb-4 px-6">
           <FilterChips
             options={FILTER_OPTIONS}
             selected={selectedFilter}
@@ -109,7 +109,11 @@ export default function ServiceScreen() {
       )}
 
       {/* Timeline or empty state */}
-      {isEmpty ? (
+      {isLoading ? (
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="large" color={colors.sand} />
+        </View>
+      ) : isEmpty ? (
         <View className="flex-1 items-center justify-center px-8">
           <MaterialCommunityIcons name="clipboard-text-outline" size={64} color={colors.sand} />
           <Text className="font-sans-xbold text-xl text-charcoal mt-6 mb-2 text-center">
@@ -125,17 +129,25 @@ export default function ServiceScreen() {
           contentContainerStyle={{ paddingBottom: 128, paddingHorizontal: 24 }}
           showsVerticalScrollIndicator={false}
         >
-          <View className="relative">
-            {/* Vertical timeline line */}
-            <View
-              className="absolute bg-sand/30"
-              style={{ left: 16, top: 0, bottom: 0, width: 2 }}
-            />
-            {filteredLogs.map((log) => {
-              const props = mapLogToTimeline(log);
-              return <TimelineEntry key={log.id} {...props} />;
-            })}
-          </View>
+          {filteredLogs.length === 0 ? (
+            <View className="items-center justify-center py-16">
+              <Text className="font-sans-medium text-sm text-sand text-center">
+                No services in this category
+              </Text>
+            </View>
+          ) : (
+            <View className="relative">
+              {/* Vertical timeline line */}
+              <View
+                className="absolute bg-sand/30"
+                style={{ left: 16, top: 0, bottom: 0, width: 2 }}
+              />
+              {filteredLogs.map((log) => {
+                const props = mapLogToTimeline(log);
+                return <TimelineEntry key={log.id} {...props} />;
+              })}
+            </View>
+          )}
         </ScrollView>
       )}
 
