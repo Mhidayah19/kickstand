@@ -136,7 +136,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Recent Services */}
-      <Section label="Recent Services" action="View All" onAction={() => router.push('/(tabs)/log')}>
+      <Section label="Recent Services" action="View All" onAction={() => router.push('/(tabs)/service')}>
         <View className="gap-3">
           {recentServices.length === 0 ? (
             <Text className="text-sm font-sans-medium text-sand/60 py-4 text-center">
