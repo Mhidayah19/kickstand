@@ -18,11 +18,12 @@ export default function TabLayout() {
         <Tabs.Screen name="index" />
         <Tabs.Screen name="garage/index" />
         <Tabs.Screen name="agent" options={{ href: null }} />
-        <Tabs.Screen name="log" />
+        <Tabs.Screen name="service/index" />
         <Tabs.Screen name="settings" />
         {/* Hidden routes */}
         <Tabs.Screen name="garage/add" options={{ href: null }} />
         <Tabs.Screen name="garage/[id]" options={{ href: null }} />
+        <Tabs.Screen name="service/add" options={{ href: null }} />
       </Tabs>
       <BottomSheet
         visible={agentVisible}

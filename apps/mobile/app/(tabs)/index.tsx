@@ -26,7 +26,7 @@ export default function HomeScreen() {
     return bikes.find((b) => b.id === activeBikeId) ?? bikes[0];
   }, [bikes, activeBikeId]);
 
-  const { data: serviceLogsData } = useServiceLogs(activeBike?.id ?? null);
+  const { data: serviceLogsData } = useServiceLogs(activeBike?.id ?? null, 3);
   const recentServices = serviceLogsData?.data ?? [];
 
   // Compute mileage progress toward next service (every 5,000 km)
@@ -136,7 +136,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Recent Services */}
-      <Section label="Recent Services" action="View All" onAction={() => router.push('/(tabs)/log')}>
+      <Section label="Recent Services" action="View All" onAction={() => router.push('/(tabs)/service')}>
         <View className="gap-3">
           {recentServices.length === 0 ? (
             <Text className="text-sm font-sans-medium text-sand/60 py-4 text-center">

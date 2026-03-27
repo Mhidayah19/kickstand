@@ -10,7 +10,7 @@ const TAB_ICONS: Record<string, string> = {
   index: 'wrench',
   'garage/index': 'motorbike',
   agent: 'waveform',
-  log: 'chart-bar',
+  'service/index': 'clipboard-text-outline',
   settings: 'cog',
 };
 
