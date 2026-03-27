@@ -51,6 +51,13 @@ export default function AddServiceScreen() {
       return;
     }
 
+    // Validate date format
+    const parsedDate = new Date(date);
+    if (isNaN(parsedDate.getTime())) {
+      Alert.alert('Invalid date', 'Please enter a valid date in YYYY-MM-DD format.');
+      return;
+    }
+
     try {
       await createLog.mutateAsync({
         serviceType: selectedKey,
@@ -69,7 +76,7 @@ export default function AddServiceScreen() {
     <SafeScreen scrollable>
       <ScreenHeader
         title="New Service Log"
-        subtitle={bike ? `${bike.make} ${bike.model} • ${bike.plateNumber}` : 'Loading...'}
+        subtitle={bike ? `${bike.make ?? ''} ${bike.model ?? ''}`.trim() + (bike.plateNumber ? ` • ${bike.plateNumber}` : '') : 'Loading...'}
       />
 
       {/* Service Type Selector */}
