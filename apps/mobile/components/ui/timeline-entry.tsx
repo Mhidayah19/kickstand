@@ -1,8 +1,7 @@
 import { View, Text, Image } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
-
-type TimelineColor = 'yellow' | 'charcoal' | 'danger';
+import type { TimelineColor } from '../../lib/service-type-meta';
 
 interface TimelineEntryProps {
   date: string;
