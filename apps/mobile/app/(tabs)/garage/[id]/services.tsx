@@ -26,7 +26,7 @@ export default function ServiceLogScreen() {
   const [notes, setNotes] = useState('');
 
   return (
-    <SafeScreen scrollable>
+    <SafeScreen scrollable showAppBar={false}>
       {/* Header */}
       <View className="mb-2">
         <PillBadge label="Workshop v2.4" variant="yellow" />

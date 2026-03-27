@@ -2,10 +2,7 @@ import { View, Text, Pressable } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { usePathname } from 'expo-router';
 import { colors } from '../../lib/colors';
-
-const MAIN_TAB_PATHS = new Set(['/', '/garage', '/agent', '/log', '/settings']);
 
 interface TopAppBarProps {
   onNotificationPress?: () => void;
@@ -13,9 +10,6 @@ interface TopAppBarProps {
 
 export function TopAppBar({ onNotificationPress }: TopAppBarProps) {
   const insets = useSafeAreaInsets();
-  const pathname = usePathname();
-
-  if (!MAIN_TAB_PATHS.has(pathname)) return null;
 
   return (
     <BlurView

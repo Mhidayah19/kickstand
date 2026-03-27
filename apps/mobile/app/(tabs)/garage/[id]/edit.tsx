@@ -29,7 +29,7 @@ export default function EditBikeScreen() {
 
   if (isLoading || !bike) {
     return (
-      <SafeScreen scrollable>
+      <SafeScreen scrollable showAppBar={false}>
         <Skeleton height={32} className="rounded-md mb-lg w-48" />
         <Skeleton height={48} className="rounded-lg mb-md" />
         <Skeleton height={48} className="rounded-lg mb-md" />
@@ -39,7 +39,7 @@ export default function EditBikeScreen() {
   }
 
   return (
-    <SafeScreen scrollable>
+    <SafeScreen scrollable showAppBar={false}>
       <ScreenHeader title="Edit Bike" />
       <BikeForm
         defaultValues={{
