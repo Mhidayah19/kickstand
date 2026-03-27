@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePathname } from 'expo-router';
 import { colors } from '../../lib/colors';
 
-const MAIN_TAB_PATHS = new Set(['/', '/garage', '/agent', '/log', '/settings']);
+const MAIN_TAB_PATHS = new Set(['/', '/garage', '/agent', '/log', '/service', '/settings']);
 
 interface TopAppBarProps {
   onNotificationPress?: () => void;
