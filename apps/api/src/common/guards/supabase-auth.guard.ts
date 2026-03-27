@@ -4,6 +4,7 @@ import {
   Inject,
   Injectable,
   Logger,
+  OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -14,7 +15,7 @@ import type { DrizzleDB } from '../../database/database.types';
 import * as schema from '../../database/schema';
 
 @Injectable()
-export class SupabaseAuthGuard implements CanActivate {
+export class SupabaseAuthGuard implements CanActivate, OnModuleInit {
   private readonly logger = new Logger(SupabaseAuthGuard.name);
   private readonly jwks: ReturnType<typeof createRemoteJWKSet>;
   private readonly knownUsers = new Set<string>();
@@ -27,6 +28,17 @@ export class SupabaseAuthGuard implements CanActivate {
     this.jwks = createRemoteJWKSet(
       new URL(`${supabaseUrl}/auth/v1/.well-known/jwks.json`),
     );
+  }
+
+  async onModuleInit() {
+    try {
+      // Pre-fetch the JWKS so the first real request isn't penalized by the
+      // remote round-trip to Supabase. jwtVerify with an invalid token will
+      // throw, but the JWKS will be cached by jose after this call.
+      await jwtVerify('warmup', this.jwks, { algorithms: ['ES256'] });
+    } catch {
+      // Expected — we just need the JWKS fetch to happen
+    }
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
