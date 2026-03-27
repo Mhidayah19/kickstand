@@ -20,7 +20,7 @@ import {
   SERVICE_FILTER_GROUPS,
   FILTER_OPTIONS,
 } from '../../../lib/constants/service-types';
-import type { ServiceTypeKey } from '../../../lib/constants/service-types';
+import type { ServiceTypeKey, FilterGroupKey } from '../../../lib/constants/service-types';
 import type { ServiceLog } from '../../../lib/types/service-log';
 
 function formatDate(iso: string): string {
@@ -51,13 +51,13 @@ export default function ServiceScreen() {
   const activeBikeId = useBikeStore((s) => s.activeBikeId);
   const { data: bike } = useBike(activeBikeId);
   const { data: logsResponse, isLoading } = useServiceLogs(activeBikeId);
-  const [selectedFilter, setSelectedFilter] = useState('All');
+  const [selectedFilter, setSelectedFilter] = useState<FilterGroupKey>('All');
 
   const logs = logsResponse?.data ?? [];
 
   const filteredLogs = useMemo(() => {
     if (selectedFilter === 'All') return logs;
-    const allowedTypes = SERVICE_FILTER_GROUPS[selectedFilter] ?? [];
+    const allowedTypes = SERVICE_FILTER_GROUPS[selectedFilter] as readonly ServiceTypeKey[];
     return logs.filter((log) => allowedTypes.includes(log.serviceType as ServiceTypeKey));
   }, [logs, selectedFilter]);
 
@@ -102,7 +102,7 @@ export default function ServiceScreen() {
           <FilterChips
             options={FILTER_OPTIONS}
             selected={selectedFilter}
-            onSelect={setSelectedFilter}
+            onSelect={(v) => setSelectedFilter(v as FilterGroupKey)}
             wrap={false}
           />
         </View>

@@ -2,96 +2,49 @@
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-export const SERVICE_TYPE_KEYS = [
-  'oil_change',
-  'chain_adjustment',
-  'chain_replacement',
-  'brake_pads',
-  'brake_fluid',
-  'coolant',
-  'air_filter',
-  'spark_plugs',
-  'tire_front',
-  'tire_rear',
-  'valve_clearance',
-  'battery',
-  'general_service',
-  'fork_oil',
-  'clutch',
-] as const;
-
-export type ServiceTypeKey = (typeof SERVICE_TYPE_KEYS)[number];
-
-export const SERVICE_TYPE_LABELS: Record<ServiceTypeKey, string> = {
-  oil_change: 'Oil Change',
-  chain_adjustment: 'Chain Adjustment',
-  chain_replacement: 'Chain & Sprocket Replacement',
-  brake_pads: 'Brake Pads Replacement',
-  brake_fluid: 'Brake Fluid',
-  coolant: 'Coolant',
-  air_filter: 'Air Filter',
-  spark_plugs: 'Spark Plugs',
-  tire_front: 'Front Tire',
-  tire_rear: 'Rear Tire',
-  valve_clearance: 'Valve Clearance',
-  battery: 'Battery',
-  general_service: 'General Service / Inspection',
-  fork_oil: 'Fork Oil',
-  clutch: 'Clutch',
-};
-
-// Maps service type to TimelineEntry icon name (MaterialCommunityIcons)
 export type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
-
-export const SERVICE_TYPE_ICONS: Record<ServiceTypeKey, IconName> = {
-  oil_change: 'oil',
-  chain_adjustment: 'cog',
-  chain_replacement: 'cog',
-  brake_pads: 'car-brake-alert',
-  brake_fluid: 'car-brake-fluid-level',
-  coolant: 'coolant-temperature',
-  air_filter: 'air-filter',
-  spark_plugs: 'flash',
-  tire_front: 'tire',
-  tire_rear: 'tire',
-  valve_clearance: 'engine',
-  battery: 'battery',
-  general_service: 'wrench',
-  fork_oil: 'hydraulic-oil-level',
-  clutch: 'cog-transfer',
-};
-
-// Maps service type to TimelineEntry color
 export type TimelineColor = 'yellow' | 'charcoal' | 'danger';
 
-export const SERVICE_TYPE_COLORS: Record<ServiceTypeKey, TimelineColor> = {
-  oil_change: 'yellow',
-  chain_adjustment: 'charcoal',
-  chain_replacement: 'charcoal',
-  brake_pads: 'danger',
-  brake_fluid: 'yellow',
-  coolant: 'yellow',
-  air_filter: 'charcoal',
-  spark_plugs: 'charcoal',
-  tire_front: 'charcoal',
-  tire_rear: 'charcoal',
-  valve_clearance: 'charcoal',
-  battery: 'charcoal',
-  general_service: 'yellow',
-  fork_oil: 'yellow',
-  clutch: 'danger',
-};
+export const SERVICE_TYPE_META = {
+  oil_change: { label: 'Oil Change', icon: 'oil' as IconName, color: 'yellow' as TimelineColor },
+  chain_adjustment: { label: 'Chain Adjustment', icon: 'cog' as IconName, color: 'charcoal' as TimelineColor },
+  chain_replacement: { label: 'Chain & Sprocket Replacement', icon: 'cog' as IconName, color: 'charcoal' as TimelineColor },
+  brake_pads: { label: 'Brake Pads Replacement', icon: 'car-brake-alert' as IconName, color: 'danger' as TimelineColor },
+  brake_fluid: { label: 'Brake Fluid', icon: 'car-brake-fluid-level' as IconName, color: 'yellow' as TimelineColor },
+  coolant: { label: 'Coolant', icon: 'coolant-temperature' as IconName, color: 'yellow' as TimelineColor },
+  air_filter: { label: 'Air Filter', icon: 'air-filter' as IconName, color: 'charcoal' as TimelineColor },
+  spark_plugs: { label: 'Spark Plugs', icon: 'flash' as IconName, color: 'charcoal' as TimelineColor },
+  tire_front: { label: 'Front Tire', icon: 'tire' as IconName, color: 'charcoal' as TimelineColor },
+  tire_rear: { label: 'Rear Tire', icon: 'tire' as IconName, color: 'charcoal' as TimelineColor },
+  valve_clearance: { label: 'Valve Clearance', icon: 'engine' as IconName, color: 'charcoal' as TimelineColor },
+  battery: { label: 'Battery', icon: 'battery' as IconName, color: 'charcoal' as TimelineColor },
+  general_service: { label: 'General Service / Inspection', icon: 'wrench' as IconName, color: 'yellow' as TimelineColor },
+  fork_oil: { label: 'Fork Oil', icon: 'hydraulic-oil-level' as IconName, color: 'yellow' as TimelineColor },
+  clutch: { label: 'Clutch', icon: 'cog-transfer' as IconName, color: 'danger' as TimelineColor },
+} as const;
+
+export type ServiceTypeKey = keyof typeof SERVICE_TYPE_META;
+export const SERVICE_TYPE_KEYS = Object.keys(SERVICE_TYPE_META) as ServiceTypeKey[];
+export const SERVICE_TYPE_LABELS = Object.fromEntries(
+  SERVICE_TYPE_KEYS.map((key) => [key, SERVICE_TYPE_META[key].label]),
+) as Record<ServiceTypeKey, string>;
+export const SERVICE_TYPE_ICONS = Object.fromEntries(
+  SERVICE_TYPE_KEYS.map((key) => [key, SERVICE_TYPE_META[key].icon]),
+) as Record<ServiceTypeKey, IconName>;
+export const SERVICE_TYPE_COLORS = Object.fromEntries(
+  SERVICE_TYPE_KEYS.map((key) => [key, SERVICE_TYPE_META[key].color]),
+) as Record<ServiceTypeKey, TimelineColor>;
 
 // Filter chip definitions — maps filter label to array of service type keys
 // Note: brake_fluid intentionally appears in both Oil & Fluids and Brakes
-export const SERVICE_FILTER_GROUPS: Record<string, ServiceTypeKey[]> = {
-  'All': [],
+export const SERVICE_FILTER_GROUPS = {
+  All: [],
   'Oil & Fluids': ['oil_change', 'brake_fluid', 'coolant', 'fork_oil'],
-  'Drivetrain': ['chain_adjustment', 'chain_replacement', 'clutch', 'valve_clearance'],
-  'Brakes': ['brake_pads', 'brake_fluid'],
-  'Tires': ['tire_front', 'tire_rear'],
-  'General': ['general_service', 'air_filter', 'spark_plugs', 'battery'],
-};
+  Drivetrain: ['chain_adjustment', 'chain_replacement', 'clutch', 'valve_clearance'],
+  Brakes: ['brake_pads', 'brake_fluid'],
+  Tires: ['tire_front', 'tire_rear'],
+  General: ['general_service', 'air_filter', 'spark_plugs', 'battery'],
+} as const satisfies Record<string, readonly ServiceTypeKey[]>;
 
 export type FilterGroupKey = keyof typeof SERVICE_FILTER_GROUPS;
 export const FILTER_OPTIONS = Object.keys(SERVICE_FILTER_GROUPS) as FilterGroupKey[];
