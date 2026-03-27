@@ -11,10 +11,7 @@ export class UserServiceLogsController {
   constructor(private serviceLogsService: ServiceLogsService) {}
 
   @Get()
-  findAll(
-    @CurrentUser() user: AuthUser,
-    @Query() query: ListServiceLogsDto,
-  ) {
+  findAll(@CurrentUser() user: AuthUser, @Query() query: ListServiceLogsDto) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 50;
     return this.serviceLogsService.findAllByUser(user.id, page, limit);

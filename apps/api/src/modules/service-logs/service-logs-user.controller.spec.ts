@@ -21,7 +21,9 @@ describe('UserServiceLogsController', () => {
       .overrideGuard(SupabaseAuthGuard)
       .useValue({ canActivate: () => true })
       .compile();
-    controller = module.get<UserServiceLogsController>(UserServiceLogsController);
+    controller = module.get<UserServiceLogsController>(
+      UserServiceLogsController,
+    );
   });
 
   describe('GET /service-logs', () => {
