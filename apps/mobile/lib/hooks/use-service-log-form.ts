@@ -41,6 +41,14 @@ export function useServiceLogForm(bikeId: string | null) {
     });
   };
 
+  const handleReset = () => {
+    setServiceTypeKey(SERVICE_TYPE_KEYS[0]);
+    setMileage('');
+    setDate(todayISO());
+    setCost('');
+    setNotes('');
+  };
+
   return {
     serviceTypeLabel: SERVICE_TYPE_LABELS[serviceTypeKey],
     setServiceTypeLabel: (label: string) => {
@@ -56,6 +64,7 @@ export function useServiceLogForm(bikeId: string | null) {
     notes,
     setNotes,
     handleSave,
+    handleReset,
     isPending: createLog.isPending,
   };
 }

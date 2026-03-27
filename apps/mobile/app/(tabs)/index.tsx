@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import { Text, View } from 'react-native';
 import { EmptyState } from '../../components/ui/empty-state';
 import { HeroCard } from '../../components/ui/hero-card';
@@ -19,7 +19,7 @@ import { getComplianceStatus } from '../../lib/theme';
 
 export default function HomeScreen() {
   const { data: bikes, isLoading } = useBikes();
-  const { activeBikeId } = useBikeStore();
+  const { activeBikeId, setActiveBikeId } = useBikeStore();
 
   const activeBike = useMemo(() => {
     if (!bikes || bikes.length === 0) return null;
@@ -46,10 +46,20 @@ export default function HomeScreen() {
     [activeBike],
   );
 
+  const handleAddBike = useCallback(() => {
+    router.push('/(tabs)/garage/add' as any);
+  }, []);
+
   // Loading state
   if (isLoading) {
     return (
-      <SafeScreen scrollable>
+      <SafeScreen
+        scrollable
+        bikes={bikes}
+        activeBike={activeBike ?? undefined}
+        onBikeChange={setActiveBikeId}
+        onAddBikePress={handleAddBike}
+      >
         <Skeleton height={20} className="rounded-md mb-2 w-32" />
         <Skeleton height={36} className="rounded-md mb-8 w-48" />
         <Skeleton height={200} className="rounded-3xl mb-6" />
@@ -67,7 +77,12 @@ export default function HomeScreen() {
   // Empty state
   if (!activeBike) {
     return (
-      <SafeScreen scrollable>
+      <SafeScreen
+        scrollable
+        bikes={bikes}
+        activeBike={undefined}
+        onBikeChange={setActiveBikeId}
+      >
         <DevAuthToggle>
           <ScreenHeader label="DASHBOARD OVERVIEW" title="Welcome back!" />
         </DevAuthToggle>
@@ -82,7 +97,13 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeScreen scrollable>
+    <SafeScreen
+      scrollable
+      bikes={bikes}
+      activeBike={activeBike ?? undefined}
+      onBikeChange={setActiveBikeId}
+      onAddBikePress={handleAddBike}
+    >
       <DevAuthToggle>
         <ScreenHeader label="DASHBOARD OVERVIEW" title="Welcome back!" />
       </DevAuthToggle>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ServiceLogFormBody } from '../../../components/service/service-log-form-body';
+import { SafeScreen } from '../../../components/ui/safe-screen';
 import { useBike } from '../../../lib/api/use-bikes';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { useServiceLogForm } from '../../../lib/hooks/use-service-log-form';
@@ -30,5 +31,14 @@ export default function AddServiceScreen() {
     }
   };
 
-  return <ServiceLogFormBody form={form} bikeLabel={bikeLabel} onSave={handleSave} />;
+  const handleExit = () => {
+    form.handleReset();
+    router.back();
+  };
+
+  return (
+    <SafeScreen scrollable showAppBar={false}>
+      <ServiceLogFormBody form={form} bikeLabel={bikeLabel} onSave={handleSave} onExit={handleExit} />
+    </SafeScreen>
+  );
 }
