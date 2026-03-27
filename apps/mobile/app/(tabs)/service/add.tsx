@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Text, TextInput, View, Alert } from 'react-native';
-import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../../lib/colors';
 import { FilterChips } from '../../../components/ui/filter-chips';
@@ -11,65 +10,22 @@ import { Section } from '../../../components/ui/section';
 import { TextField } from '../../../components/ui/text-field';
 import { useBike } from '../../../lib/api/use-bikes';
 import { useBikeStore } from '../../../lib/store/bike-store';
-import { useCreateServiceLog } from '../../../lib/api/use-service-logs';
 import {
-  SERVICE_TYPE_KEYS,
-  SERVICE_TYPE_LABELS,
-} from '../../../lib/constants/service-types';
-import type { ServiceTypeKey } from '../../../lib/constants/service-types';
-
-const SERVICE_CHIP_OPTIONS = SERVICE_TYPE_KEYS.map((key) => SERVICE_TYPE_LABELS[key]);
-
-function todayISO(): string {
-  return new Date().toISOString().split('T')[0];
-}
+  SERVICE_CHIP_OPTIONS,
+  useServiceLogForm,
+} from '../../../lib/hooks/use-service-log-form';
 
 export default function AddServiceScreen() {
-  const router = useRouter();
   const activeBikeId = useBikeStore((s) => s.activeBikeId);
   const { data: bike } = useBike(activeBikeId);
-  const createLog = useCreateServiceLog(activeBikeId);
-
-  const [serviceTypeLabel, setServiceTypeLabel] = useState(SERVICE_CHIP_OPTIONS[0]);
-  const [mileage, setMileage] = useState('');
-  const [date, setDate] = useState(todayISO());
-  const [cost, setCost] = useState('');
-  const [notes, setNotes] = useState('');
-
-  const selectedKey = SERVICE_TYPE_KEYS.find(
-    (k) => SERVICE_TYPE_LABELS[k] === serviceTypeLabel,
-  ) as ServiceTypeKey;
+  const form = useServiceLogForm(activeBikeId);
 
   const handleSave = async () => {
     if (!activeBikeId) {
       Alert.alert('No bike selected', 'Please select a bike in your garage first.');
       return;
     }
-    const mileageNum = parseInt(mileage, 10);
-    if (!selectedKey || isNaN(mileageNum) || !date || !notes.trim() || !cost.trim()) {
-      Alert.alert('Missing fields', 'Please fill in all required fields (type, mileage, date, cost, notes).');
-      return;
-    }
-
-    // Validate date format
-    const parsedDate = new Date(date);
-    if (isNaN(parsedDate.getTime())) {
-      Alert.alert('Invalid date', 'Please enter a valid date in YYYY-MM-DD format.');
-      return;
-    }
-
-    try {
-      await createLog.mutateAsync({
-        serviceType: selectedKey,
-        mileageAt: mileageNum,
-        date,
-        cost: cost.trim(),
-        description: notes.trim(),
-      });
-      router.back();
-    } catch (err: any) {
-      Alert.alert('Error', err?.message ?? 'Failed to save service log.');
-    }
+    await form.handleSave();
   };
 
   return (
@@ -83,8 +39,8 @@ export default function AddServiceScreen() {
       <View className="mb-8">
         <FilterChips
           options={SERVICE_CHIP_OPTIONS}
-          selected={serviceTypeLabel}
-          onSelect={setServiceTypeLabel}
+          selected={form.serviceTypeLabel}
+          onSelect={form.setServiceTypeLabel}
           wrap
         />
       </View>
@@ -95,8 +51,8 @@ export default function AddServiceScreen() {
           <View className="flex-1">
             <TextField
               label="Mileage"
-              value={mileage}
-              onChangeText={setMileage}
+              value={form.mileage}
+              onChangeText={form.setMileage}
               placeholder="24,500"
               keyboardType="numeric"
             />
@@ -107,8 +63,8 @@ export default function AddServiceScreen() {
           <View className="flex-1">
             <TextField
               label="Date"
-              value={date}
-              onChangeText={setDate}
+              value={form.date}
+              onChangeText={form.setDate}
               placeholder="2026-03-27"
             />
           </View>
@@ -117,8 +73,8 @@ export default function AddServiceScreen() {
           <View className="flex-1">
             <TextField
               label="Estimated Cost"
-              value={cost}
-              onChangeText={setCost}
+              value={form.cost}
+              onChangeText={form.setCost}
               placeholder="350"
               prefix="$"
               keyboardType="numeric"
@@ -134,8 +90,8 @@ export default function AddServiceScreen() {
           Notes
         </Text>
         <TextInput
-          value={notes}
-          onChangeText={setNotes}
+          value={form.notes}
+          onChangeText={form.setNotes}
           placeholder="Add any notes about this service..."
           placeholderTextColor={colors.outline}
           multiline
@@ -161,10 +117,10 @@ export default function AddServiceScreen() {
       {/* Save Button */}
       <View className="mt-4">
         <PrimaryButton
-          label={createLog.isPending ? 'Saving...' : 'Save Log'}
+          label={form.isPending ? 'Saving...' : 'Save Log'}
           onPress={handleSave}
           icon="check-circle"
-          disabled={createLog.isPending}
+          disabled={form.isPending}
         />
       </View>
     </SafeScreen>
