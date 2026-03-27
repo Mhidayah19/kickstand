@@ -12,24 +12,18 @@ function todayISO(): string {
   return new Date().toISOString().split('T')[0];
 }
 
-function labelToKey(label: string): ServiceTypeKey | undefined {
-  return SERVICE_TYPE_KEYS.find((k) => SERVICE_TYPE_LABELS[k] === label);
-}
-
 export function useServiceLogForm(bikeId: string | null) {
   const createLog = useCreateServiceLog(bikeId);
 
-  const [serviceTypeLabel, setServiceTypeLabel] = useState(SERVICE_CHIP_OPTIONS[0]);
+  const [serviceTypeKey, setServiceTypeKey] = useState<ServiceTypeKey>(SERVICE_TYPE_KEYS[0]);
   const [mileage, setMileage] = useState('');
   const [date, setDate] = useState(todayISO());
   const [cost, setCost] = useState('');
   const [notes, setNotes] = useState('');
 
-  const selectedKey = labelToKey(serviceTypeLabel);
-
   const handleSave = async () => {
     const mileageNum = parseInt(mileage, 10);
-    if (!selectedKey || isNaN(mileageNum) || !date || !notes.trim() || !cost.trim()) {
+    if (isNaN(mileageNum) || !date || !notes.trim() || !cost.trim()) {
       throw new Error('Please fill in all required fields (type, mileage, date, cost, notes).');
     }
 
@@ -39,7 +33,7 @@ export function useServiceLogForm(bikeId: string | null) {
     }
 
     return createLog.mutateAsync({
-      serviceType: selectedKey,
+      serviceType: serviceTypeKey,
       mileageAt: mileageNum,
       date,
       cost: cost.trim(),
@@ -48,8 +42,11 @@ export function useServiceLogForm(bikeId: string | null) {
   };
 
   return {
-    serviceTypeLabel,
-    setServiceTypeLabel,
+    serviceTypeLabel: SERVICE_TYPE_LABELS[serviceTypeKey],
+    setServiceTypeLabel: (label: string) => {
+      const nextKey = SERVICE_TYPE_KEYS.find((key) => SERVICE_TYPE_LABELS[key] === label);
+      if (nextKey) setServiceTypeKey(nextKey);
+    },
     mileage,
     setMileage,
     date,
