@@ -22,6 +22,7 @@ describe('ServiceLogsService', () => {
   mockDb.orderBy = jest.fn(() => mockDb);
   mockDb.limit = jest.fn(() => mockDb);
   mockDb.offset = jest.fn();
+  mockDb.innerJoin = jest.fn(() => mockDb);
 
   const mockBikesService = { findOneByUser: jest.fn() };
 
@@ -77,6 +78,31 @@ describe('ServiceLogsService', () => {
       });
 
       expect(result).toEqual(log);
+    });
+  });
+
+  describe('findAllByUser', () => {
+    it('should return paginated logs across all bikes owned by user', async () => {
+      mockDb.where.mockResolvedValueOnce([{ count: 2 }]);
+      mockDb.offset.mockResolvedValue([
+        { id: 'log-1', serviceType: 'oil_change', bikeId: 'bike-1' },
+        { id: 'log-2', serviceType: 'chain_adjustment', bikeId: 'bike-2' },
+      ]);
+
+      const result = await service.findAllByUser('user-1', 1, 20);
+
+      expect(result.data).toHaveLength(2);
+      expect(result.meta).toEqual({ page: 1, limit: 20, total: 2 });
+    });
+
+    it('should apply pagination offset correctly', async () => {
+      mockDb.where.mockResolvedValueOnce([{ count: 5 }]);
+      mockDb.offset.mockResolvedValue([]);
+
+      await service.findAllByUser('user-1', 2, 2);
+
+      expect(mockDb.limit).toHaveBeenCalledWith(2);
+      expect(mockDb.offset).toHaveBeenCalledWith(2); // offset = (2-1)*2 = 2
     });
   });
 

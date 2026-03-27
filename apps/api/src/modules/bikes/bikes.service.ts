@@ -29,7 +29,9 @@ export class BikesService {
     return bike;
   }
 
-  private async resolveCatalogFields(dto: CreateBikeDto): Promise<CreateBikeDto> {
+  private async resolveCatalogFields(
+    dto: CreateBikeDto,
+  ): Promise<CreateBikeDto> {
     if (!dto.catalogId) return dto;
     const catalog = await this.bikeCatalogService.findOneById(dto.catalogId);
     return {
@@ -48,10 +50,16 @@ export class BikesService {
         imageUrl: schema.bikeCatalog.imageUrl,
       })
       .from(schema.bikes)
-      .leftJoin(schema.bikeCatalog, eq(schema.bikes.catalogId, schema.bikeCatalog.id))
+      .leftJoin(
+        schema.bikeCatalog,
+        eq(schema.bikes.catalogId, schema.bikeCatalog.id),
+      )
       .where(eq(schema.bikes.userId, userId));
 
-    return rows.map(({ bike, imageUrl }) => ({ ...bike, imageUrl: imageUrl ?? null }));
+    return rows.map(({ bike, imageUrl }) => ({
+      ...bike,
+      imageUrl: imageUrl ?? null,
+    }));
   }
 
   async findOneByUser(bikeId: string, userId: string) {
@@ -61,7 +69,10 @@ export class BikesService {
         imageUrl: schema.bikeCatalog.imageUrl,
       })
       .from(schema.bikes)
-      .leftJoin(schema.bikeCatalog, eq(schema.bikes.catalogId, schema.bikeCatalog.id))
+      .leftJoin(
+        schema.bikeCatalog,
+        eq(schema.bikes.catalogId, schema.bikeCatalog.id),
+      )
       .where(and(eq(schema.bikes.id, bikeId), eq(schema.bikes.userId, userId)));
 
     if (!row) {

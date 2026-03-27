@@ -121,7 +121,9 @@ describe('BikesService', () => {
       const dto: UpdateMileageDto = { currentMileage: 5000 };
 
       // findOneByUser calls select().from().leftJoin().where() — return { bike, imageUrl } shape
-      mockDb.where.mockResolvedValueOnce([{ bike: existingBike, imageUrl: null }]);
+      mockDb.where.mockResolvedValueOnce([
+        { bike: existingBike, imageUrl: null },
+      ]);
 
       await expect(service.updateMileage(bikeId, userId, dto)).rejects.toThrow(
         BadRequestException,

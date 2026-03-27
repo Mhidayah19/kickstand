@@ -6,14 +6,21 @@ import React, { useState } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { BentoStat } from '../../../../components/ui/bento-stat';
 import { ConfirmationDialog } from '../../../../components/ui/confirmation-dialog';
 import { ListCard } from '../../../../components/ui/list-card';
 import { PrimaryButton } from '../../../../components/ui/primary-button';
-import { ProgressBar } from '../../../../components/ui/progress-bar';
 import { Section } from '../../../../components/ui/section';
 import { Skeleton } from '../../../../components/ui/skeleton';
 import { useDeleteBike, useBike } from '../../../../lib/api/use-bikes';
+import { useServiceLogs } from '../../../../lib/api/use-service-logs';
+import { serviceTypeToMeta } from '../../../../lib/service-type-meta';
+
+function formatLogDate(dateStr: string): string {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const [, monthStr, day] = dateStr.split('-');
+  return `${parseInt(day)} ${months[parseInt(monthStr) - 1]}`;
+}
 
 export default function BikeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -22,6 +29,8 @@ export default function BikeDetailScreen() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const navigation = useNavigation();
   const insets = useSafeAreaInsets();
+  const { data: logsData } = useServiceLogs(id, 3);
+  const logs = logsData?.data ?? [];
 
   const handleDelete = async () => {
     await deleteBike.mutateAsync();
@@ -103,47 +112,17 @@ export default function BikeDetailScreen() {
           </Text>
         </View>
 
-        {/* Stats Bento Grid */}
-        <View className="px-6 mt-8">
-          <View className="flex-row gap-4 mb-4">
-            <BentoStat label="Engine" value="1200cc" accent />
-            <BentoStat label="Year" value={String(bike.year ?? '2024')} />
+        {/* Inline stats */}
+        <View className="px-6 mt-4 flex-row gap-8">
+          <View>
+            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest">Year</Text>
+            <Text className="font-sans-xbold text-xl text-charcoal">{bike.year}</Text>
           </View>
-          <View className="flex-row gap-4">
-            <BentoStat label="Weight" value="205kg" />
-            <BentoStat label="Torque" value="110Nm" />
-          </View>
-        </View>
-
-        {/* Vitals Section */}
-        <View className="px-6 mt-8">
-          <View className="flex-row items-center gap-3 mb-4">
-            <View className="w-1.5 h-6 bg-charcoal rounded-full" />
-            <Text className="font-sans-bold text-xl text-charcoal tracking-tight">
-              Vitals
+          <View>
+            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest">Mileage</Text>
+            <Text className="font-sans-xbold text-xl text-charcoal">
+              {bike.currentMileage.toLocaleString()} km
             </Text>
-          </View>
-          <View className="bg-surface-low p-6 rounded-2xl">
-            <ProgressBar
-              label="Engine Oil"
-              value={85}
-              color="yellow"
-              statusText="Safe • 85%"
-            />
-            <View className="mb-6" />
-            <ProgressBar
-              label="Tire Wear"
-              value={40}
-              color="sand"
-              statusText="Inspect • 40%"
-            />
-            <View className="mb-6" />
-            <ProgressBar
-              label="Chain Tension"
-              value={12}
-              color="danger"
-              statusText="Adjust • 12%"
-            />
           </View>
         </View>
 
@@ -152,26 +131,37 @@ export default function BikeDetailScreen() {
           <Section
             label="Service History"
             action="View All"
-            onAction={() => router.push(`/(tabs)/garage/${id}/services` as any)}
+            onAction={() => router.push('/(tabs)/log' as any)}
           >
-            <View className="gap-3">
-              <ListCard
-                icon="oil"
-                iconBg="bg-yellow/20"
-                iconColor={colors.yellow}
-                title="Oil Change"
-                subtitle="12 Mar 2026 • 24,500 km"
-                onPress={() => {}}
-              />
-              <ListCard
-                icon="link-variant"
-                iconBg="bg-sand/20"
-                iconColor={colors.sand}
-                title="Chain Adjustment"
-                subtitle="28 Feb 2026 • 23,800 km"
-                onPress={() => {}}
-              />
-            </View>
+            {logs.length > 0 ? (
+              <View className="gap-3">
+                {logs.map((log) => {
+                  const meta = serviceTypeToMeta(log.serviceType);
+                  return (
+                    <ListCard
+                      key={log.id}
+                      icon={meta.icon}
+                      iconBg={meta.iconBg}
+                      iconColor={meta.iconColor}
+                      title={meta.label}
+                      subtitle={`${formatLogDate(log.date)} • ${log.mileageAt.toLocaleString()} km`}
+                      onPress={() => {}}
+                    />
+                  );
+                })}
+              </View>
+            ) : (
+              <Pressable onPress={() => router.push(`/(tabs)/garage/${id}/services` as any)}>
+                <View className="bg-surface-low rounded-2xl p-6 items-center">
+                  <Text className="font-sans-medium text-sm text-sand text-center mb-2">
+                    No service logs yet
+                  </Text>
+                  <Text className="font-sans-bold text-xs text-charcoal uppercase tracking-widest">
+                    Log First Service →
+                  </Text>
+                </View>
+              </Pressable>
+            )}
           </Section>
         </View>
 
