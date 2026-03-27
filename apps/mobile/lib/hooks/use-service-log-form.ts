@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
-import { useRouter } from 'expo-router';
 import { useCreateServiceLog } from '../api/use-service-logs';
 import {
   SERVICE_TYPE_KEYS,
@@ -19,7 +17,6 @@ function labelToKey(label: string): ServiceTypeKey | undefined {
 }
 
 export function useServiceLogForm(bikeId: string | null) {
-  const router = useRouter();
   const createLog = useCreateServiceLog(bikeId);
 
   const [serviceTypeLabel, setServiceTypeLabel] = useState(SERVICE_CHIP_OPTIONS[0]);
@@ -33,29 +30,21 @@ export function useServiceLogForm(bikeId: string | null) {
   const handleSave = async () => {
     const mileageNum = parseInt(mileage, 10);
     if (!selectedKey || isNaN(mileageNum) || !date || !notes.trim() || !cost.trim()) {
-      Alert.alert('Missing fields', 'Please fill in all required fields (type, mileage, date, cost, notes).');
-      return;
+      throw new Error('Please fill in all required fields (type, mileage, date, cost, notes).');
     }
 
     const parsedDate = new Date(date);
     if (isNaN(parsedDate.getTime())) {
-      Alert.alert('Invalid date', 'Please enter a valid date in YYYY-MM-DD format.');
-      return;
+      throw new Error('Please enter a valid date in YYYY-MM-DD format.');
     }
 
-    try {
-      await createLog.mutateAsync({
-        serviceType: selectedKey,
-        mileageAt: mileageNum,
-        date,
-        cost: cost.trim(),
-        description: notes.trim(),
-      });
-      router.back();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to save service log.';
-      Alert.alert('Error', message);
-    }
+    return createLog.mutateAsync({
+      serviceType: selectedKey,
+      mileageAt: mileageNum,
+      date,
+      cost: cost.trim(),
+      description: notes.trim(),
+    });
   };
 
   return {

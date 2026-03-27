@@ -1,5 +1,6 @@
 import React from 'react';
 import { Text, TextInput, View, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../../lib/colors';
 import { FilterChips } from '../../../components/ui/filter-chips';
@@ -16,6 +17,7 @@ import {
 } from '../../../lib/hooks/use-service-log-form';
 
 export default function AddServiceScreen() {
+  const router = useRouter();
   const activeBikeId = useBikeStore((s) => s.activeBikeId);
   const { data: bike } = useBike(activeBikeId);
   const form = useServiceLogForm(activeBikeId);
@@ -25,7 +27,13 @@ export default function AddServiceScreen() {
       Alert.alert('No bike selected', 'Please select a bike in your garage first.');
       return;
     }
-    await form.handleSave();
+    try {
+      await form.handleSave();
+      router.back();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to save service log.';
+      Alert.alert('Error', message);
+    }
   };
 
   return (

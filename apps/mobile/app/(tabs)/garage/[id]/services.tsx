@@ -1,8 +1,8 @@
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../../../lib/colors';
 import React from 'react';
-import { Text, TextInput, View } from 'react-native';
+import { Text, TextInput, View, Alert } from 'react-native';
 import { FilterChips } from '../../../../components/ui/filter-chips';
 import { PrimaryButton } from '../../../../components/ui/primary-button';
 import { SafeScreen } from '../../../../components/ui/safe-screen';
@@ -16,9 +16,20 @@ import {
 } from '../../../../lib/hooks/use-service-log-form';
 
 export default function ServiceLogScreen() {
+  const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: bike } = useBike(id);
   const form = useServiceLogForm(id ?? null);
+
+  const handleSave = async () => {
+    try {
+      await form.handleSave();
+      router.back();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to save service log.';
+      Alert.alert('Error', message);
+    }
+  };
 
   return (
     <SafeScreen scrollable>
@@ -110,7 +121,7 @@ export default function ServiceLogScreen() {
       <View className="mt-4">
         <PrimaryButton
           label={form.isPending ? 'Saving...' : 'Save Log'}
-          onPress={form.handleSave}
+          onPress={handleSave}
           icon="check-circle"
           disabled={form.isPending}
         />
