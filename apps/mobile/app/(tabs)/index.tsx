@@ -26,7 +26,7 @@ export default function HomeScreen() {
     return bikes.find((b) => b.id === activeBikeId) ?? bikes[0];
   }, [bikes, activeBikeId]);
 
-  const { data: serviceLogsData } = useServiceLogs(activeBike?.id ?? null);
+  const { data: serviceLogsData } = useServiceLogs(activeBike?.id ?? null, 3);
   const recentServices = serviceLogsData?.data ?? [];
 
   // Compute mileage progress toward next service (every 5,000 km)
