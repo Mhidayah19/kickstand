@@ -1,5 +1,7 @@
 // apps/mobile/lib/constants/service-types.ts
 
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
 export const SERVICE_TYPE_KEYS = [
   'oil_change',
   'chain_adjustment',
@@ -23,8 +25,8 @@ export type ServiceTypeKey = (typeof SERVICE_TYPE_KEYS)[number];
 export const SERVICE_TYPE_LABELS: Record<ServiceTypeKey, string> = {
   oil_change: 'Oil Change',
   chain_adjustment: 'Chain Adjustment',
-  chain_replacement: 'Chain Replacement',
-  brake_pads: 'Brake Pads',
+  chain_replacement: 'Chain & Sprocket Replacement',
+  brake_pads: 'Brake Pads Replacement',
   brake_fluid: 'Brake Fluid',
   coolant: 'Coolant',
   air_filter: 'Air Filter',
@@ -33,13 +35,15 @@ export const SERVICE_TYPE_LABELS: Record<ServiceTypeKey, string> = {
   tire_rear: 'Rear Tire',
   valve_clearance: 'Valve Clearance',
   battery: 'Battery',
-  general_service: 'General Service',
+  general_service: 'General Service / Inspection',
   fork_oil: 'Fork Oil',
   clutch: 'Clutch',
 };
 
 // Maps service type to TimelineEntry icon name (MaterialCommunityIcons)
-export const SERVICE_TYPE_ICONS: Record<ServiceTypeKey, string> = {
+export type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
+
+export const SERVICE_TYPE_ICONS: Record<ServiceTypeKey, IconName> = {
   oil_change: 'oil',
   chain_adjustment: 'cog',
   chain_replacement: 'cog',
@@ -58,7 +62,7 @@ export const SERVICE_TYPE_ICONS: Record<ServiceTypeKey, string> = {
 };
 
 // Maps service type to TimelineEntry color
-type TimelineColor = 'yellow' | 'charcoal' | 'danger';
+export type TimelineColor = 'yellow' | 'charcoal' | 'danger';
 
 export const SERVICE_TYPE_COLORS: Record<ServiceTypeKey, TimelineColor> = {
   oil_change: 'yellow',
@@ -89,4 +93,5 @@ export const SERVICE_FILTER_GROUPS: Record<string, ServiceTypeKey[]> = {
   'General': ['general_service', 'air_filter', 'spark_plugs', 'battery'],
 };
 
-export const FILTER_OPTIONS = Object.keys(SERVICE_FILTER_GROUPS);
+export type FilterGroupKey = keyof typeof SERVICE_FILTER_GROUPS;
+export const FILTER_OPTIONS = Object.keys(SERVICE_FILTER_GROUPS) as FilterGroupKey[];
