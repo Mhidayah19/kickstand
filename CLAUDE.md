@@ -18,6 +18,13 @@ This is an npm workspaces monorepo.
 - **Start API dev**: `npm run api`
 - **Start mobile**: `npm run mobile`
 
+## Approach
+
+- Always recommend the latest stable, industry-standard patterns and libraries — avoid deprecated or legacy approaches
+- When multiple solutions exist, prefer the one most commonly adopted by the community and best supported long-term
+- If a pattern used in this codebase has a better modern alternative, flag it and suggest the upgrade path
+- Stay current with NestJS, Drizzle, Expo, and React Native ecosystem conventions
+
 ## Architecture
 
 ### API (NestJS)
