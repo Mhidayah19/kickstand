@@ -12,7 +12,7 @@
         "--prefix-colors",
         "yellow,cyan",
         "npm run api",
-        "npm run mobile"
+        "npm run ios --workspace=apps/mobile"
       ],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
@@ -36,8 +36,8 @@
       "name": "Mobile only",
       "type": "node",
       "request": "launch",
-      "program": "${workspaceFolder}/node_modules/.bin/expo",
-      "args": ["start"],
+      "program": "${workspaceFolder}/node_modules/.bin/npm",
+      "args": ["run", "ios"],
       "cwd": "${workspaceFolder}/apps/mobile",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
