@@ -10,17 +10,23 @@ interface BikeState {
   hydrate: () => Promise<void>;
 }
 
+const persistActiveBikeId = async (id: string | null) => {
+  if (id === null) {
+    await AsyncStorage.removeItem(ACTIVE_BIKE_KEY);
+  } else {
+    await AsyncStorage.setItem(ACTIVE_BIKE_KEY, id);
+  }
+};
+
 export const useBikeStore = create<BikeState>()(
   log(
     (set) => ({
       activeBikeId: null,
       setActiveBikeId: (id) => {
-        if (id === null) {
-          AsyncStorage.removeItem(ACTIVE_BIKE_KEY);
-        } else {
-          AsyncStorage.setItem(ACTIVE_BIKE_KEY, id);
-        }
         set({ activeBikeId: id });
+        persistActiveBikeId(id).catch(() => {
+          // Silently handle persistence errors — state is already updated for UI
+        });
       },
       hydrate: async () => {
         const stored = await AsyncStorage.getItem(ACTIVE_BIKE_KEY);

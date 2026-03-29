@@ -13,6 +13,7 @@ import { Section } from '../../../../components/ui/section';
 import { Skeleton } from '../../../../components/ui/skeleton';
 import { useDeleteBike, useBike } from '../../../../lib/api/use-bikes';
 import { useServiceLogs } from '../../../../lib/api/use-service-logs';
+import { useBikeStore } from '../../../../lib/store/bike-store';
 import { serviceTypeToMeta } from '../../../../lib/service-type-meta';
 
 function formatLogDate(dateStr: string): string {
@@ -31,6 +32,7 @@ export default function BikeDetailScreen() {
   const insets = useSafeAreaInsets();
   const { data: logsData } = useServiceLogs(id, 3);
   const logs = logsData?.data ?? [];
+  const { setActiveBikeId } = useBikeStore();
 
   const handleDelete = async () => {
     await deleteBike.mutateAsync();
@@ -151,7 +153,10 @@ export default function BikeDetailScreen() {
                 })}
               </View>
             ) : (
-              <Pressable onPress={() => router.push(`/(tabs)/garage/${id}/services` as any)}>
+              <Pressable onPress={() => {
+                setActiveBikeId(id);
+                router.push('/(tabs)/service/add');
+              }}>
                 <View className="bg-surface-low rounded-2xl p-6 items-center">
                   <Text className="font-sans-medium text-sm text-sand text-center mb-2">
                     No service logs yet
