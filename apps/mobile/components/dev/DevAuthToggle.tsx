@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { Pressable } from 'react-native';
 import { router } from 'expo-router';
 import { useAuthStore } from '../../lib/store/auth-store';
@@ -29,7 +29,7 @@ export function DevAuthToggle({ children }: DevAuthToggleProps) {
       if (isAuthenticated) {
         console.log('[DevAuthToggle] Toggling → unauthenticated (onboarding)');
         setUser(null);
-        router.replace('/(auth)/login' as any);
+        router.replace('/(onboarding)' as any);
       } else {
         console.log('[DevAuthToggle] Toggling → authenticated (restoring session)');
         const { data } = await supabase.auth.getSession();
@@ -53,6 +53,12 @@ export function DevAuthToggle({ children }: DevAuthToggleProps) {
       tapCount.current = 0;
     }, TAP_WINDOW_MS);
   }, [isAuthenticated, setUser]);
+
+  useEffect(() => {
+    return () => {
+      if (tapTimer.current) clearTimeout(tapTimer.current);
+    };
+  }, []);
 
   if (!__DEV__) {
     return <>{children}</>;
