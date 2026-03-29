@@ -1,9 +1,8 @@
 import React, { useMemo, useState, useCallback } from 'react';
-import { View, Text, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import * as Haptics from 'expo-haptics';
 import { TopAppBar } from '../../../components/ui/top-app-bar';
 import { ScreenHeader } from '../../../components/ui/screen-header';
 import { FilterChips } from '../../../components/ui/filter-chips';
@@ -66,11 +65,6 @@ export default function ServiceScreen() {
     const sum = logs.reduce((acc, log) => acc + (parseFloat(log.cost) || 0), 0);
     return `$${sum.toFixed(2)}`;
   }, [logs]);
-
-  const handleAdd = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push('/(tabs)/service/add');
-  };
 
   const handleAddBike = useCallback(() => {
     router.push('/(tabs)/garage/add' as any);
@@ -158,16 +152,6 @@ export default function ServiceScreen() {
             </View>
           )}
         </ScrollView>
-      )}
-
-      {/* Floating "+" button — only when not empty (empty state has its own CTA) */}
-      {!isEmpty && (
-        <Pressable
-          onPress={handleAdd}
-          className="absolute bottom-28 right-6 bg-yellow rounded-full w-14 h-14 items-center justify-center active:opacity-80"
-        >
-          <MaterialCommunityIcons name="plus" size={28} color={colors.charcoal} />
-        </Pressable>
       )}
     </SafeAreaView>
   );

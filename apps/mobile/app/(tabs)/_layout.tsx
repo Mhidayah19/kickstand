@@ -8,12 +8,10 @@ export default function TabLayout() {
       tabBar={(props) => <FloatingTabBar {...props} />}
     >
       <Tabs.Screen name="index" />
-      <Tabs.Screen name="garage/index" />
+      <Tabs.Screen name="garage" />
       <Tabs.Screen name="service/index" />
       <Tabs.Screen name="settings" />
       {/* Hidden routes */}
-      <Tabs.Screen name="garage/add" options={{ href: null }} />
-      <Tabs.Screen name="garage/[id]" options={{ href: null }} />
       <Tabs.Screen name="service/add" options={{ href: null }} />
     </Tabs>
   );
