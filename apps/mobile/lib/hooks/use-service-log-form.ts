@@ -53,6 +53,8 @@ export function useServiceLogForm(bikeId: string | null, initialMileage?: number
   const [date, setDate] = useState(todayDisplay());
   const [cost, setCost] = useState('');
   const [notes, setNotes] = useState('');
+  const nextPartId = useRef(1);
+  const [parts, setParts] = useState<{ id: number; value: string }[]>([{ id: 0, value: '' }]);
 
   useEffect(() => {
     if (initialMileage != null && !userEditedMileage.current) {
@@ -79,14 +81,19 @@ export function useServiceLogForm(bikeId: string | null, initialMileage?: number
     setDate(todayDisplay());
     setCost('');
     setNotes('');
+    nextPartId.current = 1;
+    setParts([{ id: 0, value: '' }]);
   };
 
   return {
+    serviceTypeKey,
     serviceTypeLabel: SERVICE_TYPE_LABELS[serviceTypeKey],
-    setServiceTypeLabel: (label: string) => {
-      const nextKey = SERVICE_TYPE_KEYS.find((key) => SERVICE_TYPE_LABELS[key] === label);
-      if (nextKey) setServiceTypeKey(nextKey);
-    },
+    setServiceTypeKey,
+    parts,
+    addPart: () => setParts((prev) => [...prev, { id: nextPartId.current++, value: '' }]),
+    removePart: (id: number) => setParts((prev) => prev.length > 1 ? prev.filter((p) => p.id !== id) : prev),
+    updatePart: (id: number, value: string) =>
+      setParts((prev) => prev.map((p) => (p.id === id ? { ...p, value } : p))),
     mileage,
     setMileage: (value: string) => {
       userEditedMileage.current = true;
