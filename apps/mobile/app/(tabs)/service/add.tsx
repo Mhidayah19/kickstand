@@ -12,7 +12,7 @@ export default function AddServiceScreen() {
   const router = useRouter();
   const activeBikeId = useBikeStore((s) => s.activeBikeId);
   const { data: bike } = useBike(activeBikeId);
-  const form = useServiceLogForm(activeBikeId);
+  const form = useServiceLogForm(activeBikeId, bike?.currentMileage);
 
   const bikeLabel = bike ? formatBikeLabel(bike) : activeBikeId ? 'Loading...' : 'Select a bike';
 

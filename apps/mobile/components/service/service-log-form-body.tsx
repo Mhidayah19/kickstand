@@ -37,52 +37,50 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit }: ServiceL
       />
 
       {/* Service Type Selector */}
-      <View className="mb-8">
+      <View className="mb-10">
         <FilterChips
           options={SERVICE_CHIP_OPTIONS}
           selected={form.serviceTypeLabel}
           onSelect={form.setServiceTypeLabel}
-          wrap
         />
       </View>
 
       {/* Bento Form Grid */}
       <View className="mb-6">
+        {/* Mileage + Date row */}
         <View className="flex-row gap-4 mb-4">
           <View className="flex-1">
             <TextField
               label="Mileage"
               value={form.mileage}
               onChangeText={form.setMileage}
-              placeholder="24,500"
+              placeholder="54,000"
               keyboardType="numeric"
+              inputClassName="text-xl"
+              suffix="km"
             />
-            <Text className="font-sans-bold text-xs text-sand uppercase tracking-wide-1 mt-1 self-end pr-2">
-              KM
-            </Text>
           </View>
           <View className="flex-1">
             <TextField
               label="Date"
               value={form.date}
               onChangeText={form.setDate}
-              placeholder="2026-03-27"
+              placeholder="29 Mar 2026"
+              inputClassName="text-xl"
             />
           </View>
         </View>
-        <View className="flex-row gap-4">
-          <View className="flex-1">
-            <TextField
-              label="Estimated Cost"
-              value={form.cost}
-              onChangeText={form.setCost}
-              placeholder="350"
-              prefix="$"
-              keyboardType="numeric"
-            />
-          </View>
-          <View className="flex-1" />
-        </View>
+
+        {/* Cost — full width */}
+        <TextField
+          label="Estimated Cost"
+          value={form.cost}
+          onChangeText={form.setCost}
+          placeholder="350"
+          prefix="$"
+          keyboardType="numeric"
+          inputClassName="text-xl"
+        />
       </View>
 
       {/* Notes */}
