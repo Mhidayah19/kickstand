@@ -56,7 +56,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
       <Pressable
         key={routeName}
         onPress={() => handleTabPress(routeName)}
-        className="items-center pt-2 pb-1 px-3 active:opacity-70"
+        className="flex-1 items-center pt-2 pb-1 active:opacity-70"
         hitSlop={HIT_SLOP}
       >
         <MaterialCommunityIcons name={icon} size={22} color={color} />
@@ -74,7 +74,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
         tint="dark"
         className="w-[90%] max-w-lg rounded-3xl overflow-hidden"
       >
-        <View className="flex-row items-center justify-between px-6 py-3">
+        <View className="flex-row items-center px-3 py-3">
           {TABS.slice(0, FAB_INDEX).map(renderTab)}
 
           <Pressable
