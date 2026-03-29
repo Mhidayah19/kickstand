@@ -27,10 +27,10 @@ function displayToISO(display: string): string {
   return display;
 }
 
-function validateForm(mileage: string, date: string, cost: string, notes: string): number {
+function validateForm(mileage: string, date: string, cost: string): number {
   const mileageNum = parseInt(mileage.replace(/,/g, ''), 10);
-  if (isNaN(mileageNum) || !date || !notes.trim() || !cost.trim()) {
-    throw new Error('Please fill in all required fields (type, mileage, date, cost, notes).');
+  if (isNaN(mileageNum) || !date || !cost.trim()) {
+    throw new Error('Please fill in all required fields (type, mileage, date, cost).');
   }
   if (isNaN(new Date(date).getTime())) {
     throw new Error('Please enter a valid date in YYYY-MM-DD format.');
@@ -52,7 +52,6 @@ export function useServiceLogForm(bikeId: string | null, initialMileage?: number
   const [mileage, setMileage] = useState(initialMileage != null ? formatMileage(String(initialMileage)) : '');
   const [date, setDate] = useState(todayDisplay());
   const [cost, setCost] = useState('');
-  const [notes, setNotes] = useState('');
   const nextPartId = useRef(1);
   const [parts, setParts] = useState<{ id: number; value: string }[]>([{ id: 0, value: '' }]);
 
@@ -64,13 +63,13 @@ export function useServiceLogForm(bikeId: string | null, initialMileage?: number
 
   const handleSave = async () => {
     const isoDate = displayToISO(date);
-    const mileageNum = validateForm(mileage, isoDate, cost, notes);
+    const mileageNum = validateForm(mileage, isoDate, cost);
     return createLog.mutateAsync({
       serviceType: serviceTypeKey,
       mileageAt: mileageNum,
       date: isoDate,
       cost: cost.trim(),
-      description: notes.trim(),
+      description: '',
     });
   };
 
@@ -80,7 +79,6 @@ export function useServiceLogForm(bikeId: string | null, initialMileage?: number
     setMileage(initialMileage != null ? formatMileage(String(initialMileage)) : '');
     setDate(todayDisplay());
     setCost('');
-    setNotes('');
     nextPartId.current = 1;
     setParts([{ id: 0, value: '' }]);
   };
@@ -103,8 +101,6 @@ export function useServiceLogForm(bikeId: string | null, initialMileage?: number
     setDate,
     cost,
     setCost,
-    notes,
-    setNotes,
     handleSave,
     handleReset,
     isPending: createLog.isPending,
