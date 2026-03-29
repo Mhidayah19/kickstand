@@ -33,6 +33,58 @@ function DotIndicator({ total, active }: { total: number; active: number }) {
   );
 }
 
+// ── Shared onboarding card ─────────────────────────────────────
+interface OnboardingEntry {
+  label: string;
+  title: string;
+  subtitle: string;
+  iconName: string;
+  iconBg: string;
+  iconColor: string;
+  titleColor: string;
+  borderColor: string | null;
+  translateX: number;
+  scale: number;
+  opacity: number;
+  cardBg: string;
+}
+
+function OnboardingCard({ entry }: { entry: OnboardingEntry }) {
+  return (
+    <View
+      className={`${entry.cardBg} rounded-2xl px-md py-md flex-row items-center gap-md overflow-hidden`}
+      style={{
+        transform: [{ translateX: entry.translateX }, { scale: entry.scale }],
+        opacity: entry.opacity,
+      }}
+    >
+      {entry.borderColor && (
+        <View
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 3,
+            backgroundColor: entry.borderColor,
+          }}
+        />
+      )}
+      <View
+        className="w-12 h-12 rounded-xl items-center justify-center"
+        style={{ backgroundColor: entry.iconBg }}
+      >
+        <MaterialCommunityIcons name={entry.iconName as any} size={20} color={entry.iconColor} />
+      </View>
+      <View className="flex-1">
+        <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-1">{entry.label}</Text>
+        <Text className={`font-sans-bold ${entry.titleColor} text-base`}>{entry.title}</Text>
+        <Text className="font-sans-medium text-sand text-sm">{entry.subtitle}</Text>
+      </View>
+    </View>
+  );
+}
+
 // ── Slides ─────────────────────────────────────────────────────
 function SlideWelcome({
   active,
@@ -92,7 +144,7 @@ function SlideWelcome({
   );
 }
 
-const MAINTENANCE_ENTRIES = [
+const MAINTENANCE_ENTRIES: OnboardingEntry[] = [
   {
     label: 'PREVIOUS JOB',
     title: 'Oil & Filter Change',
@@ -100,7 +152,8 @@ const MAINTENANCE_ENTRIES = [
     iconName: 'oil',
     iconBg: colors.yellow,
     iconColor: colors.charcoal,
-    borderColor: colors.yellow as string | null,
+    titleColor: 'text-charcoal',
+    borderColor: colors.yellow,
     translateX: 16,
     scale: 1,
     opacity: 1,
@@ -113,6 +166,7 @@ const MAINTENANCE_ENTRIES = [
     iconName: 'cog',
     iconBg: '#E8E0D5',
     iconColor: colors.charcoal,
+    titleColor: 'text-charcoal',
     borderColor: null,
     translateX: 0,
     scale: 0.95,
@@ -126,6 +180,7 @@ const MAINTENANCE_ENTRIES = [
     iconName: 'wrench',
     iconBg: colors.charcoal,
     iconColor: colors.yellow,
+    titleColor: 'text-charcoal',
     borderColor: colors.charcoal,
     translateX: 8,
     scale: 1,
@@ -159,54 +214,20 @@ function SlideMaintenance({
         </TouchableOpacity>
       </View>
 
-      {/* Content — cards + copy */}
-      <View>
-        {/* Service cards — visual hero first */}
-        <View className="gap-sm mb-xl">
-          {MAINTENANCE_ENTRIES.map((e) => (
-            <View
-              key={e.label}
-              className={`${e.cardBg} rounded-2xl px-md py-md flex-row items-center gap-md overflow-hidden`}
-              style={{
-                transform: [{ translateX: e.translateX }, { scale: e.scale }],
-                opacity: e.opacity,
-              }}
-            >
-              {e.borderColor && (
-                <View
-                  style={{
-                    position: 'absolute',
-                    left: 0,
-                    top: 0,
-                    bottom: 0,
-                    width: 3,
-                    backgroundColor: e.borderColor,
-                  }}
-                />
-              )}
-              <View
-                className="w-12 h-12 rounded-xl items-center justify-center"
-                style={{ backgroundColor: e.iconBg }}
-              >
-                <MaterialCommunityIcons name={e.iconName as any} size={20} color={e.iconColor} />
-              </View>
-              <View className="flex-1">
-                <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-1">{e.label}</Text>
-                <Text className="font-sans-bold text-charcoal text-base">{e.title}</Text>
-                <Text className="font-sans-medium text-sand text-sm">{e.subtitle}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {/* Headline copy */}
-        <Text className="font-sans-bold text-charcoal mb-sm" style={{ fontSize: 40, lineHeight: 48, letterSpacing: -1 }}>
-          Track Every{'\n'}<Text style={{ color: colors.yellow }}>Service.</Text>
-        </Text>
-        <Text className="font-sans-medium text-sand text-base">
-          From oil changes to full engine overhauls, keep your digital service record pristine.
-        </Text>
+      {/* Service cards — visual hero first */}
+      <View className="gap-sm mb-xl">
+        {MAINTENANCE_ENTRIES.map((e) => (
+          <OnboardingCard key={e.label} entry={e} />
+        ))}
       </View>
+
+      {/* Headline copy */}
+      <Text className="font-sans-bold text-charcoal mb-sm" style={{ fontSize: 40, lineHeight: 48, letterSpacing: -1 }}>
+        Track Every{'\n'}<Text style={{ color: colors.yellow }}>Service.</Text>
+      </Text>
+      <Text className="font-sans-medium text-sand text-base">
+        From oil changes to full engine overhauls, keep your digital service record pristine.
+      </Text>
 
       {/* Dots + Next button row */}
       <View className="flex-1 justify-end">
@@ -225,6 +246,51 @@ function SlideMaintenance({
     </View>
   );
 }
+
+const FLEET_ENTRIES: OnboardingEntry[] = [
+  {
+    label: 'Honda CB400X',
+    title: 'Ready to Ride',
+    subtitle: '8,420 km · Last serviced 2 weeks ago',
+    iconName: 'motorbike',
+    iconBg: colors.yellow,
+    iconColor: colors.charcoal,
+    titleColor: 'text-charcoal',
+    borderColor: colors.yellow,
+    translateX: 16,
+    scale: 1,
+    opacity: 1,
+    cardBg: 'bg-white',
+  },
+  {
+    label: 'Yamaha MT-15',
+    title: 'Next Service in 800 km',
+    subtitle: '3,200 km · Routine check upcoming',
+    iconName: 'motorbike',
+    iconBg: '#E8E0D5',
+    iconColor: colors.charcoal,
+    titleColor: 'text-charcoal',
+    borderColor: null,
+    translateX: 0,
+    scale: 0.95,
+    opacity: 0.8,
+    cardBg: 'bg-surface-low',
+  },
+  {
+    label: 'Royal Enfield Meteor 350',
+    title: 'Insurance Expired',
+    subtitle: '1,050 km · Needs attention',
+    iconName: 'motorbike',
+    iconBg: colors.charcoal,
+    iconColor: colors.danger,
+    titleColor: 'text-danger',
+    borderColor: colors.danger,
+    translateX: 8,
+    scale: 1,
+    opacity: 1,
+    cardBg: 'bg-white',
+  },
+];
 
 function SlideFleet({
   active,
@@ -251,55 +317,34 @@ function SlideFleet({
         </TouchableOpacity>
       </View>
 
-      {/* Headline at top (matches stitch) */}
-      <Text className="font-sans-bold text-charcoal" style={{ fontSize: 40, lineHeight: 48, letterSpacing: -1 }}>
-        Manage Your{'\n'}Fleet.
-      </Text>
-      <Text className="font-sans-medium text-sand mt-sm text-base mb-xl">
-        Monitor the health and vitals of all your machines in one centralised atelier.
-      </Text>
-
-      {/* Fleet card preview */}
-      <View className="bg-white rounded-2xl px-md py-md mb-xl">
-        <View className="flex-row justify-between items-start mb-sm">
-          <View>
-            <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-1">Fleet ID: 092</Text>
-            <Text className="font-sans-bold text-charcoal text-xl">NORDEN 901</Text>
-          </View>
-          <View className="bg-surface-low rounded-xl px-sm py-xs">
-            <Text className="text-xs font-sans-bold text-charcoal uppercase tracking-widest">Optimal</Text>
-          </View>
-        </View>
-        <View className="flex-row gap-xl">
-          <View>
-            <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest">Last Service</Text>
-            <Text className="font-sans-bold text-charcoal text-sm mt-1">11,250 mi</Text>
-          </View>
-          <View>
-            <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest">Next Due</Text>
-            <Text className="font-sans-bold text-charcoal text-sm mt-1">12,000 mi</Text>
-          </View>
-          <View>
-            <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest">Location</Text>
-            <View className="flex-row items-center gap-1 mt-1">
-              <MaterialCommunityIcons name="map-marker-outline" size={11} color={colors.sand} />
-              <Text className="font-sans-medium text-sand text-xs">Warehouse Dist.</Text>
-            </View>
-          </View>
-        </View>
+      {/* Fleet cards — visual hero first */}
+      <View className="gap-sm mb-xl">
+        {FLEET_ENTRIES.map((e) => (
+          <OnboardingCard key={e.label} entry={e} />
+        ))}
       </View>
 
-      {/* Dots + CTA */}
+      {/* Headline copy */}
+      <Text className="font-sans-bold text-charcoal mb-sm" style={{ fontSize: 40, lineHeight: 48, letterSpacing: -1 }}>
+        Every Machine.{'\n'}One <Text style={{ color: colors.yellow }}>Garage.</Text>
+      </Text>
+      <Text className="font-sans-medium text-sand text-base">
+        Track status, mileage, and compliance across your entire fleet at a glance.
+      </Text>
+
+      {/* Dots + Finish button */}
       <View className="flex-1 justify-end">
-        <DotIndicator total={3} active={active} />
-        <TouchableOpacity
-          className="bg-charcoal rounded-full py-md items-center flex-row justify-center gap-xs mt-lg mb-xl"
-          onPress={onFinish}
-          activeOpacity={0.8}
-        >
-          <Text className="text-white font-sans-bold text-base tracking-widest uppercase">Finish</Text>
-          <Text className="text-white font-sans-bold">→</Text>
-        </TouchableOpacity>
+        <View className="flex-row items-center justify-between mb-xl">
+          <DotIndicator total={3} active={active} />
+          <TouchableOpacity
+            className="bg-charcoal rounded-full px-xl py-md flex-row items-center gap-xs"
+            onPress={onFinish}
+            activeOpacity={0.8}
+          >
+            <Text className="text-white font-sans-bold text-base">Finish</Text>
+            <Text className="text-white font-sans-bold text-base">→</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );
