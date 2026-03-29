@@ -105,7 +105,6 @@ export default function GarageScreen() {
                 key={bike.id}
                 make={make}
                 model={model}
-                imageUri={bike.imageUrl ?? undefined}
                 status={status}
                 mileage={{ value: mileage, unit: 'km' }}
                 onPress={() => router.push(`/(tabs)/garage/${bike.id}` as any)}
