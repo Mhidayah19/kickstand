@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Text, TextInput, View, Pressable } from 'react-native';
+import { Animated, Text, View, Pressable } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
 import { PrimaryButton } from '../ui/primary-button';
@@ -9,23 +9,28 @@ import { TextField } from '../ui/text-field';
 import { ServiceTypeSelector } from './service-type-selector';
 import { PartsUsed } from './parts-used';
 import type { useServiceLogForm } from '../../lib/hooks/use-service-log-form';
+import type { FrequentType } from '../../lib/service-type-helpers';
 
 interface ServiceLogFormBodyProps {
   form: ReturnType<typeof useServiceLogForm>;
   bikeLabel: string;
   onSave: () => Promise<void>;
   onExit?: () => void;
+  frequentTypes: FrequentType[];
 }
 
-export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit }: ServiceLogFormBodyProps) {
-  const [notesFocused, setNotesFocused] = useState(false);
+export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit, frequentTypes }: ServiceLogFormBodyProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [hasSelected, setHasSelected] = useState(false);
+  const collapseTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+
+  // Clean up collapse timer on unmount
+  useEffect(() => () => clearTimeout(collapseTimer.current), []);
 
   const formOpacity = useRef(new Animated.Value(0)).current;
   const formTranslateY = useRef(new Animated.Value(12)).current;
 
-  // Auto-collapse after type selection with a brief delay
+  // Animate form fields in/out when collapsed state changes
   useEffect(() => {
     if (!hasSelected) return;
     if (collapsed) {
@@ -41,17 +46,12 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit }: ServiceL
     }
   }, [collapsed, hasSelected]);
 
-  // Delay collapse so the chip selection registers visually before the grid disappears
-  useEffect(() => {
-    if (!hasSelected || collapsed) return;
-    const id = setTimeout(() => setCollapsed(true), 150);
-    return () => clearTimeout(id);
-  }, [hasSelected, collapsed]);
-
   const handleSelectType = useCallback((key: Parameters<typeof form.setServiceTypeKey>[0]) => {
     form.setServiceTypeKey(key);
     setHasSelected(true);
-    setCollapsed(false);
+    // Auto-collapse after a brief delay so the selection registers visually
+    clearTimeout(collapseTimer.current);
+    collapseTimer.current = setTimeout(() => setCollapsed(true), 150);
   }, [form.setServiceTypeKey]);
 
   const handleExpand = useCallback(() => {
@@ -80,6 +80,7 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit }: ServiceL
           onSelect={handleSelectType}
           collapsed={collapsed}
           onExpand={handleExpand}
+          frequentTypes={frequentTypes}
         />
       </View>
 
@@ -129,30 +130,6 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit }: ServiceL
           onAdd={form.addPart}
           onRemove={form.removePart}
         />
-
-        <View className="mb-8">
-          <Text className="font-sans-bold text-xs text-sand uppercase tracking-wide-1 mb-2">
-            Notes
-          </Text>
-          <View
-            className="bg-surface-low rounded-xl overflow-hidden"
-            style={notesFocused ? { borderBottomWidth: 2, borderBottomColor: colors.yellow } : undefined}
-          >
-            <TextInput
-              value={form.notes}
-              onChangeText={form.setNotes}
-              onFocus={() => setNotesFocused(true)}
-              onBlur={() => setNotesFocused(false)}
-              placeholder="Add any notes about this service..."
-              placeholderTextColor={colors.outline}
-              multiline
-              numberOfLines={4}
-              textAlignVertical="top"
-              className="p-5 text-base font-sans-medium text-charcoal"
-              style={{ minHeight: 120 }}
-            />
-          </View>
-        </View>
 
         <Section label="Evidence & Documentation">
           <View className="border-2 border-dashed border-outline rounded-xl py-8 items-center justify-center">
