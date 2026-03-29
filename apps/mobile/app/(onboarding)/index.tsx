@@ -26,7 +26,7 @@ function DotIndicator({ total, active }: { total: number; active: number }) {
       {Array.from({ length: total }).map((_, i) => (
         <View
           key={`dot-${i}`}
-          className={`rounded-full ${i === active ? 'w-6 h-2 bg-charcoal' : 'w-2 h-2 bg-sand'}`}
+          className={`rounded-full ${i === active ? 'w-8 h-2.5 bg-charcoal' : 'w-2.5 h-2.5 bg-sand'}`}
         />
       ))}
     </View>
@@ -92,6 +92,48 @@ function SlideWelcome({
   );
 }
 
+const MAINTENANCE_ENTRIES = [
+  {
+    label: 'PREVIOUS JOB',
+    title: 'Oil & Filter Change',
+    subtitle: 'Motul 7100 10W40 Full Synth',
+    iconName: 'oil',
+    iconBg: colors.yellow,
+    iconColor: colors.charcoal,
+    borderColor: colors.yellow as string | null,
+    translateX: 16,
+    scale: 1,
+    opacity: 1,
+    cardBg: 'bg-white',
+  },
+  {
+    label: 'UPCOMING',
+    title: 'Brake Fluid Flush',
+    subtitle: 'Scheduled for 12,000mi Service',
+    iconName: 'cog',
+    iconBg: '#E8E0D5',
+    iconColor: colors.charcoal,
+    borderColor: null,
+    translateX: 0,
+    scale: 0.95,
+    opacity: 0.8,
+    cardBg: 'bg-surface-low',
+  },
+  {
+    label: 'RECORDED TODAY',
+    title: 'Valve Clearance Check',
+    subtitle: 'Precision alignment verified',
+    iconName: 'wrench',
+    iconBg: colors.charcoal,
+    iconColor: colors.yellow,
+    borderColor: colors.charcoal,
+    translateX: 8,
+    scale: 1,
+    opacity: 1,
+    cardBg: 'bg-white',
+  },
+];
+
 function SlideMaintenance({
   active,
   onSkip,
@@ -101,33 +143,6 @@ function SlideMaintenance({
   onSkip: () => void;
   onNext: () => void;
 }) {
-  const entries = [
-    {
-      label: 'PREVIOUS JOB',
-      title: 'Oil & Filter Change',
-      subtitle: 'Motul 7100 10W40 Full Synth',
-      iconName: 'oil',
-      iconBg: colors.yellow,
-      iconColor: colors.charcoal,
-    },
-    {
-      label: 'UPCOMING',
-      title: 'Brake Fluid Flush',
-      subtitle: 'Scheduled for 12,000mi Service',
-      iconName: 'cog',
-      iconBg: '#E8E0D5',
-      iconColor: colors.charcoal,
-    },
-    {
-      label: 'RECORDED TODAY',
-      title: 'Valve Clearance Check',
-      subtitle: 'Precision alignment verified',
-      iconName: 'wrench',
-      iconBg: colors.charcoal,
-      iconColor: colors.yellow,
-    },
-  ];
-
   return (
     <View className="flex-1 px-lg pt-12">
       {/* Header row */}
@@ -144,31 +159,53 @@ function SlideMaintenance({
         </TouchableOpacity>
       </View>
 
-      {/* Headline */}
-      <Text className="font-sans-bold text-charcoal mb-sm" style={{ fontSize: 40, lineHeight: 48, letterSpacing: -1 }}>
-        Track Every{'\n'}Service.
-      </Text>
-      <Text className="font-sans-medium text-sand text-base mb-xl">
-        From oil changes to full engine overhauls, keep your digital service record pristine.
-      </Text>
-
-      {/* Service cards */}
-      <View className="gap-sm mb-xl">
-        {entries.map((e) => (
-          <View key={e.label} className="bg-white rounded-2xl px-md py-sm flex-row items-center gap-md">
+      {/* Content — cards + copy */}
+      <View>
+        {/* Service cards — visual hero first */}
+        <View className="gap-sm mb-xl">
+          {MAINTENANCE_ENTRIES.map((e) => (
             <View
-              className="w-10 h-10 rounded-xl items-center justify-center"
-              style={{ backgroundColor: e.iconBg }}
+              key={e.label}
+              className={`${e.cardBg} rounded-2xl px-md py-md flex-row items-center gap-md overflow-hidden`}
+              style={{
+                transform: [{ translateX: e.translateX }, { scale: e.scale }],
+                opacity: e.opacity,
+              }}
             >
-              <MaterialCommunityIcons name={e.iconName as any} size={18} color={e.iconColor} />
+              {e.borderColor && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    width: 3,
+                    backgroundColor: e.borderColor,
+                  }}
+                />
+              )}
+              <View
+                className="w-12 h-12 rounded-xl items-center justify-center"
+                style={{ backgroundColor: e.iconBg }}
+              >
+                <MaterialCommunityIcons name={e.iconName as any} size={20} color={e.iconColor} />
+              </View>
+              <View className="flex-1">
+                <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-1">{e.label}</Text>
+                <Text className="font-sans-bold text-charcoal text-base">{e.title}</Text>
+                <Text className="font-sans-medium text-sand text-sm">{e.subtitle}</Text>
+              </View>
             </View>
-            <View className="flex-1">
-              <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-1">{e.label}</Text>
-              <Text className="font-sans-bold text-charcoal text-base">{e.title}</Text>
-              <Text className="font-sans-medium text-sand text-sm">{e.subtitle}</Text>
-            </View>
-          </View>
-        ))}
+          ))}
+        </View>
+
+        {/* Headline copy */}
+        <Text className="font-sans-bold text-charcoal mb-sm" style={{ fontSize: 40, lineHeight: 48, letterSpacing: -1 }}>
+          Track Every{'\n'}<Text style={{ color: colors.yellow }}>Service.</Text>
+        </Text>
+        <Text className="font-sans-medium text-sand text-base">
+          From oil changes to full engine overhauls, keep your digital service record pristine.
+        </Text>
       </View>
 
       {/* Dots + Next button row */}
@@ -176,12 +213,12 @@ function SlideMaintenance({
         <View className="flex-row items-center justify-between mb-xl">
           <DotIndicator total={3} active={active} />
           <TouchableOpacity
-            className="bg-charcoal rounded-full px-lg py-sm flex-row items-center gap-xs"
+            className="bg-charcoal rounded-full px-xl py-md flex-row items-center gap-xs"
             onPress={onNext}
             activeOpacity={0.8}
           >
-            <Text className="text-white font-sans-bold text-sm">Next</Text>
-            <Text className="text-white font-sans-bold text-sm">→</Text>
+            <Text className="text-white font-sans-bold text-base">Next</Text>
+            <Text className="text-white font-sans-bold text-base">→</Text>
           </TouchableOpacity>
         </View>
       </View>
