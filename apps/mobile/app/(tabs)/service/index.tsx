@@ -132,7 +132,6 @@ export default function ServiceScreen() {
           <Text className="font-sans-medium text-sm text-sand text-center mb-8">
             Log your first service to start tracking your maintenance history.
           </Text>
-          <PrimaryButton label="Log First Service" onPress={handleAdd} icon="plus" />
         </View>
       ) : (
         <ScrollView
