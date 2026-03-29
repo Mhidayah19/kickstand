@@ -31,7 +31,7 @@ export default function AddServiceScreen() {
     }
     try {
       await form.handleSave();
-      router.back();
+      router.navigate('/(tabs)/service' as any);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to save service log.';
       Alert.alert('Error', message);
@@ -40,7 +40,7 @@ export default function AddServiceScreen() {
 
   const handleExit = () => {
     form.handleReset();
-    router.back();
+    router.navigate('/(tabs)/service' as any);
   };
 
   return (

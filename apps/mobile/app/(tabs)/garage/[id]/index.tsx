@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../../../lib/colors';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -28,7 +28,6 @@ export default function BikeDetailScreen() {
   const { data: bike, isLoading } = useBike(id);
   const deleteBike = useDeleteBike(id ?? '');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const navigation = useNavigation();
   const insets = useSafeAreaInsets();
   const { data: logsData } = useServiceLogs(id, 3);
   const logs = logsData?.data ?? [];
@@ -65,7 +64,7 @@ export default function BikeDetailScreen() {
         style={{ top: insets.top + 8 }}
       >
         <Pressable
-          onPress={() => navigation.goBack()}
+          onPress={() => router.back()}
           hitSlop={8}
           className="w-10 h-10 rounded-full bg-surface-card/80 items-center justify-center active:opacity-70"
         >
