@@ -6,6 +6,7 @@ import { SafeScreen } from '../../../components/ui/safe-screen';
 import { useBike } from '../../../lib/api/use-bikes';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { useServiceLogForm } from '../../../lib/hooks/use-service-log-form';
+import { formatBikeLabel } from '../../../lib/format-bike-label';
 
 export default function AddServiceScreen() {
   const router = useRouter();
@@ -13,9 +14,7 @@ export default function AddServiceScreen() {
   const { data: bike } = useBike(activeBikeId);
   const form = useServiceLogForm(activeBikeId);
 
-  const bikeLabel = bike
-    ? `${bike.make ?? ''} ${bike.model ?? ''}`.trim() + (bike.plateNumber ? ` • ${bike.plateNumber}` : '')
-    : 'Loading...';
+  const bikeLabel = bike ? formatBikeLabel(bike) : activeBikeId ? 'Loading...' : 'Select a bike';
 
   const handleSave = async () => {
     if (!activeBikeId) {
