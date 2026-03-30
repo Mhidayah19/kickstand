@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, TouchableOpacity, View, Text, ScrollView } from 'react-native';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextField } from '../../components/ui/text-field';
+import { FormField } from '../../components/ui/form-field';
 import { registerSchema, RegisterFormValues } from '../../lib/validation/auth-schema';
 import { useRegister } from '../../lib/api/use-auth';
 import { justRegisteredRef } from '../../lib/auth-state';
@@ -64,64 +65,18 @@ export default function SignUpScreen() {
 
           {/* Form fields */}
           <View className="gap-xs">
-            <Controller
-              control={control}
-              name="name"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextField
-                  label="Full Name"
-                  autoCapitalize="words"
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  value={value}
-                  error={errors.name?.message}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="email"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextField
-                  label="Email Address"
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  value={value}
-                  error={errors.email?.message}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="password"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextField
-                  label="Secure Password"
-                  secureTextEntry
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  value={value}
-                  error={errors.password?.message}
-                />
-              )}
-            />
-            <Controller
-              control={control}
-              name="confirmPassword"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <TextField
-                  label="Confirm Password"
-                  secureTextEntry
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  value={value}
-                  error={errors.confirmPassword?.message}
-                />
-              )}
-            />
+            <FormField control={control} name="name" errors={errors}>
+              <TextField label="Full Name" autoCapitalize="words" />
+            </FormField>
+            <FormField control={control} name="email" errors={errors}>
+              <TextField label="Email Address" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+            </FormField>
+            <FormField control={control} name="password" errors={errors}>
+              <TextField label="Secure Password" secureTextEntry />
+            </FormField>
+            <FormField control={control} name="confirmPassword" errors={errors}>
+              <TextField label="Confirm Password" secureTextEntry />
+            </FormField>
           </View>
 
           {/* Submit */}

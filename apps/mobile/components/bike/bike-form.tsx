@@ -1,8 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { DateField } from '../ui/date-field';
+import { FormField } from '../ui/form-field';
 import { Section } from '../ui/section';
 import { SelectField } from '../ui/select-field';
 import { TextField } from '../ui/text-field';
@@ -40,129 +41,48 @@ export function BikeForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Bike
   return (
     <View>
       <Section label="Bike Info">
-        <Controller
-          control={control}
-          name="model"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextField
-              label="Model"
-              placeholder="Honda CB400X"
-              onChangeText={onChange}
-              onBlur={onBlur}
-              value={value}
-              error={errors.model?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="year"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextField
-              label="Year"
-              placeholder="2022"
-              value={value ? String(value) : ''}
-              onChangeText={(text) => onChange(text ? parseInt(text, 10) : 0)}
-              onBlur={onBlur}
-              error={errors.year?.message}
-              keyboardType="number-pad"
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="plateNumber"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextField
-              label="Plate Number"
-              placeholder="FBR1234A"
-              value={value}
-              onChangeText={(text) => onChange(text.toUpperCase())}
-              onBlur={onBlur}
-              error={errors.plateNumber?.message}
-              autoCapitalize="characters"
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="class"
-          render={({ field: { onChange, value } }) => (
-            <SelectField
-              label="Class"
-              options={CLASS_OPTIONS}
-              value={value}
-              onValueChange={onChange}
-              error={errors.class?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="currentMileage"
-          render={({ field: { onChange, onBlur, value } }) => (
-            <TextField
-              label="Current Mileage (km)"
-              placeholder="15000"
-              value={value ? String(value) : ''}
-              onChangeText={(text) => onChange(text ? parseInt(text, 10) : 0)}
-              onBlur={onBlur}
-              error={errors.currentMileage?.message}
-              keyboardType="number-pad"
-            />
-          )}
-        />
+        <FormField control={control} name="model" errors={errors}>
+          <TextField label="Model" placeholder="Honda CB400X" />
+        </FormField>
+        <FormField control={control} name="year" errors={errors}>
+          <TextField
+            label="Year"
+            placeholder="2022"
+            keyboardType="number-pad"
+          />
+        </FormField>
+        <FormField control={control} name="plateNumber" errors={errors}>
+          <TextField
+            label="Plate Number"
+            placeholder="FBR1234A"
+            autoCapitalize="characters"
+          />
+        </FormField>
+        <FormField control={control} name="class" errors={errors}>
+          <SelectField label="Class" options={CLASS_OPTIONS} />
+        </FormField>
+        <FormField control={control} name="currentMileage" errors={errors}>
+          <TextField
+            label="Current Mileage (km)"
+            placeholder="15000"
+            keyboardType="number-pad"
+          />
+        </FormField>
       </Section>
 
       <Section label="Compliance Dates (optional)">
-        <Controller
-          control={control}
-          name="coeExpiry"
-          render={({ field: { onChange, value } }) => (
-            <DateField
-              label="COE Expiry"
-              value={value ?? ''}
-              onChange={onChange}
-              error={errors.coeExpiry?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="roadTaxExpiry"
-          render={({ field: { onChange, value } }) => (
-            <DateField
-              label="Road Tax Expiry"
-              value={value ?? ''}
-              onChange={onChange}
-              error={errors.roadTaxExpiry?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="insuranceExpiry"
-          render={({ field: { onChange, value } }) => (
-            <DateField
-              label="Insurance Expiry"
-              value={value ?? ''}
-              onChange={onChange}
-              error={errors.insuranceExpiry?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="inspectionDue"
-          render={({ field: { onChange, value } }) => (
-            <DateField
-              label="Inspection Due"
-              value={value ?? ''}
-              onChange={onChange}
-              error={errors.inspectionDue?.message}
-            />
-          )}
-        />
+        <FormField control={control} name="coeExpiry" errors={errors}>
+          <DateField label="COE Expiry" />
+        </FormField>
+        <FormField control={control} name="roadTaxExpiry" errors={errors}>
+          <DateField label="Road Tax Expiry" />
+        </FormField>
+        <FormField control={control} name="insuranceExpiry" errors={errors}>
+          <DateField label="Insurance Expiry" />
+        </FormField>
+        <FormField control={control} name="inspectionDue" errors={errors}>
+          <DateField label="Inspection Due" />
+        </FormField>
       </Section>
 
       <TouchableOpacity

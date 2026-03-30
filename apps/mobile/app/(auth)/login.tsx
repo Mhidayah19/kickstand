@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, TouchableOpacity, View } from 'react-native';
 import { Text } from 'react-native';
-import { Controller, useForm } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { SafeScreen } from '../../components/ui/safe-screen';
 import { TextField } from '../../components/ui/text-field';
+import { FormField } from '../../components/ui/form-field';
 import { loginSchema, LoginFormValues } from '../../lib/validation/auth-schema';
 import { useLogin } from '../../lib/api/use-auth';
 import { DevAuthToggle } from '../../components/dev/DevAuthToggle';
@@ -52,36 +53,12 @@ export default function LoginScreen() {
 
         {/* Form */}
         <View className="gap-xs">
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextField
-                label="Email"
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoCorrect={false}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-                error={errors.email?.message}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <TextField
-                label="Password"
-                secureTextEntry
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-                error={errors.password?.message}
-              />
-            )}
-          />
+          <FormField control={control} name="email" errors={errors}>
+            <TextField label="Email" keyboardType="email-address" autoCapitalize="none" autoCorrect={false} />
+          </FormField>
+          <FormField control={control} name="password" errors={errors}>
+            <TextField label="Password" secureTextEntry />
+          </FormField>
 
           <TouchableOpacity
             className="bg-charcoal rounded-full py-md items-center mt-sm"
