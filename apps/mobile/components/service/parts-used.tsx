@@ -30,13 +30,15 @@ export function PartsUsed({ serviceTypeKey, parts, onUpdate, onAdd, onRemove }: 
       <View className="gap-3">
         {parts.map((part) => (
           <View key={part.id} className="flex-row items-center gap-2">
+            <View className="flex-1">
             <TextField
-              className="flex-1 p-4"
+              className="p-4"
               inputClassName="text-sm font-sans-medium"
               value={part.value}
               onChangeText={(v) => onUpdate(part.id, v)}
               placeholder={placeholder}
             />
+            </View>
             {parts.length > 1 && (
               <Pressable
                 onPress={() => onRemove(part.id)}
