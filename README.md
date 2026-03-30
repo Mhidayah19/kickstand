@@ -128,30 +128,48 @@ Kickstand operates in two core modes:
 
 ## Features
 
-### Completed
+### Backend API
 
 - [x] Auth module — register, login, token refresh (Supabase Auth proxy with rollback on failure)
 - [x] Bikes CRUD — create, read, update, delete with ownership guards
 - [x] Mileage tracking with forward-only validation
-- [x] Database schema — 9 tables via Drizzle ORM (users, bikes, service_types, maintenance_schedules, workshops, workshop_services, service_logs, notification_logs, agent_conversations)
+- [x] Database schema — 9 tables via Drizzle ORM
 - [x] 15 seeded service types (oil change, chain adjustment, brake pads, etc.)
+- [x] Workshops module — proximity search (Haversine), price comparison, workshop details
+- [x] Service logs module — paginated list, create, delete with cost tracking
+- [x] Bike catalog with 100+ models (Honda, Yamaha, Kawasaki, etc.)
+- [x] Background jobs — compliance deadline scanner, maintenance reminders, workshop data freshness
+- [x] Push notification registration & cron-based job triggers
 - [x] SupabaseAuthGuard + @CurrentUser() decorator
 - [x] Health check endpoint
 - [x] Unit tests for auth + bikes modules
 - [x] ESLint + Prettier + TypeScript strict mode
 - [x] Drizzle migrations
 
-### Planned
+### Mobile App (React Native)
 
-- [x] Workshops module (proximity search via Haversine formula, price comparison, workshop details)
-- [x] Service logs module (paginated list, create, delete)
-- [x] Workshop seed data (Singapore motorcycle workshops)
-- [ ] Mastra AI agent with voice interface
+- [x] Dashboard — active bike selector, compliance status, mileage progress, recent services
+- [x] My Garage — bike list with status indicators, add bike modal
+- [x] Bike Detail — specs, compliance dates, service history, edit/delete actions
+- [x] Service History — timeline view, type filters, cost aggregation
+- [x] Add Bike — multi-step form with catalog search or manual entry
+- [x] Add Service — type selector, cost/mileage/date inputs, suggestions
+- [x] Settings — profile (hardcoded user), appearance toggles
+- [x] Authentication — login, sign-up, token refresh
+- [x] Onboarding — 3-slide carousel intro
+- [x] 37 reusable UI components (buttons, cards, inputs, timeline, etc.)
+- [x] ESLint + TypeScript strict mode
+
+### Coming Soon (v1.1+)
+
+- [ ] Mastra AI agent with voice interface (endpoint stubs exist, tools not implemented)
 - [ ] 9 agent tools: get_bike_profile, get_service_history, get_compliance_status, find_workshops_nearby, compare_workshop_prices, get_workshop_details, get_maintenance_schedule, log_service, update_mileage
-- [ ] Background jobs (compliance deadline scanner, maintenance reminders, workshop data freshness)
-- [ ] Push notifications via Expo Push API
-- [ ] Mobile app screens (bike profile, service logs, compliance dashboard, voice agent)
-- [ ] CI/CD with GitHub Actions
+- [ ] Workshop comparison UI screen (API exists, no mobile screen yet)
+- [ ] Service log edit UI (API supports, no button yet)
+- [ ] Receipt upload via camera
+- [ ] Dark mode toggle (UI exists, not wired)
+- [ ] Personal info / security settings (menu items exist, not functional)
+- [ ] Subscription/Pro tier system
 - [ ] Deployment to Render + Supabase Cloud + EAS Build
 
 ## Agent Example
@@ -313,14 +331,20 @@ npm run test:cov
 | `GET` | `/bikes/:bikeId/services` | Yes | List service logs (paginated) |
 | `POST` | `/bikes/:bikeId/services` | Yes | Log a service |
 | `DELETE` | `/bikes/:bikeId/services/:id` | Yes | Delete a service log |
+| `GET` | `/bike-catalog/makes` | No | List all bike makes |
+| `GET` | `/bike-catalog/models?make=Honda` | No | List models for make |
+| `GET` | `/bike-catalog/:id` | No | Catalog entry details |
+| `GET` | `/bikes/:bikeId/services` | Yes | Paginated service logs |
+| `POST` | `/bikes/:bikeId/services` | Yes | Create service log |
 
-### Planned endpoints
+### Coming Soon (v1.1+)
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/agent/converse` | Chat with AI agent |
-| `POST` | `/notifications/register-token` | Register push token |
-| `POST` | `/notifications/trigger-scan` | Trigger compliance scan |
+| `POST` | `/agent/chat` | Chat with AI agent |
+| `POST` | `/agent/stream` | Streaming voice agent response |
+| `POST` | `/notifications/register-token` | Register Expo push token |
+| `POST` | `/notifications/trigger-scan` | Manually trigger compliance scan |
 
 ## Background Jobs
 
@@ -342,14 +366,30 @@ Key relationships:
 
 ## Roadmap
 
-**Phase 1 — MVP (current)**
-- Bike profile management, workshop/maintenance logging, compliance tracking, voice agent, push notifications
+**Phase 1 — MVP (shipped)**
+- ✓ Bike profile management, multi-bike support
+- ✓ Service logging with 15 types
+- ✓ Compliance tracking (COE, road tax, insurance, inspection)
+- ✓ Workshop directory with proximity search & price comparison
+- ✓ Push notification setup
+- *In progress:* Agent voice interface, workshop comparison UI, service log editing
 
-**Phase 2 — Community**
-- Community-contributed workshop data, user reviews, crowd-sourced pricing
+**Phase 2 — Intelligence**
+- Mastra AI agent with voice + chat
+- Conversational bike advice based on service history
+- Proactive compliance/maintenance reminders with context
+- Workshop recommendation engine
 
-**Phase 3 — Expansion**
-- Cross-border features / VEP tracking, parts compatibility database
+**Phase 3 — Community**
+- Community-contributed workshop data & reviews
+- Crowd-sourced pricing updates
+- Ride logs & trip tracking
+- Service plan templates
+
+**Phase 4 — Expansion**
+- Cross-border riding (Malaysia, Thailand)
+- VEP (Vehicle Entry Pass) tracking
+- Parts compatibility database & procurement
 
 ## Deployment
 

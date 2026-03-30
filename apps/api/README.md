@@ -61,11 +61,19 @@ The server starts at `http://localhost:3000`.
 | `POST` | `/bikes/:bikeId/services` | Yes | Log a service |
 | `DELETE` | `/bikes/:bikeId/services/:id` | Yes | Delete a service log |
 
-### Planned
+### Coming Soon (v1.1+)
 
-- `POST /agent/converse` — AI agent conversation
+- `POST /agent/chat` — AI agent conversation
+- `POST /agent/stream` — Streaming voice agent response
 - `POST /notifications/register-token` — push token registration
 - `POST /notifications/trigger-scan` — compliance scan trigger
+
+### Additional Endpoints
+
+Also implemented but not fully utilized by mobile yet:
+- `GET /bike-catalog/makes` — List all bike makes
+- `GET /bike-catalog/models?make=Honda` — List models for make
+- `GET /bike-catalog/:id` — Catalog entry details
 
 ## Environment variables
 
