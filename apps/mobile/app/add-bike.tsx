@@ -58,10 +58,36 @@ interface FormData {
   class: BikeClass | '';
   plateNumber: string;
   currentMileage: string;
-  coeExpiry: string;
-  roadTaxExpiry: string;
+  registrationDate: string;
   insuranceExpiry: string;
-  inspectionDue: string;
+}
+
+// ── SG compliance date helpers ──────────────────────────────────
+function addYears(dateStr: string, years: number): string {
+  const d = new Date(dateStr);
+  d.setFullYear(d.getFullYear() + years);
+  return d.toISOString().slice(0, 10);
+}
+
+function calcCoeExpiry(registrationDate: string): string {
+  return addYears(registrationDate, 10);
+}
+
+function calcInspectionDue(registrationDate: string): string {
+  const firstInspection = new Date(addYears(registrationDate, 3));
+  if (firstInspection > new Date()) return firstInspection.toISOString().slice(0, 10);
+  // Find next yearly anniversary after today
+  const regDate = new Date(registrationDate);
+  const now = new Date();
+  let year = now.getFullYear();
+  let next = new Date(year, regDate.getMonth(), regDate.getDate());
+  if (next <= now) next = new Date(year + 1, regDate.getMonth(), regDate.getDate());
+  return next.toISOString().slice(0, 10);
+}
+
+function formatDisplayDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-SG', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 // ── Section label ───────────────────────────────────────────────
@@ -173,6 +199,7 @@ function StepBrand({
         placeholder="Search brands (e.g. Harley, CFMoto)"
         value={search}
         onChangeText={setSearch}
+        inputClassName="text-base"
       />
     </View>
   );
@@ -205,7 +232,7 @@ export default function AddMachineScreen() {
   const [data, setData] = useState<FormData>({
     brand: '', model: '', year: '', class: '',
     plateNumber: '', currentMileage: '',
-    coeExpiry: '', roadTaxExpiry: '', insuranceExpiry: '', inspectionDue: '',
+    registrationDate: '', insuranceExpiry: '',
   });
 
   const createBike = useCreateBike();
@@ -322,11 +349,17 @@ export default function AddMachineScreen() {
     collapseAndAdvance('details', 'compliance');
   };
 
+  // ── Derived compliance dates ──
+  const hasRegistrationDate = DATE_REGEX.test(data.registrationDate);
+  const hasInsuranceExpiry = DATE_REGEX.test(data.insuranceExpiry);
+  const derivedCoeExpiry = hasRegistrationDate ? calcCoeExpiry(data.registrationDate) : '';
+  const derivedInspectionDue = hasRegistrationDate ? calcInspectionDue(data.registrationDate) : '';
+  const derivedRoadTaxExpiry = hasInsuranceExpiry ? data.insuranceExpiry : '';
+
   // ── Submit ──
   const handleSubmit = async () => {
-    // Validate date formats
-    const dateFields: (keyof FormData)[] = ['coeExpiry', 'roadTaxExpiry', 'insuranceExpiry', 'inspectionDue'];
-    for (const field of dateFields) {
+    // Validate date formats for the two input fields
+    for (const field of ['registrationDate', 'insuranceExpiry'] as const) {
       const val = data[field].trim();
       if (val.length > 0 && !DATE_REGEX.test(val)) {
         setFormError(`Invalid date format. Use YYYY-MM-DD`);
@@ -347,10 +380,10 @@ export default function AddMachineScreen() {
         bikeType: selectedCatalogEntry.bikeType,
       }),
       ...(isOthers && data.brand && { make: data.brand }),
-      ...(data.coeExpiry && { coeExpiry: data.coeExpiry }),
-      ...(data.roadTaxExpiry && { roadTaxExpiry: data.roadTaxExpiry }),
+      ...(derivedCoeExpiry && { coeExpiry: derivedCoeExpiry }),
+      ...(derivedRoadTaxExpiry && { roadTaxExpiry: derivedRoadTaxExpiry }),
       ...(data.insuranceExpiry && { insuranceExpiry: data.insuranceExpiry }),
-      ...(data.inspectionDue && { inspectionDue: data.inspectionDue }),
+      ...(derivedInspectionDue && { inspectionDue: derivedInspectionDue }),
     };
 
     try {
@@ -583,22 +616,17 @@ export default function AddMachineScreen() {
                   label=""
                   onEdit={() => reopenSection('model')}
                 >
-                  <View className="flex-row items-center gap-md">
-                    <View className="w-10 h-10 rounded-lg bg-surface items-center justify-center">
-                      <MaterialCommunityIcons name="motorbike" size={20} color={colors.yellow} />
-                    </View>
-                    <View>
-                      <Text className="font-sans-bold text-charcoal text-sm">
-                        {selectedCatalogEntry?.model ?? data.model}
-                      </Text>
-                      <Text className="text-xs font-sans-medium text-sand">
-                        {selectedCatalogEntry
-                          ? `${selectedCatalogEntry.engineCc ?? ''}cc \u2022 ${selectedCatalogEntry.bikeType}`
-                          : isOthers && data.brand
-                            ? data.brand
-                            : ''}
-                      </Text>
-                    </View>
+                  <View>
+                    <Text className="font-sans-bold text-charcoal text-sm">
+                      {selectedCatalogEntry?.model ?? data.model}
+                    </Text>
+                    <Text className="text-xs font-sans-medium text-sand">
+                      {selectedCatalogEntry
+                        ? `${selectedCatalogEntry.engineCc ?? ''}cc \u2022 ${selectedCatalogEntry.bikeType}`
+                        : isOthers && data.brand
+                          ? data.brand
+                          : ''}
+                    </Text>
                   </View>
                 </SummaryPill>
               )}
@@ -664,12 +692,46 @@ export default function AddMachineScreen() {
               {sections.compliance === 'expanded' && (
                 <FadeIn>
                   <Text className="text-sm font-sans-medium text-sand mb-lg">
-                    You can add or update these later.
+                    Enter 2 dates and we'll calculate the rest.
                   </Text>
-                  <DateField label="COE Expiry" value={data.coeExpiry} onChange={(v) => handleChange('coeExpiry', v)} className="mb-lg" />
-                  <DateField label="Road Tax Expiry" value={data.roadTaxExpiry} onChange={(v) => handleChange('roadTaxExpiry', v)} className="mb-lg" />
+                  <DateField label="Registration Date" value={data.registrationDate} onChange={(v) => handleChange('registrationDate', v)} className="mb-lg" />
                   <DateField label="Insurance Expiry" value={data.insuranceExpiry} onChange={(v) => handleChange('insuranceExpiry', v)} className="mb-lg" />
-                  <DateField label="Inspection Due" value={data.inspectionDue} onChange={(v) => handleChange('inspectionDue', v)} className="mb-lg" />
+
+                  {/* Auto-calculated dates */}
+                  {(hasRegistrationDate || hasInsuranceExpiry) && (
+                    <View className="bg-surface-low rounded-2xl p-lg mt-sm mb-lg">
+                      <Text className="text-xxs font-sans-bold text-sand uppercase tracking-wide-1 mb-md">
+                        Auto-calculated
+                      </Text>
+                      {hasRegistrationDate && (
+                        <>
+                          <View className="flex-row items-center justify-between mb-sm">
+                            <View className="flex-row items-center gap-sm">
+                              <MaterialCommunityIcons name="file-document-outline" size={16} color={colors.sand} />
+                              <Text className="font-sans-medium text-sand text-sm">COE Expiry</Text>
+                            </View>
+                            <Text className="font-sans-bold text-charcoal text-sm">{formatDisplayDate(derivedCoeExpiry)}</Text>
+                          </View>
+                          <View className="flex-row items-center justify-between mb-sm">
+                            <View className="flex-row items-center gap-sm">
+                              <MaterialCommunityIcons name="clipboard-check-outline" size={16} color={colors.sand} />
+                              <Text className="font-sans-medium text-sand text-sm">Inspection Due</Text>
+                            </View>
+                            <Text className="font-sans-bold text-charcoal text-sm">{formatDisplayDate(derivedInspectionDue)}</Text>
+                          </View>
+                        </>
+                      )}
+                      {hasInsuranceExpiry && (
+                        <View className="flex-row items-center justify-between">
+                          <View className="flex-row items-center gap-sm">
+                            <MaterialCommunityIcons name="shield-car" size={16} color={colors.sand} />
+                            <Text className="font-sans-medium text-sand text-sm">Road Tax Expiry</Text>
+                          </View>
+                          <Text className="font-sans-bold text-charcoal text-sm">{formatDisplayDate(derivedRoadTaxExpiry)}</Text>
+                        </View>
+                      )}
+                    </View>
+                  )}
 
                   {/* Machine summary */}
                   {machineName.trim().length > 0 && (

@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../../../lib/colors';
+import { daysUntil } from '../../../../lib/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
@@ -23,6 +24,29 @@ import { serviceTypeToMeta } from '../../../../lib/service-type-meta';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const CLASS_LABELS: Record<string, string> = {
+  '2B': 'Class 2B',
+  '2A': 'Class 2A',
+  '2': 'Class 2',
+};
+
+function formatComplianceDate(dateStr: string | null): string | null {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  return `${d.getDate()} ${MONTHS[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
+}
+
+function SpecItem({ label, value }: { label: string; value: string }) {
+  return (
+    <View>
+      <Text className="text-xxs font-sans-bold text-sand uppercase tracking-widest mb-1">
+        {label}
+      </Text>
+      <Text className="text-base font-sans-xbold text-charcoal">{value}</Text>
+    </View>
+  );
+}
 
 function formatLogDate(dateStr: string): string {
   const [, monthStr, day] = dateStr.split('-');
@@ -66,9 +90,15 @@ export default function BikeDetailScreen() {
     );
   }
 
+  const complianceItems = [
+    { icon: 'calendar-month-outline', label: 'COE Expiry', date: bike.coeExpiry },
+    { icon: 'file-document-outline', label: 'Road Tax Expiry', date: bike.roadTaxExpiry },
+    { icon: 'shield-outline', label: 'Insurance Expiry', date: bike.insuranceExpiry },
+    { icon: 'clipboard-check-outline', label: 'Inspection Due', date: bike.inspectionDue },
+  ].filter((item): item is typeof item & { date: string } => !!item.date);
+
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      {/* Floating nav row — back left, more right */}
       <View
         className="absolute left-0 right-0 z-50 flex-row items-center justify-between px-4"
         style={{ top: insets.top + 8 }}
@@ -106,8 +136,11 @@ export default function BikeDetailScreen() {
         contentContainerStyle={{ paddingBottom: 128 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Hero Image Section */}
-        <View style={{ height: 400, width: '100%' }}>
+        {/* Hero Image */}
+        <View
+          className="mx-4 rounded-3xl overflow-hidden"
+          style={{ height: 320, marginTop: insets.top + 56 }}
+        >
           {bike.imageUrl ? (
             <Image
               source={{ uri: bike.imageUrl }}
@@ -120,8 +153,8 @@ export default function BikeDetailScreen() {
             </View>
           )}
           <LinearGradient
-            colors={['transparent', '#F9F9F9']}
-            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 160 }}
+            colors={['transparent', 'rgba(249,249,249,0.85)']}
+            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 120 }}
           />
         </View>
 
@@ -151,8 +184,55 @@ export default function BikeDetailScreen() {
           </View>
         </View>
 
-        {/* Service History */}
+        {/* Bike Specs */}
         <View className="px-6 mt-8">
+          <Section label="Bike Details">
+            <View className="bg-surface-low rounded-3xl p-6">
+              <View className="flex-row flex-wrap gap-y-6">
+                <View className="w-1/2">
+                  <SpecItem label="Plate Number" value={bike.plateNumber} />
+                </View>
+                <View className="w-1/2">
+                  <SpecItem label="Class" value={CLASS_LABELS[bike.class] ?? bike.class} />
+                </View>
+                {bike.engineCc && (
+                  <View className="w-1/2">
+                    <SpecItem label="Engine CC" value={`${bike.engineCc}cc`} />
+                  </View>
+                )}
+                {bike.bikeType && (
+                  <View className="w-1/2">
+                    <SpecItem label="Bike Type" value={bike.bikeType} />
+                  </View>
+                )}
+              </View>
+            </View>
+          </Section>
+        </View>
+
+        {/* Compliance & Renewals */}
+        {complianceItems.length > 0 && (
+          <View className="px-6">
+            <Section label="Compliance & Renewals">
+              <View className="bg-surface-low rounded-3xl p-2 gap-2">
+                {complianceItems.map((item) => (
+                  <View key={item.label} className="bg-surface-card rounded-2xl p-5 flex-row items-center justify-between">
+                    <View className="flex-row items-center gap-4">
+                      <MaterialCommunityIcons name={item.icon as any} size={22} color={colors.sand} />
+                      <Text className="font-sans-bold text-sm text-charcoal">{item.label}</Text>
+                    </View>
+                    <Text className={`text-sm font-sans-bold ${(daysUntil(item.date) ?? 1) <= 0 ? 'text-danger' : 'text-charcoal'}`}>
+                      {formatComplianceDate(item.date)}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </Section>
+          </View>
+        )}
+
+        {/* Service History */}
+        <View className="px-6 mt-2">
           <Section
             label="Service History"
             action="View All"
@@ -170,7 +250,6 @@ export default function BikeDetailScreen() {
                       iconColor={meta.iconColor}
                       title={meta.label}
                       subtitle={`${formatLogDate(log.date)} • ${log.mileageAt.toLocaleString()} km`}
-                      onPress={() => {}}
                     />
                   );
                 })}

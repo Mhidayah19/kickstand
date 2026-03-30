@@ -3,229 +3,324 @@
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kickstand - Bike Profile</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              "surface-container-low": "#f3f3f3",
-              "surface-tint": "#5f5e5e",
-              "surface": "#f9f9f9",
-              "primary-fixed-dim": "#c8c6c5",
-              "tertiary-fixed": "#f6dfc4",
-              "on-secondary-fixed-variant": "#574500",
-              "error": "#ba1a1a",
-              "secondary-container": "#fcda74",
-              "primary-fixed": "#e5e2e1",
-              "outline-variant": "#d0c5ba",
-              "secondary-fixed": "#ffe088",
-              "on-primary": "#ffffff",
-              "on-background": "#1a1c1c",
-              "secondary-fixed-dim": "#e5c360",
-              "on-surface": "#1a1c1c",
-              "tertiary-container": "#c7b299",
-              "on-tertiary-fixed-variant": "#534431",
-              "tertiary-fixed-dim": "#d9c3a9",
-              "surface-container-high": "#e8e8e8",
-              "surface-container-lowest": "#ffffff",
-              "surface-bright": "#f9f9f9",
-              "on-secondary-container": "#765e00",
-              "on-primary-fixed": "#1b1b1c",
-              "background": "#f9f9f9",
-              "surface-container-highest": "#e2e2e2",
-              "on-secondary-fixed": "#241a00",
-              "on-error": "#ffffff",
-              "on-tertiary-container": "#534431",
-              "primary": "#5f5e5e",
-              "on-secondary": "#ffffff",
-              "on-error-container": "#93000a",
-              "outline": "#7e766c",
-              "surface-variant": "#e2e2e2",
-              "primary-container": "#b7b5b4",
-              "on-primary-fixed-variant": "#474746",
-              "inverse-surface": "#2f3131",
-              "on-tertiary": "#ffffff",
-              "on-primary-container": "#474746",
-              "surface-container": "#eeeeee",
-              "secondary": "#735c00",
-              "on-tertiary-fixed": "#251909",
-              "error-container": "#ffdad6",
-              "tertiary": "#6c5c47",
-              "inverse-primary": "#c8c6c5",
-              "inverse-on-surface": "#f1f1f1",
-              "surface-dim": "#dadada",
-              "on-surface-variant": "#4d463d"
-            },
-            fontFamily: {
-              "headline": ["Plus Jakarta Sans"],
-              "body": ["Plus Jakarta Sans"],
-              "label": ["Plus Jakarta Sans"]
-            },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
-          },
-        },
-      }
-    </script>
 <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        .flat-no-shadows { shadow: none; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 500;
+        }
+        .text-xxs { font-size: 0.625rem; }
     </style>
-<style>
-    body {
-      min-height: max(884px, 100dvh);
-    }
-  </style>
-  </head>
-<body class="bg-surface font-body text-on-surface">
-<!-- TopAppBar -->
-<header class="fixed top-0 w-full z-50 bg-[#F9F9F9]/70 dark:bg-[#1E1E1E]/70 backdrop-blur-xl flex justify-between items-center px-6 py-4 w-full">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "surface-variant": "#e2e2e2",
+                "on-primary-fixed": "#1b1b1c",
+                "tertiary": "#6c5c47",
+                "surface-container-high": "#e8e8e8",
+                "surface-tint": "#5f5e5e",
+                "outline": "#7e766c",
+                "inverse-on-surface": "#f1f1f1",
+                "primary": "#5f5e5e",
+                "on-primary": "#ffffff",
+                "surface-container-low": "#f3f3f3",
+                "surface-container-highest": "#e2e2e2",
+                "background": "#f9f9f9",
+                "tertiary-container": "#c7b299",
+                "on-primary-fixed-variant": "#474746",
+                "surface": "#f9f9f9",
+                "on-tertiary-fixed": "#251909",
+                "on-secondary-fixed-variant": "#574500",
+                "primary-fixed": "#e5e2e1",
+                "on-primary-container": "#474746",
+                "on-secondary-fixed": "#241a00",
+                "inverse-primary": "#c8c6c5",
+                "error-container": "#ffdad6",
+                "primary-container": "#b7b5b4",
+                "on-tertiary": "#ffffff",
+                "inverse-surface": "#2f3131",
+                "on-surface-variant": "#4d463d",
+                "on-secondary": "#ffffff",
+                "on-background": "#1a1c1c",
+                "secondary-container": "#fcda74",
+                "on-tertiary-container": "#534431",
+                "secondary-fixed-dim": "#e5c360",
+                "secondary": "#735c00",
+                "on-error-container": "#93000a",
+                "surface-container-lowest": "#ffffff",
+                "surface-container": "#eeeeee",
+                "primary-fixed-dim": "#c8c6c5",
+                "outline-variant": "#d0c5ba",
+                "tertiary-fixed-dim": "#d9c3a9",
+                "tertiary-fixed": "#f6dfc4",
+                "on-secondary-container": "#765e00",
+                "on-error": "#ffffff",
+                "secondary-fixed": "#ffe088",
+                "on-tertiary-fixed-variant": "#534431",
+                "error": "#ba1a1a",
+                "surface-bright": "#f9f9f9",
+                "surface-dim": "#dadada",
+                "on-surface": "#1a1c1c",
+                "sand": "#c7b299",
+                "charcoal": "#1a1c1c"
+              },
+              fontFamily: {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Plus Jakarta Sans"],
+                "label": ["Plus Jakarta Sans"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px", "3xl": "1.5rem"},
+            },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen pb-32">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-[#F9F9F9]/70 dark:bg-[#1E1E1E]/70 backdrop-blur-xl z-50 shadow-sm backdrop-saturate-150">
 <div class="flex items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-tertiary-container flex items-center justify-center overflow-hidden">
-<img alt="Mechanic Profile" class="w-full h-full object-cover" data-alt="Portrait of a professional motorcycle mechanic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxeksDeJnwwV912bNInfivCSDFjffzaG7QCjz9YF6N64lbC5vd0b7Ojan20wMtW4d_qQw7KjkbsAsYPx0nv9blF3il_DrZSyie0V_C8n8R2H4ANqZcC4jwamcstpgKOztR66xRKZLSzbe7KYw95aVG39J0nyVJbNhkwbCCYtjoCznipvxNzWm91e0xtbNENhcXtmoueu5gLDUdbfJ1xBLBPC9WlAMbOoFEiGuC0qJAr9W9p2L5Pk-zRJkuHK7Yrm23dG-8HA6j8Ylj"/>
+<button class="material-symbols-outlined text-primary active:scale-95 transition-transform" data-icon="arrow_back">arrow_back</button>
+<span class="text-xl font-bold text-[#1E1E1E] dark:text-[#F9F9F9] uppercase tracking-widest font-['Plus_Jakarta_Sans']">Kickstand</span>
 </div>
-<span class="font-['Plus_Jakarta_Sans'] font-bold tracking-[0.2em] text-[#1E1E1E] dark:text-[#F9F9F9] uppercase text-sm">PRECISION ATELIER</span>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#5F5E5E] dark:text-[#C7B299] hover:opacity-80 transition-opacity cursor-pointer" data-icon="notifications">notifications</span>
+<div class="w-8 h-8 rounded-full bg-tertiary-container overflow-hidden">
+<img alt="User Profile Photo" class="w-full h-full object-cover" data-alt="Close up portrait of a motorcycle rider" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPlyCgI2iHd-DK0b490rqlaXfAbz9DBz-YUD_u9pjbLmoyZrux0Gum7tT644ie61iutdXNXn6_Tu4GZfaIJmUuw95Ke617dQch5iwelVwhx384FtS07M35_SgBUoOVlXqOFyjfUcA_MwsztnjZGmDZNPkHBYGp_cphGq9ujrM3BJk4sr1J8MHJogZvjI5W6vpPrRW-IE_Ae9U7RB7z3lWOjfzJEW9QBewBjPD2g8J5-FqECTLeWAMgMvmaAZKwLI2CyBlk2feEbCWF"/>
 </div>
-<button class="text-[#1E1E1E] dark:text-[#F9F9F9] hover:opacity-80 transition-opacity active:scale-95 duration-200">
-<span class="material-symbols-outlined">notifications</span>
-</button>
+</div>
 </header>
-<main class="pb-32 pt-16">
+<main class="pt-16 max-w-5xl mx-auto">
 <!-- Hero Section -->
-<section class="relative h-[530px] w-full overflow-hidden">
-<img alt="Triumph Scrambler 1200" class="w-full h-full object-cover" data-alt="Professional side shot of a Triumph Scrambler 1200 motorcycle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQ3wDn6VvCYM1L8Toqkbw0Zvoa1zrifxHThWiQdaZnw5-K2wanvhCrF0w4icKQOn5ICnfQ4hs5okIeEgl4jtCi2gYAHyeqq_DGJs1VNOCZbnWr0OxJsV-9qOTubhroQlevVN319hPjSsq5G2Iex50U4MsdL1csUu5BRd7eZ_C6uHpqzdaNe3nIdC03-epcz4yUovCw3GxXkNAz5KNIgmClG1e61kyVkMMMDZlxvh1tFr593QIX6l-2RUPVwVedXDaBfz2QB4B9FOHd"/>
-<div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-transparent"></div>
-<!-- Floating Badge -->
-<div class="absolute bottom-12 left-6">
-<div class="bg-[#F2D06B] text-on-secondary-fixed px-4 py-1.5 rounded-full flex items-center gap-2 shadow-lg scale-105">
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-<span class="font-label text-xs font-bold tracking-widest uppercase">Ready to Ride</span>
+<section class="relative px-6 py-8 md:py-12 overflow-hidden">
+<div class="absolute top-0 right-0 w-2/3 h-full bg-tertiary-container rounded-bl-[100px] -z-10 translate-x-10 translate-y-[-10%] opacity-20"></div>
+<div class="flex flex-col md:flex-row gap-8 items-end">
+<div class="flex-1 order-2 md:order-1">
+<div class="mb-4 inline-flex items-center px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold tracking-wider uppercase">
+<span class="material-symbols-outlined text-[14px] mr-1" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    Ready to Ride
+                </div>
+<h1 class="text-4xl md:text-6xl font-extrabold text-primary tracking-tight leading-none mb-2">Triumph<br/>Scrambler 1200</h1>
+<p class="text-tertiary font-medium text-lg">Black &amp; Sand Edition · XE Series</p>
 </div>
-<h1 class="mt-4 font-headline text-4xl font-extrabold tracking-tight text-on-surface">Triumph<br/>Scrambler 1200</h1>
-</div>
-</section>
-<!-- Stats Bento Grid (The Specs) -->
-<section class="px-6 -mt-6 relative z-10">
-<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-<div class="bg-surface-container-lowest p-5 rounded-xl border-b-2 border-[#F2D06B]">
-<p class="font-label text-[10px] uppercase tracking-widest text-outline mb-1">Engine</p>
-<p class="font-headline font-bold text-lg">1200cc</p>
-</div>
-<div class="bg-surface-container-lowest p-5 rounded-xl">
-<p class="font-label text-[10px] uppercase tracking-widest text-outline mb-1">Year</p>
-<p class="font-headline font-bold text-lg">2024</p>
-</div>
-<div class="bg-surface-container-lowest p-5 rounded-xl">
-<p class="font-label text-[10px] uppercase tracking-widest text-outline mb-1">Weight</p>
-<p class="font-headline font-bold text-lg">205kg</p>
-</div>
-<div class="bg-surface-container-lowest p-5 rounded-xl">
-<p class="font-label text-[10px] uppercase tracking-widest text-outline mb-1">Torque</p>
-<p class="font-headline font-bold text-lg">110Nm</p>
-</div>
-</div>
-</section>
-<!-- Vitals Section -->
-<section class="mt-10 px-6">
-<h2 class="font-headline text-xl font-bold mb-6 flex items-center gap-2">
-<span class="w-1.5 h-6 bg-[#1E1E1E] rounded-full"></span>
-                Vitals
-            </h2>
-<div class="space-y-6 bg-surface-container-low p-6 rounded-2xl">
-<!-- Vitals Item: Engine Oil -->
-<div>
-<div class="flex justify-between items-end mb-2">
-<span class="font-label text-sm font-bold uppercase tracking-wider">Engine Oil Life</span>
-<span class="text-xs font-bold text-secondary">Safe • 85%</span>
-</div>
-<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full bg-secondary w-[85%] rounded-full"></div>
-</div>
-</div>
-<!-- Vitals Item: Tire Wear -->
-<div>
-<div class="flex justify-between items-end mb-2">
-<span class="font-label text-sm font-bold uppercase tracking-wider">Tire Wear</span>
-<span class="text-xs font-bold text-tertiary">Inspect • 40%</span>
-</div>
-<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full bg-tertiary w-[40%] rounded-full"></div>
-</div>
-</div>
-<!-- Vitals Item: Chain Tension -->
-<div>
-<div class="flex justify-between items-end mb-2">
-<span class="font-label text-sm font-bold uppercase tracking-wider">Chain Tension</span>
-<span class="text-xs font-bold text-error">Adjust • 12%</span>
-</div>
-<div class="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
-<div class="h-full bg-error w-[12%] rounded-full"></div>
+<div class="w-full md:w-3/5 order-1 md:order-2">
+<div class="relative group">
+<div class="absolute inset-0 bg-secondary/10 rounded-3xl blur-2xl group-hover:bg-secondary/20 transition-all duration-500"></div>
+<img alt="Triumph Scrambler" class="relative w-full h-[300px] md:h-[450px] object-cover rounded-3xl shadow-xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnSlNjcM7398UyEeg76VL2L_7jFHlrrhtD512N6fQNWbYXpoJcNJSYKKhb5h8Ax4aW8gbaN3wumJAgvpuOVi4sCCoBmMhFBFbaxYiWJ0R32SArNXAd3oEtDDf9ff91j-1rpctbd9GdGQiVsuBtacZnWs2NRU5L_MME9f7oM5BPgnfyQRLfqpJMkRuTn2TY0aykn8eCDE93zonpS9XBCixV0Ny-eEN-tSJtPTGACiQwj2WR_KMqyJoSZatUsV6SVpEhJTIqsvFXs6Wy"/>
 </div>
 </div>
 </div>
 </section>
-<!-- Service History -->
-<section class="mt-10 px-6">
-<div class="flex justify-between items-center mb-6">
-<h2 class="font-headline text-xl font-bold flex items-center gap-2">
-<span class="w-1.5 h-6 bg-[#1E1E1E] rounded-full"></span>
-                    Service History
-                </h2>
-<button class="text-xs font-bold uppercase tracking-widest text-primary hover:text-secondary transition-colors">View All</button>
+<!-- Technical Specs Bento Grid -->
+<section class="px-6 grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+<div class="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/15">
+<p class="text-[10px] uppercase font-bold tracking-[0.1em] text-tertiary mb-1">Engine</p>
+<h3 class="text-xl font-bold text-primary">1200cc</h3>
+<p class="text-xs text-tertiary/60">Parallel Twin</p>
 </div>
-<div class="space-y-3">
-<div class="bg-surface-container-lowest p-4 rounded-xl flex justify-between items-center">
+<div class="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/15">
+<p class="text-[10px] uppercase font-bold tracking-[0.1em] text-tertiary mb-1">Year</p>
+<h3 class="text-xl font-bold text-primary">2023</h3>
+<p class="text-xs text-tertiary/60">Model XE</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/15">
+<p class="text-[10px] uppercase font-bold tracking-[0.1em] text-tertiary mb-1">Weight</p>
+<h3 class="text-xl font-bold text-primary">207kg</h3>
+<p class="text-xs text-tertiary/60">Dry Weight</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-3xl border border-outline-variant/15">
+<p class="text-[10px] uppercase font-bold tracking-[0.1em] text-tertiary mb-1">Torque</p>
+<h3 class="text-xl font-bold text-primary">110Nm</h3>
+<p class="text-xs text-tertiary/60">@ 4,500 rpm</p>
+</div>
+</section>
+<!-- Added Bike Specs Section -->
+<section class="px-6 mb-12">
+<div class="bg-surface-container-low p-6 rounded-3xl">
+<div class="grid grid-cols-2 gap-y-6 gap-x-8">
+<div>
+<p class="text-xxs font-bold text-sand uppercase tracking-[0.15em] mb-1">Plate Number</p>
+<p class="text-base font-extrabold text-charcoal">SBA1234A</p>
+</div>
+<div>
+<p class="text-xxs font-bold text-sand uppercase tracking-[0.15em] mb-1">Class</p>
+<p class="text-base font-extrabold text-charcoal">Class 2</p>
+</div>
+<div>
+<p class="text-xxs font-bold text-sand uppercase tracking-[0.15em] mb-1">Engine CC</p>
+<p class="text-base font-extrabold text-charcoal">1200cc</p>
+</div>
+<div>
+<p class="text-xxs font-bold text-sand uppercase tracking-[0.15em] mb-1">Bike Type</p>
+<p class="text-base font-extrabold text-charcoal">Adventure Scrambler</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Maintenance Status Indicators -->
+<section class="px-6 mb-12">
+<div class="flex justify-between items-baseline mb-6">
+<h2 class="text-2xl font-bold text-primary tracking-tight">Vitals &amp; Health</h2>
+<span class="text-xs font-bold uppercase tracking-widest text-secondary">View Analysis</span>
+</div>
+<div class="bg-surface-container-low p-8 rounded-3xl grid grid-cols-1 md:grid-cols-3 gap-10">
+<div>
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="oil_barrel">oil_barrel</span>
+<span class="font-bold text-sm text-primary uppercase tracking-wider">Engine Oil</span>
+</div>
+<span class="text-sm font-bold text-primary">82%</span>
+</div>
+<div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 82%"></div>
+</div>
+<p class="mt-2 text-[10px] font-medium text-tertiary">3,200km until next change</p>
+</div>
+<div>
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="tire_repair">tire_repair</span>
+<span class="font-bold text-sm text-primary uppercase tracking-wider">Tire Wear</span>
+</div>
+<span class="text-sm font-bold text-primary text-error">Low</span>
+</div>
+<div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 25%"></div>
+</div>
+<p class="mt-2 text-[10px] font-medium text-tertiary">Rear tire needs inspection</p>
+</div>
+<div>
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary" data-icon="link">link</span>
+<span class="font-bold text-sm text-primary uppercase tracking-wider">Chain Tension</span>
+</div>
+<span class="text-sm font-bold text-primary">Optimal</span>
+</div>
+<div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 95%"></div>
+</div>
+<p class="mt-2 text-[10px] font-medium text-tertiary">Lubricated 4 days ago</p>
+</div>
+</div>
+</section>
+<!-- Added Compliance Section -->
+<section class="px-6 mb-12">
+<h2 class="text-2xl font-bold text-primary tracking-tight mb-6">Compliance &amp; Renewals</h2>
+<div class="bg-surface-container-low p-2 rounded-3xl space-y-2">
+<!-- ListCard 1 -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl flex items-center justify-between">
 <div class="flex items-center gap-4">
-<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
-<span class="material-symbols-outlined text-primary">settings</span>
+<span class="material-symbols-outlined text-tertiary" data-icon="calendar_month">calendar_month</span>
+<span class="font-bold text-sm text-primary">COE Expiry</span>
 </div>
-<div>
-<p class="font-bold text-sm">Chain Lubrication</p>
-<p class="text-[10px] text-outline uppercase tracking-wider">Jan 12, 2024 • 12,450 km</p>
+<span class="text-sm font-bold text-charcoal">12 OCT 2033</span>
 </div>
-</div>
-<span class="material-symbols-outlined text-outline">chevron_right</span>
-</div>
-<div class="bg-surface-container-lowest p-4 rounded-xl flex justify-between items-center">
+<!-- ListCard 2 - Near Expiry Warning -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl flex items-center justify-between">
 <div class="flex items-center gap-4">
-<div class="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center">
-<span class="material-symbols-outlined text-primary">oil_barrel</span>
+<span class="material-symbols-outlined text-tertiary" data-icon="description">description</span>
+<span class="font-bold text-sm text-primary">Road Tax Expiry</span>
 </div>
-<div>
-<p class="font-bold text-sm">Full Oil Service</p>
-<p class="text-[10px] text-outline uppercase tracking-wider">Dec 05, 2023 • 11,200 km</p>
+<span class="text-sm font-bold text-error">24 MAR 2024</span>
 </div>
+<!-- ListCard 3 -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-tertiary" data-icon="shield">shield</span>
+<span class="font-bold text-sm text-primary">Insurance Expiry</span>
 </div>
-<span class="material-symbols-outlined text-outline">chevron_right</span>
+<span class="text-sm font-bold text-charcoal">15 NOV 2024</span>
+</div>
+<!-- ListCard 4 -->
+<div class="bg-surface-container-lowest p-5 rounded-2xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-tertiary" data-icon="edit_document">edit_document</span>
+<span class="font-bold text-sm text-primary">Inspection Due</span>
+</div>
+<span class="text-sm font-bold text-charcoal">12 JUN 2024</span>
 </div>
 </div>
 </section>
-<!-- Start Ride Track Button (FAB Replacement) -->
-<div class="px-6 mt-10 mb-8">
-<button class="w-full bg-[#1E1E1E] text-white py-5 rounded-2xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all shadow-xl">
-<span class="material-symbols-outlined text-[#F2D06B]" style="font-variation-settings: 'FILL' 1;">route</span>
-<span class="font-headline font-bold uppercase tracking-[0.15em] text-sm">Start Ride Track</span>
-</button>
+<!-- Service Logs -->
+<section class="px-6 mb-8">
+<div class="flex justify-between items-baseline mb-6">
+<h2 class="text-2xl font-bold text-primary tracking-tight">Service History</h2>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider active:scale-95 transition-all">Add Entry</button>
 </div>
+<div class="space-y-4">
+<div class="bg-surface-container-lowest p-5 rounded-3xl flex items-center justify-between border-l-4 border-secondary shadow-sm">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+</div>
+<div>
+<h4 class="font-bold text-primary">Annual Maintenance</h4>
+<p class="text-xs text-tertiary">12,400km · Authorized Service Center</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-primary">Oct 14</p>
+<p class="text-[10px] uppercase font-bold text-secondary">Certified</p>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-3xl flex items-center justify-between shadow-sm">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="tire_repair">tire_repair</span>
+</div>
+<div>
+<h4 class="font-bold text-primary">Tire Pressure Calibration</h4>
+<p class="text-xs text-tertiary">11,850km · Personal Garage</p>
+</div>
+</div>
+<div class="text-right">
+<p class="font-bold text-primary">Sep 28</p>
+<p class="text-[10px] uppercase font-bold text-tertiary">Manual</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Action Area -->
+<section class="px-6 mb-20">
+<div class="p-8 rounded-3xl bg-primary text-on-primary flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+<div>
+<h3 class="text-2xl font-bold tracking-tight mb-1">Adventure Awaits</h3>
+<p class="text-sm opacity-70">Log your next trip to track wear in real-time.</p>
+</div>
+<button class="w-full md:w-auto px-8 py-4 bg-secondary text-on-secondary-fixed font-extrabold uppercase tracking-widest rounded-xl hover:opacity-90 transition-opacity active:scale-95 shadow-lg shadow-secondary/20">
+                Start Ride Track
+            </button>
+</div>
+</section>
 </main>
-<!-- BottomNavBar -->
-<nav class="fixed bottom-6 left-0 right-0 z-50 flex justify-between items-center mx-auto bg-[#1E1E1E]/80 dark:bg-[#1E1E1E]/90 backdrop-blur-2xl w-[90%] max-w-md rounded-[2rem] px-8 py-3 shadow-[0_20px_40px_rgba(0,0,0,0.1)]">
-<button class="text-[#C7B299] p-3 hover:text-[#F2D06B] transition-all active:scale-90 duration-150 ease-in-out">
-<span class="material-symbols-outlined">home_repair_service</span>
-</button>
-<button class="bg-[#F2D06B] text-[#1E1E1E] rounded-full p-3 scale-110 shadow-[0_0_15px_rgba(242,208,107,0.4)] active:scale-90 duration-150 ease-in-out">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">sports_motorsports</span>
-</button>
-<button class="text-[#C7B299] p-3 hover:text-[#F2D06B] transition-all active:scale-90 duration-150 ease-in-out">
-<span class="material-symbols-outlined">analytics</span>
-</button>
-<button class="text-[#C7B299] p-3 hover:text-[#F2D06B] transition-all active:scale-90 duration-150 ease-in-out">
-<span class="material-symbols-outlined">settings</span>
-</button>
+<!-- BottomNavBar Shell -->
+<nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-50 flex justify-around items-center py-3 px-4 bg-[#F9F9F9]/70 dark:bg-[#1E1E1E]/70 backdrop-blur-2xl rounded-2xl border border-white/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.06)]">
+<div class="flex flex-col items-center justify-center text-[#F2D06B] transition-all duration-300 transform scale-110">
+<span class="material-symbols-outlined" data-icon="motorcycle" style="font-variation-settings: 'FILL' 1;">motorcycle</span>
+<span class="font-['Plus_Jakarta_Sans'] font-medium text-[10px] uppercase tracking-[0.05em] mt-1">Garage</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#5F5E5E] dark:text-[#C7B299] opacity-60 hover:text-[#F2D06B] transition-colors cursor-pointer">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+<span class="font-['Plus_Jakarta_Sans'] font-medium text-[10px] uppercase tracking-[0.05em] mt-1">Service</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#5F5E5E] dark:text-[#C7B299] opacity-60 hover:text-[#F2D06B] transition-colors cursor-pointer">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-['Plus_Jakarta_Sans'] font-medium text-[10px] uppercase tracking-[0.05em] mt-1">Feed</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#5F5E5E] dark:text-[#C7B299] opacity-60 hover:text-[#F2D06B] transition-colors cursor-pointer">
+<span class="material-symbols-outlined" data-icon="chat_bubble">chat_bubble</span>
+<span class="font-['Plus_Jakarta_Sans'] font-medium text-[10px] uppercase tracking-[0.05em] mt-1">Chat</span>
+</div>
 </nav>
 </body></html>
