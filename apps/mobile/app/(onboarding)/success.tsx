@@ -8,7 +8,7 @@ import { colors } from '../../lib/colors';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 export default function SuccessScreen() {
-  const goToDashboard = () => router.replace('/(tabs)' as any);
+  const goToDashboard = () => router.replace('/(tabs)');
 
   return (
     <SafeAreaView className="flex-1 bg-surface px-lg">

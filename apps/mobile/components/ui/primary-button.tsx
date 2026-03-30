@@ -6,35 +6,40 @@ interface PrimaryButtonProps {
   label: string;
   onPress: () => void;
   icon?: string;
-  iconColor?: string;
   disabled?: boolean;
+  variant?: 'primary' | 'accent';
 }
 
 export function PrimaryButton({
   label,
   onPress,
   icon,
-  iconColor = colors.yellow,
   disabled = false,
+  variant = 'primary',
 }: PrimaryButtonProps) {
+  const isAccent = variant === 'accent';
+
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      className="w-full bg-charcoal py-5 rounded-2xl flex-row items-center justify-center gap-3"
+      className={`w-full py-5 rounded-full flex-row items-center justify-center gap-3 ${isAccent ? 'bg-yellow' : 'bg-charcoal'}`}
       style={({ pressed }) => ({
         transform: [{ scale: pressed ? 0.98 : 1 }],
         opacity: disabled ? 0.5 : pressed ? 0.9 : 1,
       })}
     >
-      {icon && (
-        <View className="w-10 h-10 rounded-full items-center justify-center" style={{ backgroundColor: iconColor }}>
+      {icon && !isAccent && (
+        <View className="w-10 h-10 rounded-full bg-yellow items-center justify-center">
           <MaterialCommunityIcons name={icon as any} size={20} color={colors.charcoal} />
         </View>
       )}
-      <Text className="font-sans-bold text-sm text-white uppercase tracking-wide-1">
+      <Text className={`font-sans-bold text-sm uppercase tracking-wide-1 ${isAccent ? 'text-charcoal' : 'text-white'}`}>
         {label}
       </Text>
+      {icon && isAccent && (
+        <MaterialCommunityIcons name={icon as any} size={18} color={colors.charcoal} />
+      )}
     </Pressable>
   );
 }

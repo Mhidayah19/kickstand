@@ -67,7 +67,7 @@ export default function ServiceScreen() {
   }, [logs]);
 
   const handleAddBike = useCallback(() => {
-    router.push('/(tabs)/garage/add' as any);
+    router.push('/add-bike');
   }, []);
 
   const isEmpty = !isLoading && logs.length === 0;

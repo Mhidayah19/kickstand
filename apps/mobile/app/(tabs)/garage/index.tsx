@@ -40,7 +40,7 @@ export default function GarageScreen() {
   const bikeCount = bikes?.length ?? 0;
 
   const handleAddBike = useCallback(() => {
-    router.push('/(tabs)/garage/add' as any);
+    router.push('/add-bike');
   }, []);
 
   // Fleet integrity stats
@@ -83,6 +83,7 @@ export default function GarageScreen() {
       bikes={bikes?.map((b) => ({ id: b.id, model: b.model, year: b.year })) ?? []}
       activeBike={activeBike && { id: activeBike.id, model: activeBike.model, year: activeBike.year }}
       onBikeChange={setActiveBikeId}
+      onAddBikePress={handleAddBike}
     >
       <ScreenHeader
         title="My Garage"
@@ -107,7 +108,7 @@ export default function GarageScreen() {
                 model={model}
                 status={status}
                 mileage={{ value: mileage, unit: 'km' }}
-                onPress={() => router.push(`/(tabs)/garage/${bike.id}` as any)}
+                onPress={() => router.push({ pathname: '/(tabs)/garage/[id]', params: { id: bike.id } })}
               />
             );
           })}
@@ -119,7 +120,7 @@ export default function GarageScreen() {
         {bikes && bikes.length > 0 ? (
           <TouchableOpacity
             className="border-2 border-dashed border-sand/40 rounded-2xl px-md py-md flex-row items-center gap-sm active:border-yellow"
-            onPress={() => router.push('/(tabs)/garage/add' as any)}
+            onPress={() => router.push('/add-bike')}
             activeOpacity={0.8}
             accessibilityRole="button"
             accessibilityLabel="Add another machine"
@@ -134,7 +135,7 @@ export default function GarageScreen() {
             title="Expand Your Fleet"
             actionLabel="Add a Machine"
             description="Add a machine to your garage"
-            onAction={() => router.push('/(tabs)/garage/add' as any)}
+            onAction={() => router.push('/add-bike')}
           />
         )}
       </View>

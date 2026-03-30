@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ServiceLogFormBody } from '../../../components/service/service-log-form-body';
-import { SafeScreen } from '../../../components/ui/safe-screen';
-import { useBike } from '../../../lib/api/use-bikes';
-import { useAllServiceLogs } from '../../../lib/api/use-service-logs';
-import { useBikeStore } from '../../../lib/store/bike-store';
-import { useServiceLogForm } from '../../../lib/hooks/use-service-log-form';
-import { formatBikeLabel } from '../../../lib/format-bike-label';
-import { getFrequentServiceTypes } from '../../../lib/service-type-helpers';
+import { ServiceLogFormBody } from '../components/service/service-log-form-body';
+import { ModalFormScreen } from '../components/ui/modal-form-screen';
+import { useBike } from '../lib/api/use-bikes';
+import { useAllServiceLogs } from '../lib/api/use-service-logs';
+import { useBikeStore } from '../lib/store/bike-store';
+import { useServiceLogForm } from '../lib/hooks/use-service-log-form';
+import { formatBikeLabel } from '../lib/format-bike-label';
+import { getFrequentServiceTypes } from '../lib/service-type-helpers';
 
 export default function AddServiceScreen() {
   const router = useRouter();
@@ -31,27 +31,29 @@ export default function AddServiceScreen() {
     }
     try {
       await form.handleSave();
-      router.navigate('/(tabs)/service' as any);
+      router.back();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to save service log.';
       Alert.alert('Error', message);
     }
   };
 
-  const handleExit = () => {
+  const handleClose = () => {
     form.handleReset();
-    router.navigate('/(tabs)/service' as any);
+    router.back();
   };
 
   return (
-    <SafeScreen scrollable showAppBar={false}>
+    <ModalFormScreen
+      onClose={handleClose}
+      title="New Service Log"
+      subtitle={bikeLabel}
+    >
       <ServiceLogFormBody
         form={form}
-        bikeLabel={bikeLabel}
         onSave={handleSave}
-        onExit={handleExit}
         frequentTypes={frequentTypes}
       />
-    </SafeScreen>
+    </ModalFormScreen>
   );
 }

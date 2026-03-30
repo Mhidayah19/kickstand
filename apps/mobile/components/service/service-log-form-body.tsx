@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Text, View, Pressable } from 'react-native';
+import { Animated, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
 import { PrimaryButton } from '../ui/primary-button';
-import { ScreenHeader } from '../ui/screen-header';
 import { Section } from '../ui/section';
 import { TextField } from '../ui/text-field';
 import { DateField } from '../ui/date-field';
@@ -15,21 +14,20 @@ import type { FrequentType } from '../../lib/service-type-helpers';
 
 interface ServiceLogFormBodyProps {
   form: ReturnType<typeof useServiceLogForm>;
-  bikeLabel: string;
   onSave: () => Promise<void>;
-  onExit?: () => void;
   frequentTypes: FrequentType[];
 }
 
-export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit, frequentTypes }: ServiceLogFormBodyProps) {
+export function ServiceLogFormBody({ form, onSave, frequentTypes }: ServiceLogFormBodyProps) {
   const [collapsed, setCollapsed] = useState(false);
-  const [hasSelected, setHasSelected] = useState(false);
   const collapseTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => () => clearTimeout(collapseTimer.current), []);
 
   const formOpacity = useRef(new Animated.Value(0)).current;
   const formTranslateY = useRef(new Animated.Value(12)).current;
+
+  const hasSelected = !!form.serviceTypeKey;
 
   useEffect(() => {
     if (!hasSelected) return;
@@ -48,7 +46,6 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit, frequentTy
 
   const handleSelectType = useCallback((key: Parameters<typeof form.setServiceTypeKey>[0]) => {
     form.setServiceTypeKey(key);
-    setHasSelected(true);
     clearTimeout(collapseTimer.current);
     collapseTimer.current = setTimeout(() => setCollapsed(true), 150);
   }, [form.setServiceTypeKey]);
@@ -59,21 +56,7 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit, frequentTy
 
   return (
     <View>
-      <ScreenHeader
-        title="New Service Log"
-        subtitle={bikeLabel}
-        rightAction={
-          <Pressable
-            onPress={onExit}
-            hitSlop={8}
-            className="w-10 h-10 rounded-full bg-sand/20 items-center justify-center active:opacity-70"
-          >
-            <MaterialCommunityIcons name="close" size={24} color={colors.charcoal} />
-          </Pressable>
-        }
-      />
-
-      <View className="mt-2">
+      <View className="mt-sm">
         <ServiceTypeSelector
           selected={form.serviceTypeKey}
           onSelect={handleSelectType}
@@ -83,69 +66,71 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit, frequentTy
         />
       </View>
 
-      <Animated.View
-        style={{ opacity: formOpacity, transform: [{ translateY: formTranslateY }] }}
-        pointerEvents={hasSelected && collapsed ? 'auto' : 'none'}
-      >
-        <View className="mb-6">
-          <View className="flex-row gap-4 mb-4">
-            <View className="flex-1">
+      {hasSelected && (
+        <Animated.View
+          style={{ opacity: formOpacity, transform: [{ translateY: formTranslateY }] }}
+          pointerEvents={collapsed ? 'auto' : 'none'}
+        >
+          <View className="mb-2xl">
+            <View className="flex-row gap-lg mb-lg">
+              <View className="flex-1">
+                <TextField
+                  label="Mileage"
+                  value={form.mileage}
+                  onChangeText={form.setMileage}
+                  placeholder="54,000"
+                  keyboardType="numeric"
+                  inputClassName="text-xl"
+                  suffix="km"
+                  error={form.errors.mileage?.message as string | undefined}
+                />
+              </View>
+              <View className="flex-1">
+                <DateField
+                  label="Date"
+                  value={form.date}
+                  onChange={form.setDate}
+                  error={form.errors.date?.message as string | undefined}
+                />
+              </View>
+            </View>
+
+            <FormField control={form.control} name="cost" errors={form.errors}>
               <TextField
-                label="Mileage"
-                value={form.mileage}
-                onChangeText={form.setMileage}
-                placeholder="54,000"
+                label="Estimated Cost"
+                placeholder="350"
+                prefix="$"
                 keyboardType="numeric"
                 inputClassName="text-xl"
-                suffix="km"
-                error={form.errors.mileage?.message as string | undefined}
               />
-            </View>
-            <View className="flex-1">
-              <DateField
-                label="Date"
-                value={form.date}
-                onChange={form.setDate}
-                error={form.errors.date?.message as string | undefined}
-              />
-            </View>
+            </FormField>
           </View>
 
-          <FormField control={form.control} name="cost" errors={form.errors}>
-            <TextField
-              label="Estimated Cost"
-              placeholder="350"
-              prefix="$"
-              keyboardType="numeric"
-              inputClassName="text-xl"
-            />
-          </FormField>
-        </View>
-
-        <PartsUsed
-          serviceTypeKey={form.serviceTypeKey}
-          parts={form.parts}
-          onUpdate={form.updatePart}
-          onAdd={form.addPart}
-          onRemove={form.removePart}
-        />
-
-        <Section label="Evidence & Documentation">
-          <View className="border-2 border-dashed border-outline rounded-xl py-8 items-center justify-center">
-            <MaterialCommunityIcons name="camera-outline" size={28} color={colors.outline} />
-            <Text className="font-sans-bold text-sm text-outline mt-2">Upload Evidence</Text>
-          </View>
-        </Section>
-
-        <View className="mt-4">
-          <PrimaryButton
-            label={form.isPending ? 'Saving...' : 'Save Log'}
-            onPress={onSave}
-            icon="check-circle"
-            disabled={form.isPending}
+          <PartsUsed
+            serviceTypeKey={form.serviceTypeKey}
+            parts={form.parts}
+            onUpdate={form.updatePart}
+            onAdd={form.addPart}
+            onRemove={form.removePart}
           />
-        </View>
-      </Animated.View>
+
+          <Section label="Evidence & Documentation">
+            <View className="border-2 border-dashed border-outline rounded-xl py-3xl items-center justify-center">
+              <MaterialCommunityIcons name="camera-outline" size={28} color={colors.outline} />
+              <Text className="font-sans-bold text-sm text-outline mt-sm">Upload Evidence</Text>
+            </View>
+          </Section>
+
+          <View className="mt-lg">
+            <PrimaryButton
+              label={form.isPending ? 'Saving...' : 'Save Log'}
+              onPress={onSave}
+              icon="check-circle"
+              disabled={form.isPending}
+            />
+          </View>
+        </Animated.View>
+      )}
     </View>
   );
 }

@@ -5,7 +5,7 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { useState, useEffect } from 'react';
 import { colors } from '../../lib/colors';
-import { useRouter } from 'expo-router';
+import { useRouter, useSegments } from 'expo-router';
 
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
@@ -30,14 +30,14 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
     return () => { showSub.remove(); hideSub.remove(); };
   }, []);
 
+  const segments = useSegments();
   const currentRouteName = state.routes[state.index]?.name;
-  const isValidRoute = TABS.some((t) => t.routeName === currentRouteName);
+  const isAtTabRoot = segments.length <= 2; // e.g. ['(tabs)', 'garage'] — depth > 2 means nested screen
+  const isValidRoute = TABS.some((t) => t.routeName === currentRouteName) && isAtTabRoot;
   if (keyboardVisible || !isValidRoute) return null;
 
-  const getRouteKey = (name: string) => state.routes.find((r) => r.name === name)?.key ?? '';
-
   const handleTabPress = (routeName: string) => {
-    const routeKey = getRouteKey(routeName);
+    const routeKey = state.routes.find((r) => r.name === routeName)?.key ?? '';
     const event = navigation.emit({ type: 'tabPress', target: routeKey, canPreventDefault: true });
     if (currentRouteName !== routeName && !event.defaultPrevented) {
       navigation.navigate(routeName);
@@ -46,7 +46,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
 
   const handleAddService = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push('/(tabs)/service/add');
+    router.push('/add-service');
   };
 
   const renderTab = ({ routeName, icon, label }: typeof TABS[number]) => {

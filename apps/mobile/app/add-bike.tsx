@@ -1,23 +1,24 @@
 import React, { useMemo, useRef, useState } from 'react';
 import {
   View, Text, TouchableOpacity,
-  ScrollView, KeyboardAvoidingView, Platform,
+  ScrollView,
   ActivityIndicator, LayoutChangeEvent,
   InteractionManager,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useCreateBike } from '../../../lib/api/use-bikes';
-import { useBikeCatalogMakes, useBikeCatalogModels } from '../../../lib/api/use-bike-catalog';
-import { useBikeStore } from '../../../lib/store/bike-store';
-import type { BikeClass, BikeCatalogEntry, CreateBikeInput } from '../../../lib/types/bike';
-import { colors } from '../../../lib/colors';
-import { TOP_BRANDS, getDisplayBrands } from '../../../lib/brand-picker';
-import { FadeIn } from '../../../components/ui/fade-in';
-import { SummaryPill } from '../../../components/ui/summary-pill';
-import { TextField } from '../../../components/ui/text-field';
-import { DateField } from '../../../components/ui/date-field';
+import { useCreateBike } from '../lib/api/use-bikes';
+import { useBikeCatalogMakes, useBikeCatalogModels } from '../lib/api/use-bike-catalog';
+import { useBikeStore } from '../lib/store/bike-store';
+import type { BikeClass, BikeCatalogEntry, CreateBikeInput } from '../lib/types/bike';
+import { colors } from '../lib/colors';
+import { TOP_BRANDS, getDisplayBrands } from '../lib/brand-picker';
+import { FadeIn } from '../components/ui/fade-in';
+import { ModalFormScreen } from '../components/ui/modal-form-screen';
+import { PrimaryButton } from '../components/ui/primary-button';
+import { SummaryPill } from '../components/ui/summary-pill';
+import { TextField } from '../components/ui/text-field';
+import { DateField } from '../components/ui/date-field';
 
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
@@ -230,15 +231,13 @@ export default function AddMachineScreen() {
   };
 
   const collapseAndAdvance = (current: SectionKey, next: SectionKey) => {
-    const order = SECTION_ORDER;
-    const nextIdx = order.indexOf(next);
+    const nextIdx = SECTION_ORDER.indexOf(next);
     setSections((prev) => {
       const updated = { ...prev };
       updated[current] = 'collapsed';
       updated[next] = 'expanded';
-      // Hide everything after `next`
-      for (let i = nextIdx + 1; i < order.length; i++) {
-        updated[order[i]] = 'hidden';
+      for (let i = nextIdx + 1; i < SECTION_ORDER.length; i++) {
+        updated[SECTION_ORDER[i]] = 'hidden';
       }
       return updated;
     });
@@ -247,14 +246,12 @@ export default function AddMachineScreen() {
   };
 
   const reopenSection = (key: SectionKey) => {
-    const order = SECTION_ORDER;
-    const idx = order.indexOf(key);
+    const idx = SECTION_ORDER.indexOf(key);
     setSections((prev) => {
       const updated = { ...prev };
       updated[key] = 'expanded';
-      // Hide everything after this section
-      for (let i = idx + 1; i < order.length; i++) {
-        updated[order[i]] = 'hidden';
+      for (let i = idx + 1; i < SECTION_ORDER.length; i++) {
+        updated[SECTION_ORDER[i]] = 'hidden';
       }
       return updated;
     });
@@ -368,9 +365,7 @@ export default function AddMachineScreen() {
   // ── Derived display values ──
   const machineName = selectedCatalogEntry
     ? `${selectedCatalogEntry.make} ${selectedCatalogEntry.model}`
-    : isOthers
-      ? `${data.brand} ${data.model}`.trim()
-      : `${data.brand} ${data.model}`.trim();
+    : `${data.brand} ${data.model}`.trim();
 
   const machineSubtitle = [
     data.class ? `Class ${data.class}` : null,
@@ -382,34 +377,20 @@ export default function AddMachineScreen() {
   const showCTA = sections.details === 'expanded' || sections.compliance === 'expanded';
   const isComplianceStep = sections.compliance === 'expanded';
 
+  const ctaLabel = isComplianceStep
+    ? (createBike.isPending ? 'Adding...' : 'Add Machine')
+    : 'Continue';
+  const ctaIcon = isComplianceStep ? 'check' : 'arrow-right';
+
   return (
-    <SafeAreaView className="flex-1 bg-surface">
-      <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-
-        {/* Header */}
-        <View className="px-lg pt-lg pb-md flex-row items-center">
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="w-11 h-11 items-center justify-center"
-            accessibilityLabel="Close"
-            accessibilityRole="button"
-          >
-            <MaterialCommunityIcons name="arrow-left" size={24} color={colors.charcoal} />
-          </TouchableOpacity>
-          <View className="ml-sm">
-            <Text className="text-xs font-sans-bold text-yellow tracking-widest uppercase">
-              New Machine
-            </Text>
-            <Text className="font-sans-xbold text-charcoal text-xl">Add to Garage</Text>
-          </View>
-        </View>
-
-        <ScrollView
-          ref={scrollRef}
-          contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 140 }}
-          keyboardShouldPersistTaps="handled"
-        >
-          {/* ═══ BRAND ═══ */}
+    <ModalFormScreen
+      ref={scrollRef}
+      onClose={() => router.back()}
+      label="New Machine"
+      title="Add to Garage"
+      cta={showCTA ? { label: ctaLabel, icon: ctaIcon, onPress: isComplianceStep ? handleSubmit : handleDetailsContinue, disabled: createBike.isPending } : undefined}
+      error={formError}
+    >
           <View
             onLayout={handleSectionLayout('brand')}
             className="mb-xl"
@@ -438,7 +419,6 @@ export default function AddMachineScreen() {
             )}
           </View>
 
-          {/* ═══ LICENSE CLASS ═══ */}
           {sections.class !== 'hidden' && (
             <View
               onLayout={handleSectionLayout('class')}
@@ -485,7 +465,6 @@ export default function AddMachineScreen() {
             </View>
           )}
 
-          {/* ═══ MODEL ═══ */}
           {sections.model !== 'hidden' && (
             <View
               onLayout={handleSectionLayout('model')}
@@ -525,8 +504,10 @@ export default function AddMachineScreen() {
                       <Text className="text-xs font-sans-medium text-sand mb-md">
                         Tip: Specific models help us surface the right service intervals.
                       </Text>
-                      <TouchableOpacity
-                        className="bg-yellow rounded-full py-md flex-row items-center justify-center gap-sm"
+                      <PrimaryButton
+                        variant="accent"
+                        label="Continue"
+                        icon="arrow-right"
                         onPress={() => {
                           if (data.model.trim().length < 2) {
                             setFormError('Please enter a model name (at least 2 characters)');
@@ -534,11 +515,7 @@ export default function AddMachineScreen() {
                           }
                           collapseAndAdvance('model', 'details');
                         }}
-                        activeOpacity={0.8}
-                      >
-                        <Text className="text-charcoal font-sans-bold text-sm uppercase tracking-widest">Continue</Text>
-                        <MaterialCommunityIcons name="arrow-right" size={18} color={colors.charcoal} />
-                      </TouchableOpacity>
+                      />
                     </View>
                   ) : (
                     /* Catalog model cards */
@@ -628,7 +605,6 @@ export default function AddMachineScreen() {
             </View>
           )}
 
-          {/* ═══ DETAILS ═══ */}
           {sections.details !== 'hidden' && (
             <View
               onLayout={handleSectionLayout('details')}
@@ -678,7 +654,6 @@ export default function AddMachineScreen() {
             </View>
           )}
 
-          {/* ═══ COMPLIANCE DATES ═══ */}
           {sections.compliance !== 'hidden' && (
             <View
               onLayout={handleSectionLayout('compliance')}
@@ -723,38 +698,6 @@ export default function AddMachineScreen() {
             </View>
           )}
 
-          {/* Error */}
-          {formError && (
-            <View className="bg-danger-surface rounded-xl px-md py-sm flex-row items-center gap-sm mb-lg">
-              <MaterialCommunityIcons name="alert-circle-outline" size={18} color={colors.danger} />
-              <Text className="text-sm text-danger font-sans-medium flex-1">{formError}</Text>
-            </View>
-          )}
-        </ScrollView>
-
-        {/* Fixed bottom CTA */}
-        {showCTA && (
-          <View className="absolute bottom-0 left-0 right-0 px-lg pb-xl pt-md bg-surface">
-            <TouchableOpacity
-              className="bg-yellow rounded-full py-md flex-row items-center justify-center gap-sm"
-              onPress={isComplianceStep ? handleSubmit : handleDetailsContinue}
-              disabled={createBike.isPending}
-              activeOpacity={0.8}
-            >
-              <Text className="text-charcoal font-sans-bold text-sm uppercase tracking-widest">
-                {isComplianceStep
-                  ? (createBike.isPending ? 'Adding...' : 'Add Machine')
-                  : 'Continue'}
-              </Text>
-              <MaterialCommunityIcons
-                name={isComplianceStep ? 'check' : 'arrow-right'}
-                size={18}
-                color={colors.charcoal}
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+    </ModalFormScreen>
   );
 }

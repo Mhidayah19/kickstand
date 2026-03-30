@@ -36,7 +36,7 @@ export default function BikeDetailScreen() {
   const handleDelete = async () => {
     await deleteBike.mutateAsync();
     setShowDeleteDialog(false);
-    router.replace('/(tabs)/garage' as any);
+    router.replace('/(tabs)/garage');
   };
 
   if (isLoading || !bike) {
@@ -132,7 +132,7 @@ export default function BikeDetailScreen() {
           <Section
             label="Service History"
             action="View All"
-            onAction={() => router.push('/(tabs)/log' as any)}
+            onAction={() => router.push('/(tabs)/log')}
           >
             {logs.length > 0 ? (
               <View className="gap-3">
@@ -154,7 +154,7 @@ export default function BikeDetailScreen() {
             ) : (
               <Pressable onPress={() => {
                 setActiveBikeId(id);
-                router.push('/(tabs)/service/add');
+                router.push('/add-service');
               }}>
                 <View className="bg-surface-low rounded-2xl p-6 items-center">
                   <Text className="font-sans-medium text-sm text-sand text-center mb-2">

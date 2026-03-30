@@ -25,7 +25,7 @@ export default function SignUpScreen() {
     register(values, {
       onSuccess: () => {
         justRegisteredRef.current = true; // guard SIGNED_IN auto-redirect
-        router.push('/(onboarding)/success' as any);
+        router.push('/(onboarding)/success');
       },
       onError: (err) => setError((err as Error).message ?? 'Registration failed'),
     });
@@ -95,7 +95,7 @@ export default function SignUpScreen() {
           {/* Login link */}
           <TouchableOpacity
             className="items-center mt-md"
-            onPress={() => router.push('/(auth)/login' as any)}
+            onPress={() => router.push('/(auth)/login')}
             activeOpacity={0.7}
           >
             <Text className="text-sm font-sans-medium text-sand">
