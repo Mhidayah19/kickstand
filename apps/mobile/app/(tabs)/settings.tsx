@@ -17,7 +17,7 @@ export default function SettingsScreen() {
   const activeBike = bikes?.find((b) => b.id === activeBikeId);
 
   const handleAddBike = useCallback(() => {
-    router.push('/(tabs)/garage/add' as any);
+    router.push('/add-bike');
   }, [router]);
 
   return (

@@ -11,8 +11,6 @@ export default function TabLayout() {
       <Tabs.Screen name="garage" />
       <Tabs.Screen name="service/index" />
       <Tabs.Screen name="settings" />
-      {/* Hidden routes */}
-      <Tabs.Screen name="service/add" options={{ href: null }} />
     </Tabs>
   );
 }

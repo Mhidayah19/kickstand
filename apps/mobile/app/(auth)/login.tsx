@@ -80,7 +80,7 @@ export default function LoginScreen() {
         {/* Create account */}
         <TouchableOpacity
           className="border border-outline rounded-full py-md items-center"
-          onPress={() => router.push('/(onboarding)/sign-up' as any)}
+          onPress={() => router.push('/(onboarding)/sign-up')}
           activeOpacity={0.7}
         >
           <Text className="text-charcoal font-sans-medium text-sm">Create account</Text>

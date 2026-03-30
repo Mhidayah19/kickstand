@@ -47,7 +47,7 @@ export default function HomeScreen() {
   );
 
   const handleAddBike = useCallback(() => {
-    router.push('/(tabs)/garage/add' as any);
+    router.push('/add-bike');
   }, []);
 
   // Loading state
@@ -90,7 +90,7 @@ export default function HomeScreen() {
           title="No bikes yet"
           description="Add your first bike to start tracking mileage and compliance"
           actionLabel="Add your first bike"
-          onAction={() => router.push('/(tabs)/garage/add' as any)}
+          onAction={() => router.push('/add-bike')}
         />
       </SafeScreen>
     );

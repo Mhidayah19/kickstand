@@ -362,8 +362,8 @@ export default function OnboardingCarousel() {
     });
   };
 
-  const goToSignUp = () => router.push('/(onboarding)/sign-up' as any);
-  const goToLogin = () => router.push('/(auth)/login' as any);
+  const goToSignUp = () => router.push('/(onboarding)/sign-up');
+  const goToLogin = () => router.push('/(auth)/login');
 
   return (
     <SafeAreaView className="flex-1 bg-surface">

@@ -41,14 +41,14 @@ export default function RootLayout() {
           activeBikeId: null,
           expoToken: null,
         });
-        router.replace('/(tabs)' as any);
+        router.replace('/(tabs)');
       } else if (__DEV__ && process.env.EXPO_PUBLIC_DEV_EMAIL && process.env.EXPO_PUBLIC_DEV_PASSWORD) {
         await supabase.auth.signInWithPassword({
           email: process.env.EXPO_PUBLIC_DEV_EMAIL,
           password: process.env.EXPO_PUBLIC_DEV_PASSWORD,
         });
       } else {
-        router.replace('/(onboarding)' as any);
+        router.replace('/(onboarding)');
       }
     });
 
@@ -66,10 +66,10 @@ export default function RootLayout() {
           justRegisteredRef.current = false;
           return;
         }
-        router.replace('/(tabs)' as any);
+        router.replace('/(tabs)');
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
-        router.replace('/(onboarding)' as any);
+        router.replace('/(onboarding)');
       }
     });
 
@@ -87,6 +87,8 @@ export default function RootLayout() {
         <Stack.Screen name="(onboarding)" />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="add-bike" options={{ presentation: 'modal', gestureEnabled: false }} />
+        <Stack.Screen name="add-service" options={{ presentation: 'modal', gestureEnabled: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
     </QueryClientProvider>

@@ -29,7 +29,7 @@ export function DevAuthToggle({ children }: DevAuthToggleProps) {
       if (isAuthenticated) {
         console.log('[DevAuthToggle] Toggling → unauthenticated (onboarding)');
         setUser(null);
-        router.replace('/(onboarding)' as any);
+        router.replace('/(onboarding)');
       } else {
         console.log('[DevAuthToggle] Toggling → authenticated (restoring session)');
         const { data } = await supabase.auth.getSession();
@@ -41,7 +41,7 @@ export function DevAuthToggle({ children }: DevAuthToggleProps) {
             activeBikeId: null,
             expoToken: null,
           });
-          router.replace('/(tabs)' as any);
+          router.replace('/(tabs)');
         } else {
           console.log('[DevAuthToggle] No Supabase session — cannot restore. Log in once first.');
         }
