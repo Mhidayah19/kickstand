@@ -206,7 +206,7 @@ function StepBrand({
 }
 
 // ── Main screen ─────────────────────────────────────────────────
-export default function AddMachineScreen() {
+export default function AddMotorcycleScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const sectionYOffsets = useRef<Record<SectionKey, number>>({
     brand: 0, class: 0, model: 0, details: 0, compliance: 0,
@@ -391,16 +391,16 @@ export default function AddMachineScreen() {
       setActiveBikeId(bike.id);
       router.back();
     } catch (err) {
-      setFormError((err as Error).message ?? 'Failed to add machine');
+      setFormError((err as Error).message ?? 'Failed to add motorcycle');
     }
   };
 
   // ── Derived display values ──
-  const machineName = selectedCatalogEntry
+  const motorcycleName = selectedCatalogEntry
     ? `${selectedCatalogEntry.make} ${selectedCatalogEntry.model}`
     : `${data.brand} ${data.model}`.trim();
 
-  const machineSubtitle = [
+  const motorcycleSubtitle = [
     data.class ? `Class ${data.class}` : null,
     selectedCatalogEntry?.bikeType,
     data.year || null,
@@ -411,7 +411,7 @@ export default function AddMachineScreen() {
   const isComplianceStep = sections.compliance === 'expanded';
 
   const ctaLabel = isComplianceStep
-    ? (createBike.isPending ? 'Adding...' : 'Add Machine')
+    ? (createBike.isPending ? 'Adding...' : 'Add Motorcycle')
     : 'Continue';
   const ctaIcon = isComplianceStep ? 'check' : 'arrow-right';
 
@@ -419,7 +419,7 @@ export default function AddMachineScreen() {
     <ModalFormScreen
       ref={scrollRef}
       onClose={() => router.back()}
-      label="New Machine"
+      label="New Motorcycle"
       title="Add to Garage"
       cta={showCTA ? { label: ctaLabel, icon: ctaIcon, onPress: isComplianceStep ? handleSubmit : handleDetailsContinue, disabled: createBike.isPending } : undefined}
       error={formError}
@@ -733,15 +733,15 @@ export default function AddMachineScreen() {
                     </View>
                   )}
 
-                  {/* Machine summary */}
-                  {machineName.trim().length > 0 && (
+                  {/* Motorcycle summary */}
+                  {motorcycleName.trim().length > 0 && (
                     <View className="bg-surface-low rounded-2xl p-lg mt-sm overflow-hidden">
                       <View className="flex-row items-center justify-between">
                         <View className="flex-1">
-                          <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-xs">Your Machine</Text>
-                          <Text className="font-sans-xbold text-charcoal text-xl">{machineName}</Text>
-                          {machineSubtitle.length > 0 && (
-                            <Text className="font-sans-medium text-sand text-sm mt-xs">{machineSubtitle}</Text>
+                          <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-xs">Your Motorcycle</Text>
+                          <Text className="font-sans-xbold text-charcoal text-xl">{motorcycleName}</Text>
+                          {motorcycleSubtitle.length > 0 && (
+                            <Text className="font-sans-medium text-sand text-sm mt-xs">{motorcycleSubtitle}</Text>
                           )}
                           {data.plateNumber && (
                             <Text className="font-sans-medium text-sand text-xs mt-xs">

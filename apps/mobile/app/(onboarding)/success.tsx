@@ -21,7 +21,7 @@ export default function SuccessScreen() {
           className="text-white font-sans-bold text-xs tracking-widest uppercase mb-xl"
           style={{ opacity: 0.5 }}
         >
-          Precision Atelier
+          Kickstand
         </Text>
         <Text
           className="text-white font-sans-bold"
@@ -35,7 +35,7 @@ export default function SuccessScreen() {
       {/* Copy */}
       <View className="mt-xl flex-1">
         <Text className="font-sans-medium text-sand text-base">
-          Your atelier is ready. Add your first machine to begin the record.
+          Your atelier is ready. Add your first motorcycle to begin the record.
         </Text>
         <View className="flex-row items-center gap-xs mt-lg">
           <MaterialCommunityIcons name="check-circle-outline" size={14} color={colors.sand} />

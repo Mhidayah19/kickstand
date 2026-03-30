@@ -87,7 +87,7 @@ export default function GarageScreen() {
     >
       <ScreenHeader
         title="My Garage"
-        subtitle={`Your Fleet \u2022 ${bikeCount} Machine${bikeCount !== 1 ? 's' : ''}`}
+        subtitle={`Your Fleet \u2022 ${bikeCount} Motorcycle${bikeCount !== 1 ? 's' : ''}`}
       />
 
       {/* Bike list */}
@@ -115,7 +115,7 @@ export default function GarageScreen() {
         </View>
       )}
 
-      {/* Add machine */}
+      {/* Add motorcycle */}
       <View className="mb-8">
         {bikes && bikes.length > 0 ? (
           <TouchableOpacity
@@ -123,18 +123,18 @@ export default function GarageScreen() {
             onPress={() => router.push('/add-bike')}
             activeOpacity={0.8}
             accessibilityRole="button"
-            accessibilityLabel="Add another machine"
+            accessibilityLabel="Add another motorcycle"
           >
             <View className="w-8 h-8 rounded-full bg-sand/10 items-center justify-center">
               <MaterialCommunityIcons name="plus" size={20} color={colors.sand} />
             </View>
-            <Text className="font-sans-bold text-sm text-sand">Add another machine</Text>
+            <Text className="font-sans-bold text-sm text-sand">Add another motorcycle</Text>
           </TouchableOpacity>
         ) : (
           <EmptyState
             title="Expand Your Fleet"
-            actionLabel="Add a Machine"
-            description="Add a machine to your garage"
+            actionLabel="Add a Motorcycle"
+            description="Add a motorcycle to your garage"
             onAction={() => router.push('/add-bike')}
           />
         )}

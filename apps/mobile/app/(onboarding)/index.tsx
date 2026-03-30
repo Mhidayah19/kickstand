@@ -115,10 +115,10 @@ function SlideWelcome({
 
       {/* Headline */}
       <Text className="font-sans-bold text-charcoal" style={{ fontSize: 36, lineHeight: 44, letterSpacing: -0.5 }}>
-        Your Machine.{'\n'}Your Record.
+        Your Motorcycle.{'\n'}Your Record.
       </Text>
       <Text className="font-sans-medium text-sand mt-sm text-base">
-        Precision maintenance records for machines that matter.
+        Precision maintenance records for motorcycles that matter.
       </Text>
 
       {/* Dots */}
@@ -203,7 +203,7 @@ function SlideMaintenance({
       {/* Header row */}
       <View className="flex-row justify-between items-center mb-xl">
         <Text className="font-sans-bold text-charcoal text-xs tracking-widest uppercase">
-          Precision Atelier
+          Kickstand
         </Text>
         <TouchableOpacity
           onPress={onSkip}
@@ -306,7 +306,7 @@ function SlideFleet({
       {/* Header row */}
       <View className="flex-row justify-between items-center mb-xl">
         <Text className="font-sans-bold text-charcoal text-xs tracking-widest uppercase">
-          Precision Atelier
+          Kickstand
         </Text>
         <TouchableOpacity
           onPress={onSkip}
@@ -326,7 +326,7 @@ function SlideFleet({
 
       {/* Headline copy */}
       <Text className="font-sans-bold text-charcoal mb-sm" style={{ fontSize: 40, lineHeight: 48, letterSpacing: -1 }}>
-        Every Machine.{'\n'}One <Text style={{ color: colors.yellow }}>Garage.</Text>
+        Every Motorcycle.{'\n'}One <Text style={{ color: colors.yellow }}>Garage.</Text>
       </Text>
       <Text className="font-sans-medium text-sand text-base">
         Track status, mileage, and compliance across your entire fleet at a glance.
