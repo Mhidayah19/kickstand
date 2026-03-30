@@ -115,6 +115,7 @@ export const serviceLogs = pgTable('service_logs', {
     .notNull()
     .references(() => serviceTypes.key),
   description: text('description').notNull(),
+  parts: jsonb('parts').$type<string[]>(),
   cost: decimal('cost', { precision: 10, scale: 2 }).notNull(),
   mileageAt: integer('mileage_at').notNull(),
   date: date('date').notNull(),

@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { BikesService } from './bikes.service';
@@ -106,9 +107,39 @@ describe('BikesService', () => {
         NotFoundException,
       );
     });
+
+    it('should not leak bike ID in error message', async () => {
+      const bikeId = 'bike-uuid-secret';
+      mockDb.where.mockResolvedValue([]);
+
+      await expect(service.findOneByUser(bikeId, 'user-1')).rejects.toThrow(
+        expect.objectContaining({
+          message: expect.not.stringContaining(bikeId),
+        }),
+      );
+    });
   });
 
   describe('updateMileage', () => {
+    it('should not leak mileage values in error message', async () => {
+      const existingBike = {
+        id: 'bike-1',
+        userId: 'user-1',
+        currentMileage: 10000,
+      };
+      mockDb.where.mockResolvedValueOnce([
+        { bike: existingBike, imageUrl: null },
+      ]);
+
+      await expect(
+        service.updateMileage('bike-1', 'user-1', { currentMileage: 5000 }),
+      ).rejects.toThrow(
+        expect.objectContaining({
+          message: expect.not.stringContaining('10000'),
+        }),
+      );
+    });
+
     it('should throw BadRequestException when new mileage is lower than current', async () => {
       const bikeId = 'bike-uuid-1';
       const userId = 'user-uuid-1';

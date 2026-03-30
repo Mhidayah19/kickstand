@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Animated, Text, View } from 'react-native';
+import { Alert, Animated, Pressable, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
-import { PrimaryButton } from '../ui/primary-button';
 import { Section } from '../ui/section';
 import { TextField } from '../ui/text-field';
 import { DateField } from '../ui/date-field';
@@ -14,11 +13,10 @@ import type { FrequentType } from '../../lib/service-type-helpers';
 
 interface ServiceLogFormBodyProps {
   form: ReturnType<typeof useServiceLogForm>;
-  onSave: () => Promise<void>;
   frequentTypes: FrequentType[];
 }
 
-export function ServiceLogFormBody({ form, onSave, frequentTypes }: ServiceLogFormBodyProps) {
+export function ServiceLogFormBody({ form, frequentTypes }: ServiceLogFormBodyProps) {
   const [collapsed, setCollapsed] = useState(false);
   const collapseTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -27,22 +25,17 @@ export function ServiceLogFormBody({ form, onSave, frequentTypes }: ServiceLogFo
   const formOpacity = useRef(new Animated.Value(0)).current;
   const formTranslateY = useRef(new Animated.Value(12)).current;
 
-  const hasSelected = !!form.serviceTypeKey;
-
   useEffect(() => {
-    if (!hasSelected) return;
-    if (collapsed) {
-      Animated.parallel([
-        Animated.timing(formOpacity, { toValue: 1, duration: 300, delay: 150, useNativeDriver: true }),
-        Animated.timing(formTranslateY, { toValue: 0, duration: 300, delay: 150, useNativeDriver: true }),
-      ]).start();
-    } else {
-      Animated.parallel([
-        Animated.timing(formOpacity, { toValue: 0, duration: 200, useNativeDriver: true }),
-        Animated.timing(formTranslateY, { toValue: 12, duration: 200, useNativeDriver: true }),
-      ]).start();
+    if (!collapsed) {
+      formOpacity.setValue(0);
+      formTranslateY.setValue(12);
+      return;
     }
-  }, [collapsed, hasSelected]);
+    Animated.parallel([
+      Animated.timing(formOpacity, { toValue: 1, duration: 300, delay: 150, useNativeDriver: true }),
+      Animated.timing(formTranslateY, { toValue: 0, duration: 300, delay: 150, useNativeDriver: true }),
+    ]).start();
+  }, [collapsed]);
 
   const handleSelectType = useCallback((key: Parameters<typeof form.setServiceTypeKey>[0]) => {
     form.setServiceTypeKey(key);
@@ -52,6 +45,10 @@ export function ServiceLogFormBody({ form, onSave, frequentTypes }: ServiceLogFo
 
   const handleExpand = useCallback(() => {
     setCollapsed(false);
+  }, []);
+
+  const handleEvidencePress = useCallback(() => {
+    Alert.alert('Coming Soon', 'Evidence upload will be available in a future update.');
   }, []);
 
   return (
@@ -66,10 +63,9 @@ export function ServiceLogFormBody({ form, onSave, frequentTypes }: ServiceLogFo
         />
       </View>
 
-      {hasSelected && (
+      {collapsed && (
         <Animated.View
           style={{ opacity: formOpacity, transform: [{ translateY: formTranslateY }] }}
-          pointerEvents={collapsed ? 'auto' : 'none'}
         >
           <View className="mb-2xl">
             <View className="flex-row gap-lg mb-lg">
@@ -115,20 +111,14 @@ export function ServiceLogFormBody({ form, onSave, frequentTypes }: ServiceLogFo
           />
 
           <Section label="Evidence & Documentation">
-            <View className="border-2 border-dashed border-outline rounded-xl py-3xl items-center justify-center">
+            <Pressable
+              onPress={handleEvidencePress}
+              className="border-2 border-dashed border-outline rounded-xl py-3xl items-center justify-center active:opacity-70"
+            >
               <MaterialCommunityIcons name="camera-outline" size={28} color={colors.outline} />
               <Text className="font-sans-bold text-sm text-outline mt-sm">Upload Evidence</Text>
-            </View>
+            </Pressable>
           </Section>
-
-          <View className="mt-lg">
-            <PrimaryButton
-              label={form.isPending ? 'Saving...' : 'Save Log'}
-              onPress={onSave}
-              icon="check-circle"
-              disabled={form.isPending}
-            />
-          </View>
         </Animated.View>
       )}
     </View>

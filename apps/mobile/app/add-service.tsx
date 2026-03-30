@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ServiceLogFormBody } from '../components/service/service-log-form-body';
@@ -24,7 +24,7 @@ export default function AddServiceScreen() {
 
   const bikeLabel = bike ? formatBikeLabel(bike) : activeBikeId ? 'Loading...' : 'Select a bike';
 
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!activeBikeId) {
       Alert.alert('No bike selected', 'Please select a bike in your garage first.');
       return;
@@ -36,22 +36,29 @@ export default function AddServiceScreen() {
       const message = err instanceof Error ? err.message : 'Failed to save service log.';
       Alert.alert('Error', message);
     }
-  };
+  }, [activeBikeId, form.handleSave, router]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     form.handleReset();
     router.back();
-  };
+  }, [form.handleReset, router]);
+
+  const cta = useMemo(() => form.serviceTypeKey ? {
+    label: form.isPending ? 'Saving...' : 'Save Log',
+    icon: 'check-circle',
+    onPress: handleSave,
+    disabled: form.isPending,
+  } : undefined, [form.serviceTypeKey, form.isPending, handleSave]);
 
   return (
     <ModalFormScreen
       onClose={handleClose}
       title="New Service Log"
       subtitle={bikeLabel}
+      cta={cta}
     >
       <ServiceLogFormBody
         form={form}
-        onSave={handleSave}
         frequentTypes={frequentTypes}
       />
     </ModalFormScreen>

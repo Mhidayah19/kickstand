@@ -6,6 +6,7 @@ import {
   IsDateString,
   IsUUID,
   Min,
+  Max,
 } from 'class-validator';
 
 export class CreateBikeDto {
@@ -14,6 +15,7 @@ export class CreateBikeDto {
 
   @IsInt()
   @Min(1970)
+  @Max(new Date().getFullYear() + 1)
   year: number;
 
   @IsString()

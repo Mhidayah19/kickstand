@@ -54,12 +54,15 @@ export function useServiceLogForm(bikeId: string | null, initialMileage?: number
 
   const submitHandler = async (values: ServiceLogFormValues) => {
     const mileageNum = parseInt(values.mileage.replace(/,/g, ''), 10);
+    const label = SERVICE_TYPE_LABELS[values.serviceTypeKey as ServiceTypeKey] ?? values.serviceTypeKey;
+    const filledParts = parts.map((p) => p.value.trim()).filter(Boolean);
     return createLog.mutateAsync({
       serviceType: values.serviceTypeKey as ServiceTypeKey,
       mileageAt: mileageNum,
       date: values.date,
       cost: values.cost.trim(),
-      description: '',
+      description: label,
+      parts: filledParts.length > 0 ? filledParts : undefined,
     });
   };
 

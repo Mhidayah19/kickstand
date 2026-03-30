@@ -6,6 +6,7 @@ import {
   IsUUID,
   IsNumberString,
   IsIn,
+  IsArray,
   Min,
 } from 'class-validator';
 import { SERVICE_TYPE_KEYS } from '../../../common/constants/service-types';
@@ -26,6 +27,11 @@ export class CreateServiceLogDto {
 
   @IsDateString()
   date: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  parts?: string[];
 
   @IsOptional()
   @IsUUID()

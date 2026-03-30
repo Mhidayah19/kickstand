@@ -76,7 +76,7 @@ export class BikesService {
       .where(and(eq(schema.bikes.id, bikeId), eq(schema.bikes.userId, userId)));
 
     if (!row) {
-      throw new NotFoundException(`Bike ${bikeId} not found`);
+      throw new NotFoundException('Bike not found');
     }
     return { ...row.bike, imageUrl: row.imageUrl ?? null };
   }
@@ -97,7 +97,7 @@ export class BikesService {
 
     if (dto.currentMileage < bike.currentMileage) {
       throw new BadRequestException(
-        `New mileage (${dto.currentMileage}) cannot be less than current mileage (${bike.currentMileage})`,
+        'New mileage cannot be less than current mileage',
       );
     }
 

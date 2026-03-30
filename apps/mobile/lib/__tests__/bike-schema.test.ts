@@ -36,9 +36,9 @@ describe('bikeSchema', () => {
 
 describe('updateMileageSchema', () => {
   it('accepts valid mileage', () => {
-    expect(updateMileageSchema.safeParse({ mileage: 1000 }).success).toBe(true);
+    expect(updateMileageSchema.safeParse({ currentMileage: 1000 }).success).toBe(true);
   });
   it('rejects negative mileage', () => {
-    expect(updateMileageSchema.safeParse({ mileage: -1 }).success).toBe(false);
+    expect(updateMileageSchema.safeParse({ currentMileage: -1 }).success).toBe(false);
   });
 });

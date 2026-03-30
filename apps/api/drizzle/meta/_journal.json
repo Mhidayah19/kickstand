@@ -15,6 +15,13 @@
       "when": 1774508910984,
       "tag": "0001_fat_owl",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1743393600000,
+      "tag": "0002_service_log_parts",
+      "breakpoints": true
     }
   ]
 }
