@@ -14,6 +14,7 @@ export const serviceLogsKeys = {
 export interface CreateServiceLogInput {
   serviceType: string;
   description: string;
+  parts?: string[];
   cost: string;
   mileageAt: number;
   date: string;
@@ -43,6 +44,19 @@ export function useCreateServiceLog(bikeId: string | null) {
   return useMutation({
     mutationFn: (input: CreateServiceLogInput) =>
       apiClient.post<ServiceLog>(`/bikes/${bikeId}/services`, input),
+    onSuccess: () => {
+      if (!bikeId) return;
+      queryClient.invalidateQueries({ queryKey: serviceLogsKeys.byBike(bikeId) });
+      queryClient.invalidateQueries({ queryKey: serviceLogsKeys.all });
+    },
+  });
+}
+
+export function useDeleteServiceLog(bikeId: string | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (logId: string) =>
+      apiClient.delete<void>(`/bikes/${bikeId}/services/${logId}`),
     onSuccess: () => {
       if (!bikeId) return;
       queryClient.invalidateQueries({ queryKey: serviceLogsKeys.byBike(bikeId) });

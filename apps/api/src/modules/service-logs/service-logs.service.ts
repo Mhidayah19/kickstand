@@ -101,7 +101,7 @@ export class ServiceLogsService {
       );
 
     if (!existing) {
-      throw new NotFoundException(`Service log ${logId} not found`);
+      throw new NotFoundException('Service log not found');
     }
 
     const [deleted] = await this.db

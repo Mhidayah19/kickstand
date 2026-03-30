@@ -24,7 +24,7 @@ export const bikeSchema = z.object({
 });
 
 export const updateMileageSchema = z.object({
-  mileage: z.number().min(0, 'Mileage must be 0 or greater'),
+  currentMileage: z.number().min(0, 'Mileage must be 0 or greater'),
 });
 
 export type BikeFormValues = z.infer<typeof bikeSchema>;

@@ -7,8 +7,8 @@ import { TopAppBar } from '../../../components/ui/top-app-bar';
 import { ScreenHeader } from '../../../components/ui/screen-header';
 import { FilterChips } from '../../../components/ui/filter-chips';
 import { TimelineEntry } from '../../../components/ui/timeline-entry';
-import { PrimaryButton } from '../../../components/ui/primary-button';
-import { useServiceLogs } from '../../../lib/api/use-service-logs';
+import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
+import { useServiceLogs, useDeleteServiceLog } from '../../../lib/api/use-service-logs';
 import { useBike, useBikes } from '../../../lib/api/use-bikes';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { colors } from '../../../lib/colors';
@@ -52,6 +52,7 @@ export default function ServiceScreen() {
   const { data: bikes } = useBikes();
   const { data: logsResponse, isLoading } = useServiceLogs(activeBikeId);
   const [selectedFilter, setSelectedFilter] = useState<FilterGroupKey>('All');
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null);
 
   const logs = logsResponse?.data ?? [];
 
@@ -65,6 +66,19 @@ export default function ServiceScreen() {
     const sum = logs.reduce((acc, log) => acc + (parseFloat(log.cost) || 0), 0);
     return `$${sum.toFixed(2)}`;
   }, [logs]);
+
+  const deleteLog = useDeleteServiceLog(activeBikeId);
+
+  const handleDeleteLog = useCallback((logId: string, serviceLabel: string) => {
+    setPendingDelete({ id: logId, label: serviceLabel });
+  }, []);
+
+  const handleConfirmDelete = useCallback(() => {
+    if (pendingDelete) deleteLog.mutate(pendingDelete.id);
+    setPendingDelete(null);
+  }, [pendingDelete, deleteLog.mutate]);
+
+  const handleCancelDelete = useCallback(() => setPendingDelete(null), []);
 
   const handleAddBike = useCallback(() => {
     router.push('/add-bike');
@@ -147,12 +161,28 @@ export default function ServiceScreen() {
               />
               {filteredLogs.map((log) => {
                 const props = mapLogToTimeline(log);
-                return <TimelineEntry key={log.id} {...props} />;
+                return (
+                  <TimelineEntry
+                    key={log.id}
+                    {...props}
+                    onLongPress={() => handleDeleteLog(log.id, props.title)}
+                  />
+                );
               })}
             </View>
           )}
         </ScrollView>
       )}
+
+      <ConfirmationDialog
+        visible={!!pendingDelete}
+        title="Delete Service Log"
+        body={`Are you sure you want to delete this ${pendingDelete?.label ?? ''} log?`}
+        confirmLabel="Delete"
+        confirmVariant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </SafeAreaView>
   );
 }

@@ -8,6 +8,7 @@ function makeLog(serviceType: string, date: string): ServiceLog {
     workshopId: null,
     serviceType,
     description: '',
+    parts: null,
     cost: '0',
     mileageAt: 1000,
     date,

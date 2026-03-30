@@ -49,5 +49,5 @@ export interface CreateBikeInput {
 export type UpdateBikeInput = Partial<CreateBikeInput>;
 
 export interface UpdateMileageInput {
-  mileage: number;
+  currentMileage: number;
 }
