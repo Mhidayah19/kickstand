@@ -1,5 +1,6 @@
 import {
   pgTable,
+  pgPolicy,
   uuid,
   text,
   integer,
@@ -9,6 +10,8 @@ import {
   jsonb,
   unique,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
+import { authenticatedRole, authUid } from 'drizzle-orm/supabase';
 
 export const serviceTypes = pgTable('service_types', {
   key: text('key').primaryKey(),
@@ -51,31 +54,42 @@ export const bikeCatalog = pgTable(
   ],
 );
 
-export const bikes = pgTable('bikes', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  model: text('model').notNull(),
-  year: integer('year').notNull(),
-  plateNumber: text('plate_number').notNull(),
-  class: text('class').notNull(),
-  currentMileage: integer('current_mileage').notNull().default(0),
-  coeExpiry: date('coe_expiry'),
-  roadTaxExpiry: date('road_tax_expiry'),
-  insuranceExpiry: date('insurance_expiry'),
-  inspectionDue: date('inspection_due'),
-  make: text('make'),
-  engineCc: integer('engine_cc'),
-  bikeType: text('bike_type'),
-  catalogId: uuid('catalog_id').references(() => bikeCatalog.id),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const bikes = pgTable(
+  'bikes',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    model: text('model').notNull(),
+    year: integer('year').notNull(),
+    plateNumber: text('plate_number').notNull(),
+    class: text('class').notNull(),
+    currentMileage: integer('current_mileage').notNull().default(0),
+    coeExpiry: date('coe_expiry'),
+    roadTaxExpiry: date('road_tax_expiry'),
+    insuranceExpiry: date('insurance_expiry'),
+    inspectionDue: date('inspection_due'),
+    make: text('make'),
+    engineCc: integer('engine_cc'),
+    bikeType: text('bike_type'),
+    catalogId: uuid('catalog_id').references(() => bikeCatalog.id),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    pgPolicy('bikes_user_isolation', {
+      for: 'all',
+      to: authenticatedRole,
+      using: sql`${authUid} = ${table.userId}`,
+      withCheck: sql`${authUid} = ${table.userId}`,
+    }),
+  ],
+);
 
 export const maintenanceSchedules = pgTable('maintenance_schedules', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -105,28 +119,39 @@ export const workshops = pgTable('workshops', {
     .defaultNow(),
 });
 
-export const serviceLogs = pgTable('service_logs', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  bikeId: uuid('bike_id')
-    .notNull()
-    .references(() => bikes.id, { onDelete: 'cascade' }),
-  workshopId: uuid('workshop_id').references(() => workshops.id),
-  serviceType: text('service_type')
-    .notNull()
-    .references(() => serviceTypes.key),
-  description: text('description').notNull(),
-  parts: jsonb('parts').$type<string[]>(),
-  cost: decimal('cost', { precision: 10, scale: 2 }).notNull(),
-  mileageAt: integer('mileage_at').notNull(),
-  date: date('date').notNull(),
-  receiptUrl: text('receipt_url'),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const serviceLogs = pgTable(
+  'service_logs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    bikeId: uuid('bike_id')
+      .notNull()
+      .references(() => bikes.id, { onDelete: 'cascade' }),
+    workshopId: uuid('workshop_id').references(() => workshops.id),
+    serviceType: text('service_type')
+      .notNull()
+      .references(() => serviceTypes.key),
+    description: text('description').notNull(),
+    parts: jsonb('parts').$type<string[]>(),
+    cost: decimal('cost', { precision: 10, scale: 2 }).notNull(),
+    mileageAt: integer('mileage_at').notNull(),
+    date: date('date').notNull(),
+    receiptUrl: text('receipt_url'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    pgPolicy('service_logs_user_isolation', {
+      for: 'all',
+      to: authenticatedRole,
+      using: sql`EXISTS (SELECT 1 FROM bikes WHERE bikes.id = ${table.bikeId} AND bikes.user_id = ${authUid})`,
+      withCheck: sql`EXISTS (SELECT 1 FROM bikes WHERE bikes.id = ${table.bikeId} AND bikes.user_id = ${authUid})`,
+    }),
+  ],
+);
 
 export const workshopServices = pgTable('workshop_services', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -142,32 +167,54 @@ export const workshopServices = pgTable('workshop_services', {
   lastVerified: date('last_verified').notNull(),
 });
 
-export const notificationLogs = pgTable('notification_logs', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  bikeId: uuid('bike_id')
-    .notNull()
-    .references(() => bikes.id, { onDelete: 'cascade' }),
-  type: text('type').notNull(),
-  deadlineField: text('deadline_field'),
-  tier: text('tier').notNull(),
-  sentAt: timestamp('sent_at', { withTimezone: true }).notNull().defaultNow(),
-});
+export const notificationLogs = pgTable(
+  'notification_logs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    bikeId: uuid('bike_id')
+      .notNull()
+      .references(() => bikes.id, { onDelete: 'cascade' }),
+    type: text('type').notNull(),
+    deadlineField: text('deadline_field'),
+    tier: text('tier').notNull(),
+    sentAt: timestamp('sent_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    pgPolicy('notification_logs_user_isolation', {
+      for: 'all',
+      to: authenticatedRole,
+      using: sql`${authUid} = ${table.userId}`,
+      withCheck: sql`${authUid} = ${table.userId}`,
+    }),
+  ],
+);
 
-export const agentConversations = pgTable('agent_conversations', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  userId: uuid('user_id')
-    .notNull()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  sessionId: uuid('session_id').notNull(),
-  messages: jsonb('messages').notNull().default([]),
-  summary: text('summary'),
-  createdAt: timestamp('created_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-  updatedAt: timestamp('updated_at', { withTimezone: true })
-    .notNull()
-    .defaultNow(),
-});
+export const agentConversations = pgTable(
+  'agent_conversations',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    sessionId: uuid('session_id').notNull(),
+    messages: jsonb('messages').notNull().default([]),
+    summary: text('summary'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    pgPolicy('agent_conversations_user_isolation', {
+      for: 'all',
+      to: authenticatedRole,
+      using: sql`${authUid} = ${table.userId}`,
+      withCheck: sql`${authUid} = ${table.userId}`,
+    }),
+  ],
+);

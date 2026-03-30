@@ -1,11 +1,9 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
-import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { WorkshopsService } from './workshops.service';
 import { FindWorkshopsDto } from './dto/find-workshops.dto';
 import { CompareWorkshopsDto } from './dto/compare-workshops.dto';
 
 @Controller('workshops')
-@UseGuards(SupabaseAuthGuard)
 export class WorkshopsController {
   constructor(private workshopsService: WorkshopsService) {}
 

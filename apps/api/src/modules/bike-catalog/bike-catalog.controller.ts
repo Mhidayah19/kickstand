@@ -1,7 +1,9 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Public } from '../../common/decorators/public.decorator';
 import { BikeCatalogService } from './bike-catalog.service';
 import { GetModelsQueryDto } from './dto/get-models-query.dto';
 
+@Public()
 @Controller('bike-catalog')
 export class BikeCatalogController {
   constructor(private readonly bikeCatalogService: BikeCatalogService) {}

@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { TerminusModule } from '@nestjs/terminus';
 import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
 import { DatabaseModule } from './database/database.module';
+import { SupabaseAuthGuard } from './common/guards/supabase-auth.guard';
 import { envConfig } from './config/env.config';
 import { HealthController } from './health.controller';
 import { BikesModule } from './modules/bikes/bikes.module';
@@ -66,5 +68,11 @@ const isProd = process.env.NODE_ENV === 'production';
     NotificationsModule,
   ],
   controllers: [HealthController],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: SupabaseAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

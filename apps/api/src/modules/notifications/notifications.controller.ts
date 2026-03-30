@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Query, UseGuards } from '@nestjs/common';
-import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
+import { Public } from '../../common/decorators/public.decorator';
 import { ApiKeyGuard } from './guards/api-key.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { AuthUser } from '../../common/decorators/current-user.decorator';
@@ -15,7 +15,6 @@ export class NotificationsController {
   ) {}
 
   @Post('register-token')
-  @UseGuards(SupabaseAuthGuard)
   async registerToken(
     @CurrentUser() user: AuthUser,
     @Body() dto: RegisterTokenDto,
@@ -24,6 +23,7 @@ export class NotificationsController {
     return { success: true };
   }
 
+  @Public()
   @Post('trigger-scan')
   @UseGuards(ApiKeyGuard)
   async triggerScan(@Query('job') job?: string) {
