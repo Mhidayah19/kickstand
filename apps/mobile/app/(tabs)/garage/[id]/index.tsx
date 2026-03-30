@@ -2,13 +2,18 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../../../lib/colors';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConfirmationDialog } from '../../../../components/ui/confirmation-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../../../../components/ui/dropdown-menu';
 import { ListCard } from '../../../../components/ui/list-card';
-import { PrimaryButton } from '../../../../components/ui/primary-button';
 import { Section } from '../../../../components/ui/section';
 import { Skeleton } from '../../../../components/ui/skeleton';
 import { useDeleteBike, useBike } from '../../../../lib/api/use-bikes';
@@ -16,11 +21,12 @@ import { useServiceLogs } from '../../../../lib/api/use-service-logs';
 import { useBikeStore } from '../../../../lib/store/bike-store';
 import { serviceTypeToMeta } from '../../../../lib/service-type-meta';
 
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 function formatLogDate(dateStr: string): string {
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const [, monthStr, day] = dateStr.split('-');
-  return `${parseInt(day)} ${months[parseInt(monthStr) - 1]}`;
+  return `${parseInt(day)} ${MONTHS[parseInt(monthStr) - 1]}`;
 }
 
 export default function BikeDetailScreen() {
@@ -29,6 +35,10 @@ export default function BikeDetailScreen() {
   const deleteBike = useDeleteBike(id ?? '');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const insets = useSafeAreaInsets();
+  const contentInsets = useMemo(
+    () => ({ top: insets.top, bottom: insets.bottom, left: 4, right: 4 }),
+    [insets.top, insets.bottom]
+  );
   const { data: logsData } = useServiceLogs(id, 3);
   const logs = logsData?.data ?? [];
   const { setActiveBikeId } = useBikeStore();
@@ -70,13 +80,27 @@ export default function BikeDetailScreen() {
         >
           <MaterialCommunityIcons name="arrow-left" size={22} color={colors.charcoal} />
         </Pressable>
-        <Pressable
-          onPress={() => setShowDeleteDialog(true)}
-          hitSlop={8}
-          className="w-10 h-10 rounded-full bg-surface-card/80 items-center justify-center active:opacity-70"
-        >
-          <MaterialCommunityIcons name="dots-vertical" size={22} color={colors.charcoal} />
-        </Pressable>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Pressable
+              hitSlop={8}
+              className="w-10 h-10 rounded-full bg-surface-card/80 items-center justify-center active:opacity-70"
+            >
+              <MaterialCommunityIcons name="dots-vertical" size={22} color={colors.charcoal} />
+            </Pressable>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent insets={contentInsets} sideOffset={4} align="end">
+            <DropdownMenuItem onPress={() => router.push(`/(tabs)/garage/${id}/edit`)}>
+              <MaterialCommunityIcons name="pencil-outline" size={20} color={colors.charcoal} />
+              <Text className="text-sm font-sans-bold text-charcoal">Edit Bike</Text>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem variant="destructive" onPress={() => setShowDeleteDialog(true)}>
+              <MaterialCommunityIcons name="trash-can-outline" size={20} color={colors.danger} />
+              <Text className="text-sm font-sans-bold text-danger">Delete Bike</Text>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </View>
       <ScrollView
         contentContainerStyle={{ paddingBottom: 128 }}
@@ -169,14 +193,6 @@ export default function BikeDetailScreen() {
           </Section>
         </View>
 
-        {/* Start Ride Track */}
-        <View className="px-6 mt-4">
-          <PrimaryButton
-            label="Start Ride Track"
-            onPress={() => {}}
-            icon="map-marker-path"
-          />
-        </View>
       </ScrollView>
 
       <ConfirmationDialog
