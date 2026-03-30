@@ -5,7 +5,10 @@ describe('Public decorator', () => {
     @Public()
     class TestController {}
 
-    const metadata = Reflect.getMetadata(IS_PUBLIC_KEY, TestController);
+    const metadata = Reflect.getMetadata(
+      IS_PUBLIC_KEY,
+      TestController,
+    ) as unknown;
     expect(metadata).toBe(true);
   });
 });
