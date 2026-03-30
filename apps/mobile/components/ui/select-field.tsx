@@ -1,6 +1,6 @@
-import React from 'react';
-import { ScrollView, TouchableOpacity, View } from 'react-native';
-import { Text } from 'react-native';
+import { ScrollView, TouchableOpacity, View, Text } from 'react-native';
+import * as Label from '@rn-primitives/label';
+import { cn } from '../../lib/cn';
 
 interface SelectOption {
   label: string;
@@ -10,37 +10,57 @@ interface SelectOption {
 interface SelectFieldProps {
   label: string;
   options: SelectOption[];
-  value: string;
-  onValueChange: (value: string) => void;
+  value?: string;
+  onValueChange?: (value: string) => void;
   error?: string;
+  className?: string;
 }
 
-export function SelectField({ label, options, value, onValueChange, error }: SelectFieldProps) {
+export function SelectField({
+  label,
+  options,
+  value,
+  onValueChange,
+  error,
+  className,
+}: SelectFieldProps) {
   return (
-    <View className="mb-md">
-      <Text className="text-xs font-sans-medium text-sand mb-xs">{label}</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="gap-sm">
+    <View className={cn('mb-md', className)}>
+      <Label.Root>
+        <Label.Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mb-2">
+          {label}
+        </Label.Text>
+      </Label.Root>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerClassName="gap-sm"
+      >
         {options.map((opt) => (
           <TouchableOpacity
             key={opt.value}
-            onPress={() => onValueChange(opt.value)}
-            className={`px-md py-sm rounded-full border ${
+            onPress={() => onValueChange?.(opt.value)}
+            className={cn(
+              'px-md py-sm rounded-full border',
               value === opt.value
                 ? 'bg-charcoal border-charcoal'
-                : 'bg-surface border-outline'
-            }`}
+                : 'bg-surface border-outline',
+            )}
           >
             <Text
-              className={`text-sm font-sans-medium ${
-                value === opt.value ? 'text-white' : 'text-sand'
-              }`}
+              className={cn(
+                'text-sm font-sans-medium',
+                value === opt.value ? 'text-white' : 'text-sand',
+              )}
             >
               {opt.label}
             </Text>
           </TouchableOpacity>
         ))}
       </ScrollView>
-      {error ? <Text className="text-xs text-danger font-sans mt-xs">{error}</Text> : null}
+      {error ? (
+        <Text className="text-xs text-danger font-sans-medium mt-2">{error}</Text>
+      ) : null}
     </View>
   );
 }

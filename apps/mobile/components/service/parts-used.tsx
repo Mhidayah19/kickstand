@@ -1,9 +1,9 @@
-import React from 'react';
-import { Pressable, Text, TextInput, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
 import { PARTS_PLACEHOLDERS } from '../../lib/constants/service-types';
 import type { ServiceTypeKey } from '../../lib/constants/service-types';
+import { TextField } from '../ui/text-field';
 
 interface PartsUsedProps {
   serviceTypeKey: ServiceTypeKey;
@@ -29,13 +29,13 @@ export function PartsUsed({ serviceTypeKey, parts, onUpdate, onAdd, onRemove }: 
 
       <View className="gap-3">
         {parts.map((part) => (
-          <View key={part.id} className="bg-surface-low rounded-xl p-4 flex-row items-center gap-2">
-            <TextInput
+          <View key={part.id} className="flex-row items-center gap-2">
+            <TextField
+              className="flex-1 p-4"
+              inputClassName="text-sm font-sans-medium"
               value={part.value}
               onChangeText={(v) => onUpdate(part.id, v)}
               placeholder={placeholder}
-              placeholderTextColor={colors.outline}
-              className="flex-1 font-sans-medium text-sm text-charcoal p-0"
             />
             {parts.length > 1 && (
               <Pressable

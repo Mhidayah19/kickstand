@@ -6,6 +6,8 @@ import { PrimaryButton } from '../ui/primary-button';
 import { ScreenHeader } from '../ui/screen-header';
 import { Section } from '../ui/section';
 import { TextField } from '../ui/text-field';
+import { DateField } from '../ui/date-field';
+import { FormField } from '../ui/form-field';
 import { ServiceTypeSelector } from './service-type-selector';
 import { PartsUsed } from './parts-used';
 import type { useServiceLogForm } from '../../lib/hooks/use-service-log-form';
@@ -24,13 +26,11 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit, frequentTy
   const [hasSelected, setHasSelected] = useState(false);
   const collapseTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  // Clean up collapse timer on unmount
   useEffect(() => () => clearTimeout(collapseTimer.current), []);
 
   const formOpacity = useRef(new Animated.Value(0)).current;
   const formTranslateY = useRef(new Animated.Value(12)).current;
 
-  // Animate form fields in/out when collapsed state changes
   useEffect(() => {
     if (!hasSelected) return;
     if (collapsed) {
@@ -49,7 +49,6 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit, frequentTy
   const handleSelectType = useCallback((key: Parameters<typeof form.setServiceTypeKey>[0]) => {
     form.setServiceTypeKey(key);
     setHasSelected(true);
-    // Auto-collapse after a brief delay so the selection registers visually
     clearTimeout(collapseTimer.current);
     collapseTimer.current = setTimeout(() => setCollapsed(true), 150);
   }, [form.setServiceTypeKey]);
@@ -99,28 +98,28 @@ export function ServiceLogFormBody({ form, bikeLabel, onSave, onExit, frequentTy
                 keyboardType="numeric"
                 inputClassName="text-xl"
                 suffix="km"
+                error={form.errors.mileage?.message as string | undefined}
               />
             </View>
             <View className="flex-1">
-              <TextField
+              <DateField
                 label="Date"
                 value={form.date}
-                onChangeText={form.setDate}
-                placeholder="29 Mar 2026"
-                inputClassName="text-xl"
+                onChange={form.setDate}
+                error={form.errors.date?.message as string | undefined}
               />
             </View>
           </View>
 
-          <TextField
-            label="Estimated Cost"
-            value={form.cost}
-            onChangeText={form.setCost}
-            placeholder="350"
-            prefix="$"
-            keyboardType="numeric"
-            inputClassName="text-xl"
-          />
+          <FormField control={form.control} name="cost" errors={form.errors}>
+            <TextField
+              label="Estimated Cost"
+              placeholder="350"
+              prefix="$"
+              keyboardType="numeric"
+              inputClassName="text-xl"
+            />
+          </FormField>
         </View>
 
         <PartsUsed

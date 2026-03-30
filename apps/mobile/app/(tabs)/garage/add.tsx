@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
-  View, Text, TouchableOpacity, TextInput,
+  View, Text, TouchableOpacity,
   ScrollView, KeyboardAvoidingView, Platform,
   ActivityIndicator, LayoutChangeEvent,
-  Animated, InteractionManager,
+  InteractionManager,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -14,11 +14,14 @@ import { useBikeStore } from '../../../lib/store/bike-store';
 import type { BikeClass, BikeCatalogEntry, CreateBikeInput } from '../../../lib/types/bike';
 import { colors } from '../../../lib/colors';
 import { TOP_BRANDS, getDisplayBrands } from '../../../lib/brand-picker';
+import { FadeIn } from '../../../components/ui/fade-in';
+import { SummaryPill } from '../../../components/ui/summary-pill';
+import { TextField } from '../../../components/ui/text-field';
+import { DateField } from '../../../components/ui/date-field';
 
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
 // ── Constants ───────────────────────────────────────────────────
-const PLACEHOLDER_COLOR = colors.outline;
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const BIKE_CLASSES: BikeClass[] = ['2B', '2A', '2'];
 const CLASS_LABELS: Record<BikeClass, string> = { '2B': '\u2264 200cc', '2A': '\u2264 400cc', '2': 'No limit' };
@@ -41,6 +44,8 @@ const BRAND_ICONS: Record<string, IconName> = {
   Indian: 'feather',
 };
 
+const SECTION_ORDER: SectionKey[] = ['brand', 'class', 'model', 'details', 'compliance'];
+
 // Which sections are visible and in what state
 type SectionKey = 'brand' | 'class' | 'model' | 'details' | 'compliance';
 type SectionState = 'expanded' | 'collapsed' | 'hidden';
@@ -58,123 +63,11 @@ interface FormData {
   inspectionDue: string;
 }
 
-// ── Fade-in wrapper for section reveals ─────────────────────────
-function FadeIn({ children }: { children: React.ReactNode }) {
-  const opacity = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(12)).current;
-
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(opacity, { toValue: 1, duration: 300, useNativeDriver: true }),
-      Animated.timing(translateY, { toValue: 0, duration: 300, useNativeDriver: true }),
-    ]).start();
-  }, []);
-
-  return (
-    <Animated.View style={{ opacity, transform: [{ translateY }] }}>
-      {children}
-    </Animated.View>
-  );
-}
-
-// ── Animated focus-underline input ──────────────────────────────
-function FocusInput({
-  icon,
-  label,
-  trailingIcon,
-  ...inputProps
-}: {
-  icon?: IconName;
-  label: string;
-  trailingIcon?: IconName;
-} & React.ComponentProps<typeof TextInput>) {
-  const underlineWidth = useRef(new Animated.Value(0)).current;
-
-  const handleFocus = useCallback(() => {
-    Animated.timing(underlineWidth, { toValue: 1, duration: 280, useNativeDriver: false }).start();
-  }, [underlineWidth]);
-
-  const handleBlur = useCallback(() => {
-    Animated.timing(underlineWidth, { toValue: 0, duration: 200, useNativeDriver: false }).start();
-  }, [underlineWidth]);
-
-  return (
-    <View className="mb-lg">
-      <View className="flex-row items-center gap-sm mb-xs">
-        {icon && <MaterialCommunityIcons name={icon} size={18} color={colors.sand} />}
-        <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest">{label}</Text>
-      </View>
-      <View className="bg-surface-low rounded-xl overflow-hidden">
-        <View className="flex-row items-center">
-          <TextInput
-            className="flex-1 px-md py-sm font-sans-medium text-charcoal"
-            placeholderTextColor={PLACEHOLDER_COLOR}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            {...inputProps}
-          />
-          {trailingIcon && (
-            <View className="pr-md">
-              <MaterialCommunityIcons name={trailingIcon} size={20} color={colors.sand} />
-            </View>
-          )}
-        </View>
-        <Animated.View
-          style={{
-            height: 2,
-            backgroundColor: colors.yellow,
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            width: underlineWidth.interpolate({
-              inputRange: [0, 1],
-              outputRange: ['0%', '100%'],
-            }),
-          }}
-        />
-      </View>
-    </View>
-  );
-}
-
-// ── Collapsed summary pill ──────────────────────────────────────
-function SummaryPill({
-  icon,
-  label,
-  onEdit,
-  children,
-}: {
-  icon: IconName;
-  label: string;
-  onEdit: () => void;
-  children?: React.ReactNode;
-}) {
-  return (
-    <FadeIn>
-      <TouchableOpacity
-        className="bg-surface-low rounded-xl px-lg py-md flex-row items-center justify-between"
-        onPress={onEdit}
-        activeOpacity={0.7}
-        accessibilityRole="button"
-        accessibilityLabel={`Edit ${label}`}
-      >
-        <View className="flex-row items-center gap-md flex-1">
-          <MaterialCommunityIcons name={icon} size={20} color={colors.charcoal} />
-          {children ?? (
-            <Text className="font-sans-bold text-charcoal text-sm">{label}</Text>
-          )}
-        </View>
-        <MaterialCommunityIcons name="pencil-outline" size={16} color={colors.sand} />
-      </TouchableOpacity>
-    </FadeIn>
-  );
-}
-
 // ── Section label ───────────────────────────────────────────────
 function SectionLabel({ children, trailing }: { children: string; trailing?: string }) {
   return (
     <View className="flex-row items-center justify-between mb-md">
-      <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest">{children}</Text>
+      <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1">{children}</Text>
       {trailing && <Text className="text-xs font-sans-medium text-sand">{trailing}</Text>}
     </View>
   );
@@ -275,10 +168,8 @@ function StepBrand({
       </View>
 
       {/* Search */}
-      <TextInput
-        className="bg-surface-low rounded-xl px-md py-sm font-sans-medium text-charcoal"
+      <TextField
         placeholder="Search brands (e.g. Harley, CFMoto)"
-        placeholderTextColor={PLACEHOLDER_COLOR}
         value={search}
         onChangeText={setSearch}
       />
@@ -339,7 +230,7 @@ export default function AddMachineScreen() {
   };
 
   const collapseAndAdvance = (current: SectionKey, next: SectionKey) => {
-    const order: SectionKey[] = ['brand', 'class', 'model', 'details', 'compliance'];
+    const order = SECTION_ORDER;
     const nextIdx = order.indexOf(next);
     setSections((prev) => {
       const updated = { ...prev };
@@ -356,7 +247,7 @@ export default function AddMachineScreen() {
   };
 
   const reopenSection = (key: SectionKey) => {
-    const order: SectionKey[] = ['brand', 'class', 'model', 'details', 'compliance'];
+    const order = SECTION_ORDER;
     const idx = order.indexOf(key);
     setSections((prev) => {
       const updated = { ...prev };
@@ -613,21 +504,23 @@ export default function AddMachineScreen() {
                   {isOthers ? (
                     /* Manual entry for "Others" */
                     <View>
-                      <FocusInput
+                      <TextField
                         icon="tag-outline"
                         label="Make (Brand)"
                         placeholder="e.g. Royal Enfield, CFMoto"
                         value={data.brand}
                         onChangeText={(v) => handleChange('brand', v)}
                         autoCapitalize="words"
+                        className="mb-lg"
                       />
-                      <FocusInput
+                      <TextField
                         icon="motorbike"
                         label="Model"
                         placeholder="e.g. Scrambler, Street Triple"
                         value={data.model}
                         onChangeText={(v) => handleChange('model', v)}
                         autoCapitalize="words"
+                        className="mb-lg"
                       />
                       <Text className="text-xs font-sans-medium text-sand mb-md">
                         Tip: Specific models help us surface the right service intervals.
@@ -745,29 +638,32 @@ export default function AddMachineScreen() {
 
               {sections.details === 'expanded' && (
                 <FadeIn>
-                  <FocusInput
+                  <TextField
                     icon="calendar-blank-outline"
                     label="Year of Manufacture"
                     placeholder="e.g. 2022"
                     keyboardType="number-pad"
                     value={data.year}
                     onChangeText={(v) => handleChange('year', v)}
+                    className="mb-lg"
                   />
-                  <FocusInput
+                  <TextField
                     icon="card-text-outline"
                     label="Plate Number"
                     placeholder="e.g. SBA1234A"
                     autoCapitalize="characters"
                     value={data.plateNumber}
                     onChangeText={(v) => handleChange('plateNumber', v)}
+                    className="mb-lg"
                   />
-                  <FocusInput
+                  <TextField
                     icon="speedometer"
                     label="Current Mileage (km)"
                     placeholder="e.g. 12000"
                     keyboardType="number-pad"
                     value={data.currentMileage}
                     onChangeText={(v) => handleChange('currentMileage', v)}
+                    className="mb-lg"
                   />
                 </FadeIn>
               )}
@@ -795,10 +691,10 @@ export default function AddMachineScreen() {
                   <Text className="text-sm font-sans-medium text-sand mb-lg">
                     You can add or update these later.
                   </Text>
-                  <FocusInput label="COE Expiry" trailingIcon="calendar-outline" placeholder="YYYY-MM-DD" value={data.coeExpiry} onChangeText={(v) => handleChange('coeExpiry', v)} keyboardType="numbers-and-punctuation" />
-                  <FocusInput label="Road Tax Expiry" trailingIcon="calendar-outline" placeholder="YYYY-MM-DD" value={data.roadTaxExpiry} onChangeText={(v) => handleChange('roadTaxExpiry', v)} keyboardType="numbers-and-punctuation" />
-                  <FocusInput label="Insurance Expiry" trailingIcon="calendar-outline" placeholder="YYYY-MM-DD" value={data.insuranceExpiry} onChangeText={(v) => handleChange('insuranceExpiry', v)} keyboardType="numbers-and-punctuation" />
-                  <FocusInput label="Inspection Due" trailingIcon="calendar-outline" placeholder="YYYY-MM-DD" value={data.inspectionDue} onChangeText={(v) => handleChange('inspectionDue', v)} keyboardType="numbers-and-punctuation" />
+                  <DateField label="COE Expiry" value={data.coeExpiry} onChange={(v) => handleChange('coeExpiry', v)} className="mb-lg" />
+                  <DateField label="Road Tax Expiry" value={data.roadTaxExpiry} onChange={(v) => handleChange('roadTaxExpiry', v)} className="mb-lg" />
+                  <DateField label="Insurance Expiry" value={data.insuranceExpiry} onChange={(v) => handleChange('insuranceExpiry', v)} className="mb-lg" />
+                  <DateField label="Inspection Due" value={data.inspectionDue} onChange={(v) => handleChange('inspectionDue', v)} className="mb-lg" />
 
                   {/* Machine summary */}
                   {machineName.trim().length > 0 && (
