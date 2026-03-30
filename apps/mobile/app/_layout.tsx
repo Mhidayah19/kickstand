@@ -6,6 +6,7 @@ import { useAppFonts } from '../lib/theme';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../lib/store/auth-store';
 import { justRegisteredRef } from '../lib/auth-state';
+import { PortalHost } from '@rn-primitives/portal';
 import '../global.css';
 
 SplashScreen.preventAutoHideAsync();
@@ -91,6 +92,7 @@ export default function RootLayout() {
         <Stack.Screen name="add-service" options={{ presentation: 'modal', gestureEnabled: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
+      <PortalHost />
     </QueryClientProvider>
   );
 }

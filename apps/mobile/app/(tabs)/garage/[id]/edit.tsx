@@ -18,7 +18,6 @@ export default function EditBikeScreen() {
       year: values.year,
       plateNumber: values.plateNumber,
       class: values.class,
-      currentMileage: values.currentMileage,
       coeExpiry: values.coeExpiry || undefined,
       roadTaxExpiry: values.roadTaxExpiry || undefined,
       insuranceExpiry: values.insuranceExpiry || undefined,
