@@ -6,9 +6,7 @@ import {
   Param,
   Patch,
   Post,
-  UseGuards,
 } from '@nestjs/common';
-import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { AuthUser } from '../../common/decorators/current-user.decorator';
 import { BikesService } from './bikes.service';
@@ -17,7 +15,6 @@ import { UpdateBikeDto } from './dto/update-bike.dto';
 import { UpdateMileageDto } from './dto/update-mileage.dto';
 
 @Controller('bikes')
-@UseGuards(SupabaseAuthGuard)
 export class BikesController {
   constructor(private bikesService: BikesService) {}
 

@@ -6,9 +6,7 @@ import {
   Param,
   Post,
   Query,
-  UseGuards,
 } from '@nestjs/common';
-import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { AuthUser } from '../../common/decorators/current-user.decorator';
 import { ServiceLogsService } from './service-logs.service';
@@ -16,7 +14,6 @@ import { CreateServiceLogDto } from './dto/create-service-log.dto';
 import { ListServiceLogsDto } from './dto/list-service-logs.dto';
 
 @Controller('bikes/:bikeId/services')
-@UseGuards(SupabaseAuthGuard)
 export class ServiceLogsController {
   constructor(private serviceLogsService: ServiceLogsService) {}
 
