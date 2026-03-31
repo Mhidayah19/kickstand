@@ -11,6 +11,7 @@ import { envConfig } from './config/env.config';
 import { HealthController } from './health.controller';
 import { BikesModule } from './modules/bikes/bikes.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { UsersModule } from './modules/users/users.module';
 import { WorkshopsModule } from './modules/workshops/workshops.module';
 import { ServiceLogsModule } from './modules/service-logs/service-logs.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
@@ -62,6 +63,7 @@ const isProd = process.env.NODE_ENV === 'production';
     BikesModule,
     BikeCatalogModule,
     AuthModule,
+    UsersModule,
     WorkshopsModule,
     ServiceLogsModule,
     ScheduleModule.forRoot(),
