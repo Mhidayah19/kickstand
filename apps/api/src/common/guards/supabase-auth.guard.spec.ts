@@ -54,6 +54,8 @@ describe('SupabaseAuthGuard', () => {
       }),
     } as unknown as ExecutionContext;
 
-    await expect(guard.canActivate(mockContext)).rejects.toThrow('Missing authorization token');
+    await expect(guard.canActivate(mockContext)).rejects.toThrow(
+      'Missing authorization token',
+    );
   });
 });

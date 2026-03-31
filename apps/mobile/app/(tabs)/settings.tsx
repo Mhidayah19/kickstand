@@ -9,11 +9,13 @@ import { ListCard } from '../../components/ui/list-card';
 import { PrimaryButton } from '../../components/ui/primary-button';
 import { useBikes } from '../../lib/api/use-bikes';
 import { useBikeStore } from '../../lib/store/bike-store';
+import { useProfile } from '../../lib/api/use-profile';
 
 export default function SettingsScreen() {
   const router = useRouter();
   const { data: bikes } = useBikes();
   const { activeBikeId, setActiveBikeId } = useBikeStore();
+  const { data: profile } = useProfile();
   const activeBike = bikes?.find((b) => b.id === activeBikeId);
 
   const handleAddBike = useCallback(() => {
@@ -30,7 +32,10 @@ export default function SettingsScreen() {
     >
       {/* Profile Hero */}
       <View className="mb-8">
-        <ProfileHero name="Alex Thompson" role="Professional Rider" />
+        <ProfileHero
+          name={profile?.name ?? '—'}
+          role={`${profile?.bikeCount ?? 0} ${(profile?.bikeCount ?? 0) === 1 ? 'bike' : 'bikes'} in garage`}
+        />
       </View>
 
       {/* Account Settings Section */}
