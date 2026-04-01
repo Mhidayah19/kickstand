@@ -31,17 +31,33 @@
       "typedRoutes": true
     },
     "plugins": [
-      ["expo-font", {
-        "fonts": [
-          "./assets/fonts/PlusJakartaSans-Regular.ttf",
-          "./assets/fonts/PlusJakartaSans-Medium.ttf",
-          "./assets/fonts/PlusJakartaSans-SemiBold.ttf",
-          "./assets/fonts/PlusJakartaSans-Bold.ttf"
-        ]
-      }],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/PlusJakartaSans-Regular.ttf",
+            "./assets/fonts/PlusJakartaSans-Medium.ttf",
+            "./assets/fonts/PlusJakartaSans-SemiBold.ttf",
+            "./assets/fonts/PlusJakartaSans-Bold.ttf"
+          ]
+        }
+      ],
       "expo-router",
       "expo-secure-store",
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "84d359ab-0736-4e39-9357-43341623a64f"
+      }
+    },
+    "owner": "mhidayah19",
+    "runtimeVersion": {
+      "policy": "sdkVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/84d359ab-0736-4e39-9357-43341623a64f"
+    }
   }
 }
