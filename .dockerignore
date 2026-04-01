@@ -1,0 +1,14 @@
+node_modules
+.git
+.github
+apps/mobile
+docs
+scripts
+supabase
+dist
+*.md
+.env*
+.eslintrc*
+.prettierrc*
+jest.config*
+tsconfig.json
