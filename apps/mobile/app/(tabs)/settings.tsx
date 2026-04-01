@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { View, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as Sentry from '@sentry/react-native';
 import { colors } from '../../lib/colors';
 import { SafeScreen } from '../../components/ui/safe-screen';
 import { ProfileHero } from '../../components/ui/profile-hero';
@@ -103,6 +104,21 @@ export default function SettingsScreen() {
               <View className="w-8 h-8 rounded-full" style={{ backgroundColor: '#3A3A3A' }} />
             </View>
           </View>
+        </View>
+      </View>
+
+      {/* Support Section */}
+      <View className="mb-8">
+        <Text className="text-xxs font-sans-xbold tracking-wide-2 text-outline uppercase px-2 mb-4">
+          SUPPORT
+        </Text>
+        <View className="bg-surface-card rounded-2xl overflow-hidden">
+          <ListCard
+            icon="bug"
+            title="Report a Bug"
+            subtitle="Send feedback with a screen recording"
+            onPress={() => Sentry.showFeedbackWidget()}
+          />
         </View>
       </View>
 

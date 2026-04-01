@@ -7,6 +7,7 @@ import {
   OnModuleInit,
   UnauthorizedException,
 } from '@nestjs/common';
+import * as Sentry from '@sentry/nestjs';
 import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
@@ -96,6 +97,7 @@ export class SupabaseAuthGuard implements CanActivate, OnModuleInit {
     }
 
     await this.ensureUserExists(id, email);
+    Sentry.getCurrentScope().setUser({ id, email });
     (request as unknown as Record<string, unknown>)['user'] = { id, email };
     return true;
   }

@@ -1,6 +1,7 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { eq, and, desc, or } from 'drizzle-orm';
+import * as Sentry from '@sentry/nestjs';
 import { DRIZZLE } from '../../../database/database.module';
 import type { DrizzleDB } from '../../../database/database.types';
 import * as schema from '../../../database/schema';
@@ -30,144 +31,157 @@ export class MaintenanceReminderJob {
   }
 
   async run(): Promise<{ usersNotified: number; notificationsSent: number }> {
-    const users = await this.db.select().from(schema.users).execute();
+    this.logger.log('Starting maintenance reminder scan');
+    try {
+      const users = await this.db.select().from(schema.users).execute();
 
-    if (users.length === 0) {
-      return { usersNotified: 0, notificationsSent: 0 };
-    }
+      if (users.length === 0) {
+        this.logger.log('No users found, skipping maintenance reminder scan');
+        return { usersNotified: 0, notificationsSent: 0 };
+      }
 
-    let notificationsSent = 0;
-    const notifiedUserIds = new Set<string>();
+      let notificationsSent = 0;
+      const notifiedUserIds = new Set<string>();
 
-    for (const user of users) {
-      if (!user.expoToken) continue;
+      for (const user of users) {
+        if (!user.expoToken) continue;
 
-      const bikes = await this.db
-        .select()
-        .from(schema.bikes)
-        .where(eq(schema.bikes.userId, user.id))
-        .execute();
-
-      for (const bike of bikes) {
-        const schedules = await this.db
+        const bikes = await this.db
           .select()
-          .from(schema.maintenanceSchedules)
-          .where(
-            or(
-              eq(schema.maintenanceSchedules.bikeModel, bike.model),
-              bike.make
-                ? eq(
-                    schema.maintenanceSchedules.bikeModel,
-                    `${bike.make} ${bike.model}`,
-                  )
-                : undefined,
-            ),
-          )
+          .from(schema.bikes)
+          .where(eq(schema.bikes.userId, user.id))
           .execute();
 
-        if (schedules.length === 0) continue;
-
-        const dueItems: DueItem[] = [];
-
-        for (const schedule of schedules) {
-          // Find most recent service_log for this type
-          const logs = await this.db
+        for (const bike of bikes) {
+          const schedules = await this.db
             .select()
-            .from(schema.serviceLogs)
+            .from(schema.maintenanceSchedules)
             .where(
-              and(
-                eq(schema.serviceLogs.bikeId, bike.id),
-                eq(schema.serviceLogs.serviceType, schedule.serviceType),
+              or(
+                eq(schema.maintenanceSchedules.bikeModel, bike.model),
+                bike.make
+                  ? eq(
+                      schema.maintenanceSchedules.bikeModel,
+                      `${bike.make} ${bike.model}`,
+                    )
+                  : undefined,
               ),
             )
-            .orderBy(desc(schema.serviceLogs.date))
-            .limit(1)
             .execute();
 
-          const lastLog = logs[0] ?? null;
-          const lastMileage = lastLog ? lastLog.mileageAt : 0;
-          const currentMileage = bike.currentMileage;
+          if (schedules.length === 0) continue;
 
-          let tier: 'due' | 'approaching' | null = null;
-          let timeBased = false;
+          const dueItems: DueItem[] = [];
 
-          // Check mileage-based
-          if (schedule.intervalKm) {
-            const used = currentMileage - lastMileage;
-            if (used >= schedule.intervalKm) {
-              tier = 'due';
-            } else if (used >= schedule.intervalKm * 0.8) {
-              tier = 'approaching';
+          for (const schedule of schedules) {
+            // Find most recent service_log for this type
+            const logs = await this.db
+              .select()
+              .from(schema.serviceLogs)
+              .where(
+                and(
+                  eq(schema.serviceLogs.bikeId, bike.id),
+                  eq(schema.serviceLogs.serviceType, schedule.serviceType),
+                ),
+              )
+              .orderBy(desc(schema.serviceLogs.date))
+              .limit(1)
+              .execute();
+
+            const lastLog = logs[0] ?? null;
+            const lastMileage = lastLog ? lastLog.mileageAt : 0;
+            const currentMileage = bike.currentMileage;
+
+            let tier: 'due' | 'approaching' | null = null;
+            let timeBased = false;
+
+            // Check mileage-based
+            if (schedule.intervalKm) {
+              const used = currentMileage - lastMileage;
+              if (used >= schedule.intervalKm) {
+                tier = 'due';
+              } else if (used >= schedule.intervalKm * 0.8) {
+                tier = 'approaching';
+              }
             }
+
+            // Check time-based (only if we have a reference date from a log)
+            if (!tier && schedule.intervalMonths && lastLog) {
+              const lastDate = new Date(lastLog.date);
+              const now = new Date();
+              const monthsElapsed =
+                (now.getFullYear() - lastDate.getFullYear()) * 12 +
+                (now.getMonth() - lastDate.getMonth());
+
+              if (monthsElapsed >= schedule.intervalMonths) {
+                tier = 'due';
+                timeBased = true;
+              } else if (monthsElapsed >= schedule.intervalMonths * 0.8) {
+                tier = 'approaching';
+                timeBased = true;
+              }
+            }
+
+            if (!tier) continue;
+
+            // Dedup check
+            const alreadySent = await this.notificationsService.hasAlreadySent(
+              user.id,
+              bike.id,
+              'maintenance',
+              schedule.serviceType,
+              tier,
+            );
+
+            if (alreadySent) continue;
+
+            dueItems.push({
+              serviceType: schedule.serviceType,
+              tier,
+              lastMileage,
+              currentMileage,
+              intervalKm: schedule.intervalKm,
+              timeBased,
+            });
           }
 
-          // Check time-based (only if we have a reference date from a log)
-          if (!tier && schedule.intervalMonths && lastLog) {
-            const lastDate = new Date(lastLog.date);
-            const now = new Date();
-            const monthsElapsed =
-              (now.getFullYear() - lastDate.getFullYear()) * 12 +
-              (now.getMonth() - lastDate.getMonth());
+          if (dueItems.length === 0) continue;
 
-            if (monthsElapsed >= schedule.intervalMonths) {
-              tier = 'due';
-              timeBased = true;
-            } else if (monthsElapsed >= schedule.intervalMonths * 0.8) {
-              tier = 'approaching';
-              timeBased = true;
-            }
+          const body = this.formatBody(dueItems, bike.model);
+
+          await this.notificationsService.sendBatchPush([
+            { to: user.expoToken, title: 'Kickstand Maintenance', body },
+          ]);
+
+          for (const item of dueItems) {
+            await this.notificationsService.logNotification(
+              user.id,
+              bike.id,
+              'maintenance',
+              item.serviceType,
+              item.tier,
+            );
           }
 
-          if (!tier) continue;
-
-          // Dedup check
-          const alreadySent = await this.notificationsService.hasAlreadySent(
-            user.id,
-            bike.id,
-            'maintenance',
-            schedule.serviceType,
-            tier,
-          );
-
-          if (alreadySent) continue;
-
-          dueItems.push({
-            serviceType: schedule.serviceType,
-            tier,
-            lastMileage,
-            currentMileage,
-            intervalKm: schedule.intervalKm,
-            timeBased,
-          });
+          notifiedUserIds.add(user.id);
+          notificationsSent++;
         }
-
-        if (dueItems.length === 0) continue;
-
-        const body = this.formatBody(dueItems, bike.model);
-
-        await this.notificationsService.sendBatchPush([
-          { to: user.expoToken, title: 'Kickstand Maintenance', body },
-        ]);
-
-        for (const item of dueItems) {
-          await this.notificationsService.logNotification(
-            user.id,
-            bike.id,
-            'maintenance',
-            item.serviceType,
-            item.tier,
-          );
-        }
-
-        notifiedUserIds.add(user.id);
-        notificationsSent++;
       }
-    }
 
-    return {
-      usersNotified: notifiedUserIds.size,
-      notificationsSent,
-    };
+      this.logger.log(
+        { usersNotified: notifiedUserIds.size, notificationsSent },
+        'Maintenance reminder scan complete',
+      );
+
+      return {
+        usersNotified: notifiedUserIds.size,
+        notificationsSent,
+      };
+    } catch (error: unknown) {
+      this.logger.error({ error }, 'Maintenance reminder scan failed');
+      Sentry.captureException(error);
+      throw error;
+    }
   }
 
   private formatBody(items: DueItem[], bikeModel: string): string {
