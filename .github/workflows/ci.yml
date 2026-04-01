@@ -34,6 +34,7 @@ jobs:
               - 'package.json'
               - 'package-lock.json'
               - '.github/workflows/ci.yml'
+              - '.dockerignore'
             mobile:
               - 'apps/mobile/**'
               - 'package.json'
@@ -86,6 +87,17 @@ jobs:
           name: api-coverage
           path: apps/api/coverage/
           retention-days: 14
+
+  api-docker-build:
+    name: "API: Docker Build"
+    needs: changes
+    if: needs.changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build Docker image
+        run: docker build -f apps/api/Dockerfile -t kickstand-api .
 
   mobile-typecheck:
     name: "Mobile: Typecheck"
