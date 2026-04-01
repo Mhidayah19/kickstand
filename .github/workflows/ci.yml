@@ -117,3 +117,30 @@ jobs:
 
       - name: Typecheck
         run: cd apps/mobile && npx tsc --noEmit
+
+  mobile-eas-update:
+    name: "Mobile: EAS Update"
+    needs: [changes, mobile-typecheck]
+    if: needs.changes.outputs.mobile == 'true' && github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Setup EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Publish EAS Update
+        working-directory: apps/mobile
+        run: eas update --branch default --non-interactive --message "${{ github.event.head_commit.message }}"
+        env:
+          EXPO_PUBLIC_API_URL: https://kickstand-p2o2.onrender.com
