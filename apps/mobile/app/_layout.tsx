@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import * as Sentry from '@sentry/react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import { Stack, router } from 'expo-router';
 import React, { useEffect } from 'react';
@@ -8,6 +9,22 @@ import { useAuthStore } from '../lib/store/auth-store';
 import { justRegisteredRef } from '../lib/auth-state';
 import { PortalHost } from '@rn-primitives/portal';
 import '../global.css';
+
+Sentry.init({
+  dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
+  sendDefaultPii: true,
+  tracesSampleRate: __DEV__ ? 1.0 : 0.2,
+  replaysSessionSampleRate: 0,
+  replaysOnErrorSampleRate: 1.0,
+  integrations: [
+    Sentry.mobileReplayIntegration({
+      maskAllText: true,
+      maskAllImages: true,
+    }),
+    Sentry.feedbackIntegration(),
+  ],
+  enabled: !!process.env.EXPO_PUBLIC_SENTRY_DSN,
+});
 
 SplashScreen.preventAutoHideAsync();
 
@@ -21,7 +38,7 @@ const queryClient = new QueryClient({
   },
 });
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded, fontError] = useAppFonts();
   const setUser = useAuthStore((s) => s.setUser);
 
@@ -56,6 +73,7 @@ export default function RootLayout() {
     // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
+        Sentry.setUser({ id: session.user.id, email: session.user.email ?? undefined });
         setUser({
           id: session.user.id,
           email: session.user.email ?? '',
@@ -69,6 +87,7 @@ export default function RootLayout() {
         }
         router.replace('/(tabs)');
       } else if (event === 'SIGNED_OUT') {
+        Sentry.setUser(null);
         setUser(null);
         router.replace('/(onboarding)');
       }
@@ -96,3 +115,5 @@ export default function RootLayout() {
     </QueryClientProvider>
   );
 }
+
+export default Sentry.wrap(RootLayout);

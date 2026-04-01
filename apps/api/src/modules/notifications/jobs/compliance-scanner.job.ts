@@ -1,6 +1,7 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
 import { or, and, gte, lte, eq, isNotNull } from 'drizzle-orm';
+import * as Sentry from '@sentry/nestjs';
 import { DRIZZLE } from '../../../database/database.module';
 import type { DrizzleDB } from '../../../database/database.types';
 import * as schema from '../../../database/schema';
@@ -42,119 +43,131 @@ export class ComplianceScannerJob {
   }
 
   async run(): Promise<{ usersNotified: number; notificationsSent: number }> {
-    const today = new Date();
-    let totalSent = 0;
-    const notifiedUserIds = new Set<string>();
+    this.logger.log('Starting compliance scan');
+    try {
+      const today = new Date();
+      let totalSent = 0;
+      const notifiedUserIds = new Set<string>();
 
-    for (const tier of TIERS) {
-      const minDate = new Date(today);
-      minDate.setUTCDate(minDate.getUTCDate() + tier.minDays);
-      const maxDate = new Date(today);
-      maxDate.setUTCDate(maxDate.getUTCDate() + tier.maxDays);
+      for (const tier of TIERS) {
+        const minDate = new Date(today);
+        minDate.setUTCDate(minDate.getUTCDate() + tier.minDays);
+        const maxDate = new Date(today);
+        maxDate.setUTCDate(maxDate.getUTCDate() + tier.maxDays);
 
-      const minStr = minDate.toISOString().split('T')[0];
-      const maxStr = maxDate.toISOString().split('T')[0];
+        const minStr = minDate.toISOString().split('T')[0];
+        const maxStr = maxDate.toISOString().split('T')[0];
 
-      const bikeColumns = {
-        id: schema.bikes.id,
-        userId: schema.bikes.userId,
-        coeExpiry: schema.bikes.coeExpiry,
-        roadTaxExpiry: schema.bikes.roadTaxExpiry,
-        insuranceExpiry: schema.bikes.insuranceExpiry,
-        inspectionDue: schema.bikes.inspectionDue,
-        expoToken: schema.users.expoToken,
-      };
+        const bikeColumns = {
+          id: schema.bikes.id,
+          userId: schema.bikes.userId,
+          coeExpiry: schema.bikes.coeExpiry,
+          roadTaxExpiry: schema.bikes.roadTaxExpiry,
+          insuranceExpiry: schema.bikes.insuranceExpiry,
+          inspectionDue: schema.bikes.inspectionDue,
+          expoToken: schema.users.expoToken,
+        };
 
-      const rows = await this.db
-        .select(bikeColumns)
-        .from(schema.bikes)
-        .innerJoin(schema.users, eq(schema.bikes.userId, schema.users.id))
-        .where(
-          and(
-            isNotNull(schema.users.expoToken),
-            or(
-              and(
-                gte(schema.bikes.coeExpiry, minStr),
-                lte(schema.bikes.coeExpiry, maxStr),
-              ),
-              and(
-                gte(schema.bikes.roadTaxExpiry, minStr),
-                lte(schema.bikes.roadTaxExpiry, maxStr),
-              ),
-              and(
-                gte(schema.bikes.insuranceExpiry, minStr),
-                lte(schema.bikes.insuranceExpiry, maxStr),
-              ),
-              and(
-                gte(schema.bikes.inspectionDue, minStr),
-                lte(schema.bikes.inspectionDue, maxStr),
+        const rows = await this.db
+          .select(bikeColumns)
+          .from(schema.bikes)
+          .innerJoin(schema.users, eq(schema.bikes.userId, schema.users.id))
+          .where(
+            and(
+              isNotNull(schema.users.expoToken),
+              or(
+                and(
+                  gte(schema.bikes.coeExpiry, minStr),
+                  lte(schema.bikes.coeExpiry, maxStr),
+                ),
+                and(
+                  gte(schema.bikes.roadTaxExpiry, minStr),
+                  lte(schema.bikes.roadTaxExpiry, maxStr),
+                ),
+                and(
+                  gte(schema.bikes.insuranceExpiry, minStr),
+                  lte(schema.bikes.insuranceExpiry, maxStr),
+                ),
+                and(
+                  gte(schema.bikes.inspectionDue, minStr),
+                  lte(schema.bikes.inspectionDue, maxStr),
+                ),
               ),
             ),
-          ),
-        )
-        .execute();
+          )
+          .execute();
 
-      if (rows.length === 0) continue;
+        if (rows.length === 0) continue;
 
-      const messages: { to: string; title: string; body: string }[] = [];
+        const messages: { to: string; title: string; body: string }[] = [];
 
-      for (const row of rows) {
-        if (!row.expoToken) continue;
+        for (const row of rows) {
+          if (!row.expoToken) continue;
 
-        const unsentFields: string[] = [];
+          const unsentFields: string[] = [];
 
-        for (const field of DEADLINE_FIELDS) {
-          const value = row[field];
-          if (!value) continue;
+          for (const field of DEADLINE_FIELDS) {
+            const value = row[field];
+            if (!value) continue;
 
-          const deadline = new Date(value);
-          if (deadline < minDate || deadline > maxDate) continue;
+            const deadline = new Date(value);
+            if (deadline < minDate || deadline > maxDate) continue;
 
-          const alreadySent = await this.notificationsService.hasAlreadySent(
-            row.userId,
-            row.id,
-            'compliance',
-            field,
-            tier.name,
-          );
+            const alreadySent = await this.notificationsService.hasAlreadySent(
+              row.userId,
+              row.id,
+              'compliance',
+              field,
+              tier.name,
+            );
 
-          if (!alreadySent) {
-            unsentFields.push(field);
+            if (!alreadySent) {
+              unsentFields.push(field);
+            }
           }
+
+          if (unsentFields.length === 0) continue;
+
+          const body = this.formatBody(unsentFields, tier.name, row);
+          messages.push({
+            to: row.expoToken,
+            title: 'Kickstand Reminder',
+            body,
+          });
+
+          for (const field of unsentFields) {
+            await this.notificationsService.logNotification(
+              row.userId,
+              row.id,
+              'compliance',
+              field,
+              tier.name,
+            );
+          }
+
+          notifiedUserIds.add(row.userId);
+          totalSent++;
         }
 
-        if (unsentFields.length === 0) continue;
-
-        const body = this.formatBody(unsentFields, tier.name, row);
-        messages.push({
-          to: row.expoToken,
-          title: 'Kickstand Reminder',
-          body,
-        });
-
-        for (const field of unsentFields) {
-          await this.notificationsService.logNotification(
-            row.userId,
-            row.id,
-            'compliance',
-            field,
-            tier.name,
-          );
+        if (messages.length > 0) {
+          await this.notificationsService.sendBatchPush(messages);
         }
-
-        notifiedUserIds.add(row.userId);
-        totalSent++;
       }
 
-      if (messages.length > 0) {
-        await this.notificationsService.sendBatchPush(messages);
-      }
+      this.logger.log(
+        { usersNotified: notifiedUserIds.size, notificationsSent: totalSent },
+        'Compliance scan complete',
+      );
+
+      return {
+        usersNotified: notifiedUserIds.size,
+        notificationsSent: totalSent,
+      };
+    } catch (error: unknown) {
+      this.logger.error({ error }, 'Compliance scan failed');
+      Sentry.captureException(error);
+      throw error;
     }
-
-    return {
-      usersNotified: notifiedUserIds.size,
-      notificationsSent: totalSent,
-    };
   }
 
   private formatBody(

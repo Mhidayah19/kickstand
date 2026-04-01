@@ -47,13 +47,13 @@ describe('WorkshopFreshnessJob', () => {
       ];
       mockDb.execute.mockResolvedValue(staleEntries);
 
-      const logSpy = jest.spyOn(console, 'log').mockImplementation();
+      const logSpy = jest.spyOn((job as any).logger, 'log').mockImplementation();
 
       await job.run();
 
       expect(mockDb.where).toHaveBeenCalled();
       // Should log the stale count (2 entries)
-      const allLogCalls = logSpy.mock.calls.flat().join(' ');
+      const allLogCalls = logSpy.mock.calls.flat().map((a: unknown) => JSON.stringify(a)).join(' ');
       expect(allLogCalls).toMatch(/2/);
 
       logSpy.mockRestore();
@@ -62,11 +62,11 @@ describe('WorkshopFreshnessJob', () => {
     it('logs 0 stale entries when all workshop_services are recently verified', async () => {
       mockDb.execute.mockResolvedValue([]);
 
-      const logSpy = jest.spyOn(console, 'log').mockImplementation();
+      const logSpy = jest.spyOn((job as any).logger, 'log').mockImplementation();
 
       await job.run();
 
-      const allLogCalls = logSpy.mock.calls.flat().join(' ');
+      const allLogCalls = logSpy.mock.calls.flat().map((a: unknown) => JSON.stringify(a)).join(' ');
       expect(allLogCalls).toMatch(/0/);
 
       logSpy.mockRestore();
