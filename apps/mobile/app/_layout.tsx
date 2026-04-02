@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { Stack, router } from 'expo-router';
 import React, { useEffect } from 'react';
 import { useAppFonts } from '../lib/theme';
+import { FeedbackButton } from '../components/ui/feedback-button';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../lib/store/auth-store';
 import { justRegisteredRef } from '../lib/auth-state';
@@ -129,6 +130,7 @@ function RootLayout() {
         <Stack.Screen name="add-service" options={{ presentation: 'modal', gestureEnabled: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
+      <FeedbackButton />
       <PortalHost />
     </QueryClientProvider>
   );
