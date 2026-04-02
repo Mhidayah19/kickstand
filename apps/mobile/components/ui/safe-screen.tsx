@@ -18,8 +18,8 @@ interface SafeScreenProps {
     year: number;
   }>;
   onBikeChange?: (bikeId: string) => void;
-  onAddBikePress?: () => void;
   onNotificationPress?: () => void;
+  onAddBikePress?: () => void;
   unreadNotifications?: number;
 }
 
@@ -31,8 +31,8 @@ export function SafeScreen({
   activeBike,
   bikes,
   onBikeChange,
-  onAddBikePress,
   onNotificationPress,
+  onAddBikePress,
   unreadNotifications,
 }: SafeScreenProps) {
   return (
@@ -42,8 +42,8 @@ export function SafeScreen({
           activeBike={activeBike}
           bikes={bikes}
           onBikeChange={onBikeChange}
-          onAddBikePress={onAddBikePress}
           onNotificationPress={onNotificationPress}
+          onAddBikePress={onAddBikePress}
           unreadNotifications={unreadNotifications}
         />
       )}
