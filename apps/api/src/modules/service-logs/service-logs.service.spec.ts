@@ -136,18 +136,27 @@ describe('ServiceLogsService', () => {
 
   describe('findOne', () => {
     it('should verify ownership then return the log', async () => {
-      mockBikesService.findOneByUser.mockResolvedValue({ id: 'bike-1', userId: 'user-1' });
+      mockBikesService.findOneByUser.mockResolvedValue({
+        id: 'bike-1',
+        userId: 'user-1',
+      });
       const log = { id: 'log-1', bikeId: 'bike-1', serviceType: 'oil_change' };
       mockDb.where.mockResolvedValueOnce([log]);
 
       const result = await service.findOne('log-1', 'bike-1', 'user-1');
 
-      expect(mockBikesService.findOneByUser).toHaveBeenCalledWith('bike-1', 'user-1');
+      expect(mockBikesService.findOneByUser).toHaveBeenCalledWith(
+        'bike-1',
+        'user-1',
+      );
       expect(result).toEqual(log);
     });
 
     it('should throw NotFoundException if log not found', async () => {
-      mockBikesService.findOneByUser.mockResolvedValue({ id: 'bike-1', userId: 'user-1' });
+      mockBikesService.findOneByUser.mockResolvedValue({
+        id: 'bike-1',
+        userId: 'user-1',
+      });
       mockDb.where.mockResolvedValueOnce([]);
 
       await expect(
@@ -158,21 +167,30 @@ describe('ServiceLogsService', () => {
 
   describe('update', () => {
     it('should verify ownership, check existence, then update', async () => {
-      mockBikesService.findOneByUser.mockResolvedValue({ id: 'bike-1', userId: 'user-1' });
+      mockBikesService.findOneByUser.mockResolvedValue({
+        id: 'bike-1',
+        userId: 'user-1',
+      });
       const existing = { id: 'log-1', bikeId: 'bike-1', cost: '45.00' };
       const updated = { ...existing, cost: '55.00' };
       mockDb.where.mockResolvedValueOnce([existing]); // existence check
-      mockDb.returning.mockResolvedValue([updated]);  // update result
+      mockDb.returning.mockResolvedValue([updated]); // update result
 
-      const result = await service.update('log-1', 'bike-1', 'user-1', { cost: '55.00' });
+      const result = await service.update('log-1', 'bike-1', 'user-1', {
+        cost: '55.00',
+      });
 
       expect(result).toEqual(updated);
+      expect(mockBikesService.findOneByUser).toHaveBeenCalledWith('bike-1', 'user-1');
       expect(mockDb.update).toHaveBeenCalled();
       expect(mockDb.set).toHaveBeenCalledWith({ cost: '55.00' });
     });
 
     it('should throw NotFoundException if log not found', async () => {
-      mockBikesService.findOneByUser.mockResolvedValue({ id: 'bike-1', userId: 'user-1' });
+      mockBikesService.findOneByUser.mockResolvedValue({
+        id: 'bike-1',
+        userId: 'user-1',
+      });
       mockDb.where.mockResolvedValueOnce([]); // log not found
 
       await expect(

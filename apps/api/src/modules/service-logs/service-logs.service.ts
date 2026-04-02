@@ -130,9 +130,12 @@ export class ServiceLogsService {
       throw new NotFoundException('Service log not found');
     }
 
+    const patch = Object.fromEntries(
+      Object.entries(dto).filter(([, v]) => v !== undefined),
+    );
     const [updated] = await this.db
       .update(schema.serviceLogs)
-      .set(dto)
+      .set(patch)
       .where(eq(schema.serviceLogs.id, logId))
       .returning();
 
