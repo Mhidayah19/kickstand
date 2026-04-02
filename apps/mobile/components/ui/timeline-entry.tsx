@@ -86,8 +86,8 @@ export function TimelineEntry({
 
           {parts && parts.length > 0 && (
             <View className="flex-row flex-wrap gap-2 mb-4">
-              {parts.map((part) => (
-                <View key={part} className="px-3 py-1 rounded-full bg-surface-low">
+              {parts.map((part, index) => (
+                <View key={`${index}-${part}`} className="px-3 py-1 rounded-full bg-surface-low">
                   <Text className="font-sans-bold text-xxs text-sand">
                     {truncate(part, 24)}
                   </Text>
