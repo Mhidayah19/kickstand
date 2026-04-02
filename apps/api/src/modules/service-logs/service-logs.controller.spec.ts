@@ -10,7 +10,9 @@ describe('ServiceLogsController', () => {
   let controller: ServiceLogsController;
   const mockService = {
     findAllByBike: jest.fn(),
+    findOne: jest.fn(),
     create: jest.fn(),
+    update: jest.fn(),
     remove: jest.fn(),
   };
   const mockUser = { id: 'user-1', email: 'test@test.com' };
@@ -105,6 +107,29 @@ describe('ServiceLogsController', () => {
       const result = await controller.create('bike-1', mockUser, dto);
       expect(result).toEqual(log);
       expect(mockService.create).toHaveBeenCalledWith('bike-1', 'user-1', dto);
+    });
+  });
+
+  describe('GET /bikes/:bikeId/services/:id', () => {
+    it('should return a single service log', async () => {
+      const log = { id: 'log-1', bikeId: 'bike-1', serviceType: 'oil_change' };
+      mockService.findOne.mockResolvedValue(log);
+
+      const result = await controller.findOne('bike-1', 'log-1', mockUser);
+      expect(result).toEqual(log);
+      expect(mockService.findOne).toHaveBeenCalledWith('log-1', 'bike-1', 'user-1');
+    });
+  });
+
+  describe('PATCH /bikes/:bikeId/services/:id', () => {
+    it('should update a service log', async () => {
+      const dto = { cost: '55.00' };
+      const updated = { id: 'log-1', bikeId: 'bike-1', cost: '55.00' };
+      mockService.update.mockResolvedValue(updated);
+
+      const result = await controller.update('bike-1', 'log-1', mockUser, dto);
+      expect(result).toEqual(updated);
+      expect(mockService.update).toHaveBeenCalledWith('log-1', 'bike-1', 'user-1', dto);
     });
   });
 
