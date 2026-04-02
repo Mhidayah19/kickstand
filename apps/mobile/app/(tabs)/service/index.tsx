@@ -3,6 +3,7 @@ import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import * as Sentry from '@sentry/react-native';
 import { TopAppBar } from '../../../components/ui/top-app-bar';
 import { ScreenHeader } from '../../../components/ui/screen-header';
 import { FilterChips } from '../../../components/ui/filter-chips';
@@ -92,6 +93,7 @@ export default function ServiceScreen() {
         activeBike={bike && { id: bike.id, model: bike.model, year: bike.year }}
         bikes={bikes?.map((b) => ({ id: b.id, model: b.model, year: b.year })) ?? []}
         onBikeChange={setActiveBikeId}
+        onFeedbackPress={() => Sentry.showFeedbackWidget()}
         onAddBikePress={handleAddBike}
       />
 

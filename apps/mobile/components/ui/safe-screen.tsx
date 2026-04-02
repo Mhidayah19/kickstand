@@ -1,5 +1,6 @@
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Sentry from '@sentry/react-native';
 import { TopAppBar } from './top-app-bar';
 
 interface SafeScreenProps {
@@ -38,6 +39,7 @@ export function SafeScreen({
           activeBike={activeBike}
           bikes={bikes}
           onBikeChange={onBikeChange}
+          onFeedbackPress={() => Sentry.showFeedbackWidget()}
           onAddBikePress={onAddBikePress}
         />
       )}

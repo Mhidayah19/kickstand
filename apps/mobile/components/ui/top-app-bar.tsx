@@ -4,7 +4,6 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePathname } from 'expo-router';
 import { useState } from 'react';
-import * as Sentry from '@sentry/react-native';
 import { colors } from '../../lib/colors';
 
 const MAIN_TAB_PATHS = new Set(['/', '/garage', '/service', '/settings']);
@@ -21,6 +20,7 @@ interface TopAppBarProps {
     year: number;
   }>;
   onBikeChange?: (bikeId: string) => void;
+  onFeedbackPress?: () => void;
   onAddBikePress?: () => void;
 }
 
@@ -28,6 +28,7 @@ export function TopAppBar({
   activeBike,
   bikes = [],
   onBikeChange,
+  onFeedbackPress,
   onAddBikePress,
 }: TopAppBarProps) {
   const insets = useSafeAreaInsets();
@@ -86,7 +87,7 @@ export function TopAppBar({
 
           {/* Right: Feedback / Report Bug */}
           <Pressable
-            onPress={() => Sentry.showFeedbackWidget()}
+            onPress={onFeedbackPress}
             hitSlop={8}
             className="relative w-10 h-10 rounded-full bg-sand/20 items-center justify-center active:opacity-70"
           >
