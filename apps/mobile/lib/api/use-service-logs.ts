@@ -3,12 +3,13 @@ import { apiClient } from './client';
 import type { PaginatedResponse } from '../types/api';
 import type { ServiceLog } from '../types/service-log';
 
-// Query key factory for proper cache invalidation
 export const serviceLogsKeys = {
   all: ['service-logs'] as const,
   byBike: (bikeId: string) => [...serviceLogsKeys.all, bikeId] as const,
   list: (bikeId: string, limit?: number) =>
     [...serviceLogsKeys.byBike(bikeId), { limit }] as const,
+  detail: (bikeId: string, logId: string) =>
+    [...serviceLogsKeys.byBike(bikeId), logId] as const,
 };
 
 export interface CreateServiceLogInput {
@@ -18,6 +19,17 @@ export interface CreateServiceLogInput {
   cost: string;
   mileageAt: number;
   date: string;
+  workshopId?: string;
+  receiptUrl?: string;
+}
+
+export interface UpdateServiceLogInput {
+  serviceType?: string;
+  description?: string;
+  parts?: string[];
+  cost?: string;
+  mileageAt?: number;
+  date?: string;
   workshopId?: string;
   receiptUrl?: string;
 }
@@ -39,6 +51,15 @@ export function useServiceLogs(bikeId: string | null, limit?: number) {
   });
 }
 
+export function useServiceLog(bikeId: string | null, logId: string | null) {
+  return useQuery({
+    queryKey: serviceLogsKeys.detail(bikeId ?? '', logId ?? ''),
+    queryFn: () =>
+      apiClient.get<ServiceLog>(`/bikes/${bikeId}/services/${logId}`),
+    enabled: !!bikeId && !!logId,
+  });
+}
+
 export function useCreateServiceLog(bikeId: string | null) {
   const queryClient = useQueryClient();
   return useMutation({
@@ -48,6 +69,19 @@ export function useCreateServiceLog(bikeId: string | null) {
       if (!bikeId) return;
       queryClient.invalidateQueries({ queryKey: serviceLogsKeys.byBike(bikeId) });
       queryClient.invalidateQueries({ queryKey: serviceLogsKeys.all });
+    },
+  });
+}
+
+export function useUpdateServiceLog(bikeId: string | null) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ logId, input }: { logId: string; input: UpdateServiceLogInput }) =>
+      apiClient.patch<ServiceLog>(`/bikes/${bikeId}/services/${logId}`, input),
+    onSuccess: (_data, { logId }) => {
+      if (!bikeId) return;
+      queryClient.invalidateQueries({ queryKey: serviceLogsKeys.byBike(bikeId) });
+      queryClient.invalidateQueries({ queryKey: serviceLogsKeys.detail(bikeId, logId) });
     },
   });
 }
