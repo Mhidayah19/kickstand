@@ -181,9 +181,27 @@ describe('ServiceLogsService', () => {
       });
 
       expect(result).toEqual(updated);
-      expect(mockBikesService.findOneByUser).toHaveBeenCalledWith('bike-1', 'user-1');
+      expect(mockBikesService.findOneByUser).toHaveBeenCalledWith(
+        'bike-1',
+        'user-1',
+      );
       expect(mockDb.update).toHaveBeenCalled();
       expect(mockDb.set).toHaveBeenCalledWith({ cost: '55.00' });
+    });
+
+    it('should not pass undefined fields to set()', async () => {
+      mockBikesService.findOneByUser.mockResolvedValue({ id: 'bike-1', userId: 'user-1' });
+      mockDb.where.mockResolvedValueOnce([{ id: 'log-1', bikeId: 'bike-1' }]);
+      mockDb.returning.mockResolvedValue([{ id: 'log-1' }]);
+
+      await service.update('log-1', 'bike-1', 'user-1', {
+        cost: '55.00',
+        description: undefined,
+      });
+
+      const setArg = (mockDb.set.mock.calls[0] as unknown[])[0];
+      expect(setArg).not.toHaveProperty('description');
+      expect(setArg).toEqual({ cost: '55.00' });
     });
 
     it('should throw NotFoundException if log not found', async () => {
