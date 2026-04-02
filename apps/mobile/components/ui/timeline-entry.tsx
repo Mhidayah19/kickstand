@@ -12,6 +12,8 @@ interface TimelineEntryProps {
   tags?: { label: string; danger?: boolean }[];
   quote?: string;
   imageUri?: string;
+  parts?: string[];
+  onPress?: () => void;
   onLongPress?: () => void;
 }
 
@@ -20,6 +22,10 @@ const nodeColors: Record<TimelineColor, string> = {
   charcoal: colors.charcoal,
   danger: colors.danger,
 };
+
+function truncate(str: string, max: number): string {
+  return str.length > max ? str.slice(0, max) + '…' : str;
+}
 
 export function TimelineEntry({
   date,
@@ -30,10 +36,12 @@ export function TimelineEntry({
   tags,
   quote,
   imageUri,
+  parts,
+  onPress,
   onLongPress,
 }: TimelineEntryProps) {
   return (
-    <Pressable onLongPress={onLongPress}>
+    <Pressable onPress={onPress} onLongPress={onLongPress}>
       <View className="relative pl-12 mb-12">
         {/* Node */}
         <View
@@ -70,6 +78,18 @@ export function TimelineEntry({
                     }`}
                   >
                     {tag.label}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {parts && parts.length > 0 && (
+            <View className="flex-row flex-wrap gap-2 mb-4">
+              {parts.map((part) => (
+                <View key={part} className="px-3 py-1 rounded-full bg-surface-low">
+                  <Text className="font-sans-bold text-xxs text-sand">
+                    {truncate(part, 24)}
                   </Text>
                 </View>
               ))}
