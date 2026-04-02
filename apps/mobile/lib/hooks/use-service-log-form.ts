@@ -47,6 +47,10 @@ function makeInitialParts(existingLog?: ServiceLog): { id: number; value: string
   return [{ id: 0, value: '' }];
 }
 
+// NOTE: existingLog is captured at mount time via closure. useForm reads defaultValues once on mount,
+// so if the parent re-renders with a refreshed existingLog, the form will NOT re-initialise.
+// Callers should ensure this hook is only mounted once per edit session (i.e. don't keep the
+// modal mounted while re-fetching — let it unmount and remount).
 export function useServiceLogForm(
   bikeId: string | null,
   initialMileage?: number,
@@ -67,6 +71,8 @@ export function useServiceLogForm(
     }
   }, [initialMileage]);
 
+  // Seeded to parts.length because makeInitialParts assigns zero-based IDs (0…n-1).
+  // addPart uses post-increment, so the first new part gets id n. Keep in sync if makeInitialParts changes.
   const nextPartId = useRef(existingLog?.parts?.length ?? 1);
   const [parts, setParts] = useState<{ id: number; value: string }[]>(
     () => makeInitialParts(existingLog),
