@@ -1,0 +1,68 @@
+{
+  "family": "kickstand-api",
+  "networkMode": "bridge",
+  "requiresCompatibilities": ["EC2"],
+  "executionRoleArn": "arn:aws:iam::211125766251:role/kickstand-ecs-execution",
+  "taskRoleArn": "arn:aws:iam::211125766251:role/kickstand-ecs-task",
+  "containerDefinitions": [
+    {
+      "name": "api",
+      "image": "211125766251.dkr.ecr.ap-southeast-1.amazonaws.com/kickstand-api:latest",
+      "memory": 450,
+      "cpu": 256,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "SUPABASE_DATABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-southeast-1:211125766251:secret:kickstand/api/prod-f1qc5f:SUPABASE_DATABASE_URL::"
+        },
+        {
+          "name": "SUPABASE_JWT_SECRET",
+          "valueFrom": "arn:aws:secretsmanager:ap-southeast-1:211125766251:secret:kickstand/api/prod-f1qc5f:SUPABASE_JWT_SECRET::"
+        },
+        {
+          "name": "SUPABASE_URL",
+          "valueFrom": "arn:aws:secretsmanager:ap-southeast-1:211125766251:secret:kickstand/api/prod-f1qc5f:SUPABASE_URL::"
+        },
+        {
+          "name": "SUPABASE_SERVICE_ROLE_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-southeast-1:211125766251:secret:kickstand/api/prod-f1qc5f:SUPABASE_SERVICE_ROLE_KEY::"
+        },
+        {
+          "name": "SCAN_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-southeast-1:211125766251:secret:kickstand/api/prod-f1qc5f:SCAN_API_KEY::"
+        },
+        {
+          "name": "SENTRY_DSN",
+          "valueFrom": "arn:aws:secretsmanager:ap-southeast-1:211125766251:secret:kickstand/api/prod-f1qc5f:SENTRY_DSN::"
+        }
+      ],
+      "environment": [
+        { "name": "NODE_ENV", "value": "production" },
+        { "name": "PORT", "value": "3000" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/kickstand-api",
+          "awslogs-region": "ap-southeast-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "wget -qO- http://localhost:3000/health || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+}
