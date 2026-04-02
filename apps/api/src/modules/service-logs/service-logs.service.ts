@@ -5,6 +5,7 @@ import type { DrizzleDB } from '../../database/database.types';
 import * as schema from '../../database/schema';
 import { BikesService } from '../bikes/bikes.service';
 import { CreateServiceLogDto } from './dto/create-service-log.dto';
+import { UpdateServiceLogDto } from './dto/update-service-log.dto';
 
 @Injectable()
 export class ServiceLogsService {
@@ -85,6 +86,57 @@ export class ServiceLogsService {
       .returning();
 
     return log;
+  }
+
+  async findOne(logId: string, bikeId: string, userId: string) {
+    await this.bikesService.findOneByUser(bikeId, userId);
+
+    const [log] = await this.db
+      .select()
+      .from(schema.serviceLogs)
+      .where(
+        and(
+          eq(schema.serviceLogs.id, logId),
+          eq(schema.serviceLogs.bikeId, bikeId),
+        ),
+      );
+
+    if (!log) {
+      throw new NotFoundException('Service log not found');
+    }
+
+    return log;
+  }
+
+  async update(
+    logId: string,
+    bikeId: string,
+    userId: string,
+    dto: UpdateServiceLogDto,
+  ) {
+    await this.bikesService.findOneByUser(bikeId, userId);
+
+    const [existing] = await this.db
+      .select()
+      .from(schema.serviceLogs)
+      .where(
+        and(
+          eq(schema.serviceLogs.id, logId),
+          eq(schema.serviceLogs.bikeId, bikeId),
+        ),
+      );
+
+    if (!existing) {
+      throw new NotFoundException('Service log not found');
+    }
+
+    const [updated] = await this.db
+      .update(schema.serviceLogs)
+      .set(dto)
+      .where(eq(schema.serviceLogs.id, logId))
+      .returning();
+
+    return updated;
   }
 
   async remove(logId: string, bikeId: string, userId: string) {
