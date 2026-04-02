@@ -7,7 +7,9 @@ import { useAppFonts } from '../lib/theme';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../lib/store/auth-store';
 import { justRegisteredRef } from '../lib/auth-state';
+import { apiClient } from '../lib/api/client';
 import { PortalHost } from '@rn-primitives/portal';
+import type { UserProfile } from '../lib/types/profile';
 import '../global.css';
 
 Sentry.init({
@@ -49,16 +51,36 @@ function RootLayout() {
   }, [fontsLoaded, fontError]);
 
   useEffect(() => {
-    // Check initial session
-    supabase.auth.getSession().then(async ({ data }) => {
-      if (data.session?.user) {
+    let cancelled = false;
+    let hydrated = false;
+
+    function hydrateUser(supabaseUser: { id: string; email?: string; user_metadata?: Record<string, string> }) {
+      if (hydrated) return;
+      hydrated = true;
+
+      setUser({
+        id: supabaseUser.id,
+        email: supabaseUser.email ?? '',
+        name: supabaseUser.user_metadata?.name ?? '',
+        activeBikeId: null,
+        expoToken: null,
+      });
+
+      apiClient.get<UserProfile>('/users/me').then((profile) => {
+        if (cancelled) return;
         setUser({
-          id: data.session.user.id,
-          email: data.session.user.email ?? '',
-          name: data.session.user.user_metadata?.name ?? '',
+          id: profile.id,
+          email: profile.email,
+          name: profile.name,
           activeBikeId: null,
           expoToken: null,
         });
+      }).catch(() => {});
+    }
+
+    supabase.auth.getSession().then(async ({ data }) => {
+      if (data.session?.user) {
+        hydrateUser(data.session.user);
         router.replace('/(tabs)');
       } else if (__DEV__ && process.env.EXPO_PUBLIC_DEV_EMAIL && process.env.EXPO_PUBLIC_DEV_PASSWORD) {
         await supabase.auth.signInWithPassword({
@@ -70,17 +92,10 @@ function RootLayout() {
       }
     });
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
         Sentry.setUser({ id: session.user.id, email: session.user.email ?? undefined });
-        setUser({
-          id: session.user.id,
-          email: session.user.email ?? '',
-          name: session.user.user_metadata?.name ?? '',
-          activeBikeId: null,
-          expoToken: null,
-        });
+        hydrateUser(session.user);
         if (justRegisteredRef.current) {
           justRegisteredRef.current = false;
           return;
@@ -93,7 +108,10 @@ function RootLayout() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, [setUser]);
 
   if (!fontsLoaded && !fontError) {
