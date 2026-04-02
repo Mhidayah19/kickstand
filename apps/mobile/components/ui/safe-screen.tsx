@@ -18,8 +18,9 @@ interface SafeScreenProps {
     year: number;
   }>;
   onBikeChange?: (bikeId: string) => void;
-  onFeedbackPress?: () => void;
+  onNotificationPress?: () => void;
   onAddBikePress?: () => void;
+  unreadNotifications?: number;
 }
 
 export function SafeScreen({
@@ -30,8 +31,9 @@ export function SafeScreen({
   activeBike,
   bikes,
   onBikeChange,
-  onFeedbackPress,
+  onNotificationPress,
   onAddBikePress,
+  unreadNotifications,
 }: SafeScreenProps) {
   return (
     <SafeAreaView className={`flex-1 bg-surface ${className}`}>
@@ -40,8 +42,9 @@ export function SafeScreen({
           activeBike={activeBike}
           bikes={bikes}
           onBikeChange={onBikeChange}
-          onFeedbackPress={onFeedbackPress}
+          onNotificationPress={onNotificationPress}
           onAddBikePress={onAddBikePress}
+          unreadNotifications={unreadNotifications}
         />
       )}
       {scrollable ? (

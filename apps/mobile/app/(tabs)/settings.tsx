@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import { View, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import * as Sentry from '@sentry/react-native';
 import { colors } from '../../lib/colors';
 import { SafeScreen } from '../../components/ui/safe-screen';
 import { ProfileHero } from '../../components/ui/profile-hero';
@@ -29,7 +28,6 @@ export default function SettingsScreen() {
       bikes={bikes?.map((b) => ({ id: b.id, model: b.model, year: b.year })) ?? []}
       activeBike={activeBike && { id: activeBike.id, model: activeBike.model, year: activeBike.year }}
       onBikeChange={setActiveBikeId}
-      onFeedbackPress={() => Sentry.showFeedbackWidget()}
       onAddBikePress={handleAddBike}
     >
       {/* Profile Hero */}

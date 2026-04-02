@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
 import React, { useMemo, useCallback } from 'react';
 import { Text, View } from 'react-native';
-import * as Sentry from '@sentry/react-native';
 import { EmptyState } from '../../components/ui/empty-state';
 import { HeroCard } from '../../components/ui/hero-card';
 import { ListCard } from '../../components/ui/list-card';
@@ -59,7 +58,6 @@ export default function HomeScreen() {
         bikes={bikes}
         activeBike={activeBike ?? undefined}
         onBikeChange={setActiveBikeId}
-        onFeedbackPress={() => Sentry.showFeedbackWidget()}
         onAddBikePress={handleAddBike}
       >
         <Skeleton height={20} className="rounded-md mb-2 w-32" />
@@ -84,7 +82,6 @@ export default function HomeScreen() {
         bikes={bikes}
         activeBike={undefined}
         onBikeChange={setActiveBikeId}
-        onFeedbackPress={() => Sentry.showFeedbackWidget()}
       >
         <DevAuthToggle>
           <ScreenHeader label="DASHBOARD OVERVIEW" title="Welcome back!" />
@@ -105,7 +102,6 @@ export default function HomeScreen() {
       bikes={bikes}
       activeBike={activeBike ?? undefined}
       onBikeChange={setActiveBikeId}
-      onFeedbackPress={() => Sentry.showFeedbackWidget()}
       onAddBikePress={handleAddBike}
     >
       <DevAuthToggle>

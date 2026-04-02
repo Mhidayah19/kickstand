@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
 import React, { useMemo, useCallback } from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
-import * as Sentry from '@sentry/react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { BikeImageCard } from '../../../components/bike/bike-image-card';
 import { EmptyState } from '../../../components/ui/empty-state';
@@ -67,7 +66,6 @@ export default function GarageScreen() {
         bikes={bikes?.map((b) => ({ id: b.id, model: b.model, year: b.year })) ?? []}
         activeBike={activeBike && { id: activeBike.id, model: activeBike.model, year: activeBike.year }}
         onBikeChange={setActiveBikeId}
-        onFeedbackPress={() => Sentry.showFeedbackWidget()}
         onAddBikePress={handleAddBike}
       >
         <Skeleton height={20} className="rounded-md mb-2 w-24" />
@@ -85,7 +83,6 @@ export default function GarageScreen() {
       bikes={bikes?.map((b) => ({ id: b.id, model: b.model, year: b.year })) ?? []}
       activeBike={activeBike && { id: activeBike.id, model: activeBike.model, year: activeBike.year }}
       onBikeChange={setActiveBikeId}
-      onFeedbackPress={() => Sentry.showFeedbackWidget()}
       onAddBikePress={handleAddBike}
     >
       <ScreenHeader
