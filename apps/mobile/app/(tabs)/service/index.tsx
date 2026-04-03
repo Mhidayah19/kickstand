@@ -1,5 +1,5 @@
-import React, { useMemo, useState, useCallback } from 'react';
-import { View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
+import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -8,10 +8,14 @@ import { ScreenHeader } from '../../../components/ui/screen-header';
 import { FilterChips } from '../../../components/ui/filter-chips';
 import { SwipeableTimelineEntry } from '../../../components/ui/swipeable-timeline-entry';
 import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
+import { ServiceSearchBar } from '../../../components/service/service-search-bar';
+import { AnalyticsSheet } from '../../../components/service/analytics-sheet';
+import { DateRangeSheet } from '../../../components/service/date-range-sheet';
 import { useServiceLogs, useDeleteServiceLog } from '../../../lib/api/use-service-logs';
 import { useBike, useBikes } from '../../../lib/api/use-bikes';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { colors } from '../../../lib/colors';
+import { formatDateRangeLabel } from '../../../lib/utils/service-analytics';
 import {
   SERVICE_TYPE_LABELS,
   SERVICE_TYPE_ICONS,
@@ -51,22 +55,60 @@ export default function ServiceScreen() {
   const { activeBikeId, setActiveBikeId } = useBikeStore();
   const { data: bike } = useBike(activeBikeId);
   const { data: bikes } = useBikes();
-  const { data: logsResponse, isLoading } = useServiceLogs(activeBikeId);
+  const { data: logsResponse, isLoading } = useServiceLogs(activeBikeId, 100);
+
   const [selectedFilter, setSelectedFilter] = useState<FilterGroupKey>('All');
   const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [dateRange, setDateRange] = useState<{ from: string; to: string } | null>(null);
+  const [analyticsVisible, setAnalyticsVisible] = useState(false);
+  const [dateSheetVisible, setDateSheetVisible] = useState(false);
 
   const logs = logsResponse?.data ?? [];
 
-  const filteredLogs = useMemo(() => {
-    if (selectedFilter === 'All') return logs;
-    const allowedTypes = SERVICE_FILTER_GROUPS[selectedFilter] as readonly ServiceTypeKey[];
-    return logs.filter((log) => allowedTypes.includes(log.serviceType as ServiceTypeKey));
-  }, [logs, selectedFilter]);
+  useEffect(() => {
+    setSearchQuery('');
+    setDateRange(null);
+    setSelectedFilter('All');
+  }, [activeBikeId]);
 
-  const totalSpend = useMemo(() => {
-    const sum = logs.reduce((acc, log) => acc + (parseFloat(log.cost) || 0), 0);
-    return `$${sum.toFixed(2)}`;
-  }, [logs]);
+  const dateFilteredLogs = useMemo(() => {
+    if (!dateRange) return logs;
+    return logs.filter((log) => log.date >= dateRange.from && log.date <= dateRange.to);
+  }, [logs, dateRange]);
+
+  const categoryFilteredLogs = useMemo(() => {
+    if (selectedFilter === 'All') return dateFilteredLogs;
+    const allowedTypes = SERVICE_FILTER_GROUPS[selectedFilter] as readonly ServiceTypeKey[];
+    return dateFilteredLogs.filter((log) =>
+      allowedTypes.includes(log.serviceType as ServiceTypeKey),
+    );
+  }, [dateFilteredLogs, selectedFilter]);
+
+  const filteredLogs = useMemo(() => {
+    if (!searchQuery.trim()) return categoryFilteredLogs;
+    const q = searchQuery.toLowerCase().trim();
+    return categoryFilteredLogs.filter((log) => {
+      const label = (
+        SERVICE_TYPE_LABELS[log.serviceType as ServiceTypeKey] ?? log.serviceType
+      ).toLowerCase();
+      const desc = log.description.toLowerCase();
+      const parts = (log.parts ?? []).join(' ').toLowerCase();
+      return label.includes(q) || desc.includes(q) || parts.includes(q);
+    });
+  }, [categoryFilteredLogs, searchQuery]);
+
+  const totalSpend = useMemo(
+    () => logs.reduce((acc, log) => acc + (parseFloat(log.cost) || 0), 0),
+    [logs],
+  );
+
+  const dateFilteredTotalSpend = useMemo(
+    () => dateRange
+      ? dateFilteredLogs.reduce((acc, log) => acc + (parseFloat(log.cost) || 0), 0)
+      : totalSpend,
+    [dateFilteredLogs, dateRange, totalSpend],
+  );
 
   const deleteLog = useDeleteServiceLog(activeBikeId);
 
@@ -96,38 +138,72 @@ export default function ServiceScreen() {
         onAddBikePress={handleAddBike}
       />
 
-      {/* Fixed header */}
       <View className="px-6" style={{ paddingTop: 80 }}>
         <ScreenHeader title="Service" size="md" />
 
-        {/* Active bike context */}
         {bike && (
           <Text className="font-sans-medium text-sm text-sand mb-3">
             {bike.make} {bike.model} {bike.year && `• ${bike.year}`}
           </Text>
         )}
 
-        {/* Total spend */}
         {logs.length > 0 && (
-          <View className="bg-charcoal self-start px-4 py-2 rounded-xl mb-6">
-            <Text className="font-sans-xbold text-lg text-surface-card">{totalSpend}</Text>
-          </View>
+          <TouchableOpacity
+            className="bg-charcoal self-start flex-row items-center gap-3 px-4 py-2 rounded-xl mb-3"
+            onPress={() => setAnalyticsVisible(true)}
+            activeOpacity={0.8}
+          >
+            <Text className="font-sans-xbold text-lg text-surface-card">
+              ${totalSpend.toFixed(2)}
+            </Text>
+            <Text className="font-sans-bold text-xxs text-yellow uppercase tracking-wide-1">
+              ↗ Insights
+            </Text>
+          </TouchableOpacity>
+        )}
+
+        {logs.length > 0 && (
+          <ServiceSearchBar key={activeBikeId ?? 'none'} value={searchQuery} onChange={setSearchQuery} />
         )}
       </View>
 
-      {/* Filter chips */}
       {logs.length > 0 && (
-        <View className="mb-4 px-6">
-          <FilterChips
-            options={FILTER_OPTIONS}
-            selected={selectedFilter}
-            onSelect={(v) => setSelectedFilter(v as FilterGroupKey)}
-            wrap={false}
-          />
+        <View className="mb-4 flex-row items-center">
+          <View className="flex-1 pl-6">
+            <FilterChips
+              options={FILTER_OPTIONS}
+              selected={selectedFilter}
+              onSelect={(v) => setSelectedFilter(v as FilterGroupKey)}
+              wrap={false}
+            />
+          </View>
+          <View className="pr-6 pl-2">
+            {dateRange ? (
+              <TouchableOpacity
+                className="flex-row items-center gap-1 bg-yellow rounded-full px-3 py-1.5"
+                onPress={() => setDateSheetVisible(true)}
+                activeOpacity={0.8}
+              >
+                <Text className="font-sans-bold text-xs text-charcoal">
+                  {formatDateRangeLabel(dateRange.from, dateRange.to)}
+                </Text>
+                <TouchableOpacity onPress={() => setDateRange(null)} hitSlop={8}>
+                  <MaterialCommunityIcons name="close" size={12} color={colors.charcoal} />
+                </TouchableOpacity>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                className="bg-surface-low rounded-full p-2"
+                onPress={() => setDateSheetVisible(true)}
+                activeOpacity={0.8}
+              >
+                <MaterialCommunityIcons name="calendar-outline" size={18} color={colors.sand} />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       )}
 
-      {/* Timeline or empty state */}
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator size="large" color={colors.sand} />
@@ -150,12 +226,11 @@ export default function ServiceScreen() {
           {filteredLogs.length === 0 ? (
             <View className="items-center justify-center py-16">
               <Text className="font-sans-medium text-sm text-sand text-center">
-                No services in this category
+                No services match your filters
               </Text>
             </View>
           ) : (
             <View className="relative">
-              {/* Vertical timeline line */}
               <View
                 className="absolute bg-sand/30"
                 style={{ left: 16, top: 0, bottom: 0, width: 2 }}
@@ -185,6 +260,25 @@ export default function ServiceScreen() {
         confirmVariant="danger"
         onConfirm={handleConfirmDelete}
         onCancel={handleCancelDelete}
+      />
+
+      <AnalyticsSheet
+        visible={analyticsVisible}
+        onClose={() => setAnalyticsVisible(false)}
+        logs={dateFilteredLogs}
+        totalSpend={dateFilteredTotalSpend}
+        bikeModel={bike?.model ?? ''}
+        dateRange={dateRange}
+      />
+
+      <DateRangeSheet
+        visible={dateSheetVisible}
+        onClose={() => setDateSheetVisible(false)}
+        value={dateRange}
+        onApply={(range) => {
+          setDateRange(range);
+          setDateSheetVisible(false);
+        }}
       />
     </SafeAreaView>
   );
