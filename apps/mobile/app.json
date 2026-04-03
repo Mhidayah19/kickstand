@@ -44,6 +44,13 @@
       ],
       "expo-router",
       "expo-secure-store",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Kickstand needs access to your photos to attach receipts to service logs.",
+          "cameraPermission": "Kickstand needs camera access to photograph receipts."
+        }
+      ],
       "@react-native-community/datetimepicker",
       [
         "@sentry/react-native/expo",

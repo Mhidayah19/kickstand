@@ -1,12 +1,14 @@
 // apps/mobile/app/(tabs)/service/[id].tsx
 import React, { useCallback, useState } from 'react';
-import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, ScrollView, Text, TouchableOpacity, View, Image, Pressable, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
 import { Skeleton } from '../../../components/ui/skeleton';
-import { useServiceLog, useDeleteServiceLog } from '../../../lib/api/use-service-logs';
+import * as Haptics from 'expo-haptics';
+import { useServiceLog, useDeleteServiceLog, useUpdateServiceLog } from '../../../lib/api/use-service-logs';
+import { useReceiptUpload } from '../../../lib/hooks/use-receipt-upload';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { colors } from '../../../lib/colors';
 import {
@@ -38,7 +40,10 @@ export default function ServiceDetailScreen() {
   const { activeBikeId } = useBikeStore();
   const { data: log, isLoading } = useServiceLog(activeBikeId, id ?? null);
   const deleteLog = useDeleteServiceLog(activeBikeId);
+  const updateLog = useUpdateServiceLog(activeBikeId);
+  const { isUploading, pickAndUpload } = useReceiptUpload(id ?? '');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [receiptVisible, setReceiptVisible] = useState(false);
 
   const handleEdit = useCallback(() => {
     if (!id || !activeBikeId) return;
@@ -58,6 +63,20 @@ export default function ServiceDetailScreen() {
       },
     });
   }, [id, deleteLog, router]);
+
+  const handleReceiptUpload = useCallback(async () => {
+    const result = await pickAndUpload();
+    if (!result) return;
+    updateLog.mutate(
+      { logId: id!, input: { receiptUrl: result.publicUrl } },
+      {
+        onSuccess: () => {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        },
+        onError: () => Alert.alert('Error', 'Failed to save receipt. Please try again.'),
+      },
+    );
+  }, [pickAndUpload, updateLog, id]);
 
   if (isLoading) {
     return (
@@ -103,7 +122,6 @@ export default function ServiceDetailScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
-      {/* Top bar */}
       <View className="px-6 pt-4 flex-row items-center justify-between mb-2">
         <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
           <MaterialCommunityIcons name="arrow-left" size={24} color={colors.charcoal} />
@@ -122,7 +140,6 @@ export default function ServiceDetailScreen() {
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Service type label + hero title */}
         <View className="mb-6">
           <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">
             Service Type
@@ -132,7 +149,6 @@ export default function ServiceDetailScreen() {
           </Text>
         </View>
 
-        {/* Date + Cost row */}
         <View className="flex-row gap-8 mb-4">
           <View>
             <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">Date</Text>
@@ -144,21 +160,13 @@ export default function ServiceDetailScreen() {
           </View>
         </View>
 
-        {/* Mileage + Workshop row */}
         <View className="flex-row gap-8 mb-6">
           <View>
             <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">Mileage</Text>
             <Text className="font-sans-bold text-sm text-charcoal">{formatMileage(log.mileageAt)}</Text>
           </View>
-          {log.workshopId && (
-            <View>
-              <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">Workshop</Text>
-              <Text className="font-sans-bold text-sm text-charcoal">{log.workshopId}</Text>
-            </View>
-          )}
         </View>
 
-        {/* Description */}
         {!!log.description && (
           <View className="bg-surface-low rounded-2xl p-4 mb-6">
             <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-2">
@@ -170,7 +178,6 @@ export default function ServiceDetailScreen() {
           </View>
         )}
 
-        {/* Parts replaced */}
         {log.parts && log.parts.length > 0 && (
           <View className="mb-6">
             <Text className="font-sans-xbold text-base text-charcoal mb-3">Parts Replaced</Text>
@@ -184,13 +191,53 @@ export default function ServiceDetailScreen() {
           </View>
         )}
 
-        {/* Receipt placeholder */}
-        <View className="border-2 border-dashed border-sand/30 rounded-2xl p-6 items-center mb-8">
-          <MaterialCommunityIcons name="paperclip" size={24} color={colors.sand} />
-          <Text className="font-sans-bold text-xs text-sand mt-2">No receipt attached</Text>
+        <View className="mb-8">
+          <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-3">
+            Receipt
+          </Text>
+
+          {log.receiptUrl ? (
+            <>
+              <Pressable onPress={() => setReceiptVisible(true)} className="active:opacity-80">
+                <View style={{ width: '100%', borderRadius: 16, overflow: 'hidden', backgroundColor: colors.surfaceLow }}>
+                  <Image
+                    source={{ uri: log.receiptUrl }}
+                    style={{ width: '100%', height: 200 }}
+                    resizeMode="contain"
+                  />
+                </View>
+                <Text className="font-sans-medium text-xs text-sand mt-2 text-center">
+                  Tap to view full size
+                </Text>
+              </Pressable>
+              <Pressable
+                onPress={handleReceiptUpload}
+                disabled={isUploading}
+                className="mt-3 items-center active:opacity-70"
+              >
+                <Text className="font-sans-bold text-xs text-sand">
+                  {isUploading ? 'Uploading…' : 'Replace receipt'}
+                </Text>
+              </Pressable>
+            </>
+          ) : (
+            <Pressable
+              onPress={handleReceiptUpload}
+              disabled={isUploading}
+              className="border-2 border-dashed border-sand/30 rounded-2xl p-6 items-center active:opacity-70"
+            >
+              {isUploading ? (
+                <ActivityIndicator size="small" color={colors.sand} />
+              ) : (
+                <MaterialCommunityIcons name="camera-plus-outline" size={24} color={colors.sand} />
+              )}
+              <Text className="font-sans-bold text-xs text-sand mt-2">
+                {isUploading ? 'Uploading…' : 'Add receipt photo'}
+              </Text>
+            </Pressable>
+          )}
         </View>
 
-        {/* Delete */}
         <TouchableOpacity
           onPress={() => setShowDeleteDialog(true)}
           className="items-center active:opacity-70"
@@ -209,6 +256,29 @@ export default function ServiceDetailScreen() {
         onConfirm={handleConfirmDelete}
         onCancel={() => setShowDeleteDialog(false)}
       />
+
+      <Modal
+        visible={receiptVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setReceiptVisible(false)}
+      >
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', alignItems: 'center', justifyContent: 'center' }}
+          onPress={() => setReceiptVisible(false)}
+        >
+          {log.receiptUrl && (
+            <Image
+              source={{ uri: log.receiptUrl }}
+              style={{ width: '100%', height: '70%' }}
+              resizeMode="contain"
+            />
+          )}
+          <Text style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'PlusJakartaSans_500Medium', fontSize: 12, marginTop: 16 }}>
+            Tap anywhere to close
+          </Text>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }

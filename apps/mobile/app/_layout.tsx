@@ -1,3 +1,4 @@
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Sentry from '@sentry/react-native';
 import * as SplashScreen from 'expo-splash-screen';
@@ -120,19 +121,22 @@ function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(onboarding)" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="add-bike" options={{ presentation: 'modal', gestureEnabled: false }} />
-        <Stack.Screen name="add-service" options={{ presentation: 'modal', gestureEnabled: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <FeedbackButton />
-      <PortalHost />
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(onboarding)" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="add-bike" options={{ presentation: 'modal', gestureEnabled: false }} />
+          <Stack.Screen name="add-service" options={{ presentation: 'modal', gestureEnabled: false }} />
+          <Stack.Screen name="edit-service" options={{ presentation: 'modal', gestureEnabled: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <FeedbackButton />
+        <PortalHost />
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }
 
