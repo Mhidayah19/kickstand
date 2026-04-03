@@ -190,7 +190,10 @@ describe('ServiceLogsService', () => {
     });
 
     it('should not pass undefined fields to set()', async () => {
-      mockBikesService.findOneByUser.mockResolvedValue({ id: 'bike-1', userId: 'user-1' });
+      mockBikesService.findOneByUser.mockResolvedValue({
+        id: 'bike-1',
+        userId: 'user-1',
+      });
       mockDb.where.mockResolvedValueOnce([{ id: 'log-1', bikeId: 'bike-1' }]);
       mockDb.returning.mockResolvedValue([{ id: 'log-1' }]);
 

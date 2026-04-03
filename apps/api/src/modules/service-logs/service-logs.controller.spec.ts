@@ -117,7 +117,11 @@ describe('ServiceLogsController', () => {
 
       const result = await controller.findOne('bike-1', 'log-1', mockUser);
       expect(result).toEqual(log);
-      expect(mockService.findOne).toHaveBeenCalledWith('log-1', 'bike-1', 'user-1');
+      expect(mockService.findOne).toHaveBeenCalledWith(
+        'log-1',
+        'bike-1',
+        'user-1',
+      );
     });
   });
 
@@ -129,7 +133,12 @@ describe('ServiceLogsController', () => {
 
       const result = await controller.update('bike-1', 'log-1', mockUser, dto);
       expect(result).toEqual(updated);
-      expect(mockService.update).toHaveBeenCalledWith('log-1', 'bike-1', 'user-1', dto);
+      expect(mockService.update).toHaveBeenCalledWith(
+        'log-1',
+        'bike-1',
+        'user-1',
+        dto,
+      );
     });
   });
 
