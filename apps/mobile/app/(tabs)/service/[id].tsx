@@ -1,6 +1,6 @@
 // apps/mobile/app/(tabs)/service/[id].tsx
 import React, { useCallback, useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -11,7 +11,6 @@ import { useBikeStore } from '../../../lib/store/bike-store';
 import { colors } from '../../../lib/colors';
 import {
   SERVICE_TYPE_LABELS,
-  SERVICE_TYPE_COLORS,
 } from '../../../lib/constants/service-types';
 import type { ServiceTypeKey } from '../../../lib/constants/service-types';
 
@@ -20,6 +19,7 @@ const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
 
 function formatFullDate(iso: string): string {
   const d = new Date(iso);
+  if (isNaN(d.getTime())) return 'Unknown date';
   return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
@@ -41,15 +41,22 @@ export default function ServiceDetailScreen() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   const handleEdit = useCallback(() => {
+    if (!id || !activeBikeId) return;
     router.push(`/edit-service?logId=${id}&bikeId=${activeBikeId}`);
   }, [id, activeBikeId, router]);
 
   const handleConfirmDelete = useCallback(() => {
     if (!id) return;
     deleteLog.mutate(id, {
-      onSuccess: () => router.back(),
+      onSuccess: () => {
+        setShowDeleteDialog(false);
+        router.back();
+      },
+      onError: () => {
+        setShowDeleteDialog(false);
+        Alert.alert('Error', 'Failed to delete service log. Please try again.');
+      },
     });
-    setShowDeleteDialog(false);
   }, [id, deleteLog, router]);
 
   if (isLoading) {
@@ -93,10 +100,6 @@ export default function ServiceDetailScreen() {
 
   const key = log.serviceType as ServiceTypeKey;
   const serviceLabel = SERVICE_TYPE_LABELS[key] ?? log.serviceType;
-  const nodeColor = SERVICE_TYPE_COLORS[key] ?? 'charcoal';
-  const nodeColorHex = nodeColor === 'yellow' ? colors.yellow
-    : nodeColor === 'danger' ? colors.danger
-    : colors.charcoal;
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
@@ -172,8 +175,8 @@ export default function ServiceDetailScreen() {
           <View className="mb-6">
             <Text className="font-sans-xbold text-base text-charcoal mb-3">Parts Replaced</Text>
             <View className="flex-row flex-wrap gap-2">
-              {log.parts.map((part) => (
-                <View key={part} className="bg-surface-low px-3 py-2 rounded-full">
+              {log.parts.map((part, index) => (
+                <View key={`${index}-${part}`} className="bg-surface-low px-3 py-2 rounded-full">
                   <Text className="font-sans-bold text-xs text-charcoal">{part}</Text>
                 </View>
               ))}
