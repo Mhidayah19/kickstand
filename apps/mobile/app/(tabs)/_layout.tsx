@@ -9,7 +9,7 @@ export default function TabLayout() {
     >
       <Tabs.Screen name="index" />
       <Tabs.Screen name="garage" />
-      <Tabs.Screen name="service/index" />
+      <Tabs.Screen name="service" />
       <Tabs.Screen name="settings" />
     </Tabs>
   );
