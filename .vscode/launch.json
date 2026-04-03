@@ -5,6 +5,7 @@
       "name": "Dev (API + Mobile)",
       "type": "node",
       "request": "launch",
+      "runtimeVersion": "22",
       "program": "${workspaceFolder}/node_modules/.bin/concurrently",
       "args": [
         "--names",
@@ -22,6 +23,7 @@
       "name": "API only",
       "type": "node",
       "request": "launch",
+      "runtimeVersion": "22",
       "program": "${workspaceFolder}/node_modules/.bin/nest",
       "args": ["start", "--watch"],
       "cwd": "${workspaceFolder}/apps/api",
@@ -36,6 +38,7 @@
       "name": "Mobile only",
       "type": "node",
       "request": "launch",
+      "runtimeVersion": "22",
       "program": "${workspaceFolder}/node_modules/.bin/npm",
       "args": ["run", "ios"],
       "cwd": "${workspaceFolder}/apps/mobile",
