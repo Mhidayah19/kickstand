@@ -6,7 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { TopAppBar } from '../../../components/ui/top-app-bar';
 import { ScreenHeader } from '../../../components/ui/screen-header';
 import { FilterChips } from '../../../components/ui/filter-chips';
-import { TimelineEntry } from '../../../components/ui/timeline-entry';
+import { SwipeableTimelineEntry } from '../../../components/ui/swipeable-timeline-entry';
 import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
 import { useServiceLogs, useDeleteServiceLog } from '../../../lib/api/use-service-logs';
 import { useBike, useBikes } from '../../../lib/api/use-bikes';
@@ -163,11 +163,12 @@ export default function ServiceScreen() {
               {filteredLogs.map((log) => {
                 const props = mapLogToTimeline(log);
                 return (
-                  <TimelineEntry
+                  <SwipeableTimelineEntry
                     key={log.id}
                     {...props}
                     onPress={() => router.push(`/service/${log.id}`)}
-                    onLongPress={() => handleDeleteLog(log.id, props.title)}
+                    onDelete={() => handleDeleteLog(log.id, props.title)}
+                    onEdit={() => router.push(`/edit-service?logId=${log.id}&bikeId=${activeBikeId}`)}
                   />
                 );
               })}

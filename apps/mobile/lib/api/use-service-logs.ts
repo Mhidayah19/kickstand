@@ -78,10 +78,16 @@ export function useUpdateServiceLog(bikeId: string | null) {
   return useMutation({
     mutationFn: ({ logId, input }: { logId: string; input: UpdateServiceLogInput }) =>
       apiClient.patch<ServiceLog>(`/bikes/${bikeId}/services/${logId}`, input),
-    onSuccess: (_data, { logId }) => {
+    onSuccess: (data, { logId }) => {
       if (!bikeId) return;
-      queryClient.invalidateQueries({ queryKey: serviceLogsKeys.byBike(bikeId) });
-      queryClient.invalidateQueries({ queryKey: serviceLogsKeys.detail(bikeId, logId) });
+      // Write PATCH response directly into the detail cache — no refetch needed
+      queryClient.setQueryData(serviceLogsKeys.detail(bikeId, logId), data);
+      // Invalidate list queries only — the predicate skips the detail key
+      // (detail keys have a string 3rd element; list keys have an object)
+      queryClient.invalidateQueries({
+        queryKey: serviceLogsKeys.byBike(bikeId),
+        predicate: (query) => typeof query.queryKey[2] !== 'string',
+      });
     },
   });
 }
