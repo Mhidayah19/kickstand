@@ -42,6 +42,7 @@ function mapLogToTimeline(log: ServiceLog) {
     color: SERVICE_TYPE_COLORS[key] ?? ('charcoal' as const),
     tags: [{ label: SERVICE_TYPE_LABELS[key] ?? log.serviceType }],
     quote: log.description || undefined,
+    parts: log.parts ?? undefined,
   };
 }
 
@@ -165,6 +166,7 @@ export default function ServiceScreen() {
                   <TimelineEntry
                     key={log.id}
                     {...props}
+                    onPress={() => router.push(`/service/${log.id}`)}
                     onLongPress={() => handleDeleteLog(log.id, props.title)}
                   />
                 );

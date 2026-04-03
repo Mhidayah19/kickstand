@@ -16,7 +16,7 @@ const FAB_STYLE = { transform: [{ scale: 1.15 }] };
 const TABS: { routeName: string; icon: IconName; label: string }[] = [
   { routeName: 'index', icon: 'home', label: 'Home' },
   { routeName: 'garage', icon: 'motorbike', label: 'Garage' },
-  { routeName: 'service/index', icon: 'clipboard-text-outline', label: 'Service' },
+  { routeName: 'service', icon: 'clipboard-text-outline', label: 'Service' },
   { routeName: 'settings', icon: 'account-circle', label: 'Profile' },
 ];
 
