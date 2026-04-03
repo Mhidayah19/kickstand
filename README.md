@@ -94,6 +94,7 @@ Kickstand operates in two core modes:
 | React Hook Form + Zod | Form handling + validation |
 | MMKV | Encrypted local storage |
 | FlashList | High-performance lists |
+| Sentry | Error monitoring + session replay |
 
 ### Backend
 
@@ -113,11 +114,14 @@ Kickstand operates in two core modes:
 | Technology | Purpose |
 |---|---|
 | Supabase | PostgreSQL + Auth + Storage |
-| Render | Backend hosting (free tier) |
+| AWS ECS on EC2 (ap-southeast-1) | Backend hosting (~1-5ms to Supabase) |
+| AWS ALB + CloudFront | HTTPS termination + CDN |
+| AWS ECR | Container registry |
 | EAS Build | Mobile builds |
+| EAS Update | OTA updates (Expo Go distribution) |
 | Expo Push API | Push notifications |
 | GitHub Actions | CI/CD |
-| Sentry | Error monitoring |
+| Sentry | Error monitoring + user feedback |
 
 ### LLM
 
@@ -136,8 +140,9 @@ Kickstand operates in two core modes:
 - [x] Database schema — 9 tables via Drizzle ORM
 - [x] 15 seeded service types (oil change, chain adjustment, brake pads, etc.)
 - [x] Workshops module — proximity search (Haversine), price comparison, workshop details
-- [x] Service logs module — paginated list, create, delete with cost tracking
+- [x] Service logs module — full CRUD (paginated list, create, update, delete) with cost tracking
 - [x] Bike catalog with 100+ models (Honda, Yamaha, Kawasaki, etc.)
+- [x] Users module — get/update profile
 - [x] Background jobs — compliance deadline scanner, maintenance reminders, workshop data freshness
 - [x] Push notification registration & cron-based job triggers
 - [x] SupabaseAuthGuard + @CurrentUser() decorator
@@ -145,32 +150,40 @@ Kickstand operates in two core modes:
 - [x] Unit tests for auth + bikes modules
 - [x] ESLint + Prettier + TypeScript strict mode
 - [x] Drizzle migrations
+- [x] Dockerized multi-stage build
+- [x] Deployed to AWS ECS on EC2 (ap-southeast-1, same region as Supabase)
+- [x] Sentry error tracking
 
 ### Mobile App (React Native)
 
-- [x] Dashboard — active bike selector, compliance status, mileage progress, recent services
-- [x] My Garage — bike list with status indicators, add bike modal
-- [x] Bike Detail — specs, compliance dates, service history, edit/delete actions
-- [x] Service History — timeline view, type filters, cost aggregation
-- [x] Add Bike — multi-step form with catalog search or manual entry
-- [x] Add Service — type selector, cost/mileage/date inputs, suggestions
-- [x] Settings — profile (hardcoded user), appearance toggles
 - [x] Authentication — login, sign-up, token refresh
-- [x] Onboarding — 3-slide carousel intro
-- [x] 37 reusable UI components (buttons, cards, inputs, timeline, etc.)
+- [x] Onboarding — sign-up flow with success screen
+- [x] Dashboard — active bike selector, compliance status cards (COE, road tax, insurance, inspection), mileage progress to next service, recent service logs
+- [x] My Garage — bike grid with compliance status indicators, fleet summary
+- [x] Bike Detail — hero card, specs, 4 compliance dates, service history, edit/delete with confirmation
+- [x] Add Bike — 5-step form with catalog search, license class picker, auto-calculated SG compliance dates
+- [x] Edit Bike — pre-filled form for all bike fields
+- [x] Service History — vertical timeline, filter by service category, total spend counter, paginated
+- [x] Service Detail — full record view with parts pills, edit and delete actions
+- [x] Add Service — type selector with recent suggestions, cost/mileage/date/parts inputs
+- [x] Edit Service — pre-filled form
+- [x] Settings — profile display, logout
+- [x] 38 reusable UI components (buttons, cards, inputs, timeline, bottom sheet, skeleton loaders, etc.)
 - [x] ESLint + TypeScript strict mode
+- [x] Sentry error tracking + session replay + in-app feedback button
+- [x] EAS Update (OTA updates via Expo Go)
 
 ### Coming Soon (v1.1+)
 
-- [ ] Mastra AI agent with voice interface (endpoint stubs exist, tools not implemented)
+- [ ] Mastra AI agent with voice interface (agent tab screen exists, tools not yet implemented)
 - [ ] 9 agent tools: get_bike_profile, get_service_history, get_compliance_status, find_workshops_nearby, compare_workshop_prices, get_workshop_details, get_maintenance_schedule, log_service, update_mileage
-- [ ] Workshop comparison UI screen (API exists, no mobile screen yet)
-- [ ] Service log edit UI (API supports, no button yet)
-- [ ] Receipt upload via camera
-- [ ] Dark mode toggle (UI exists, not wired)
+- [ ] Workshop discovery screen (API is fully built, no mobile UI yet)
+- [ ] Service log swipe-to-edit/delete with haptic feedback
+- [ ] Receipt photo upload via Supabase Storage
+- [ ] Dark mode (toggle exists in settings, not wired)
 - [ ] Personal info / security settings (menu items exist, not functional)
-- [ ] Subscription/Pro tier system
-- [ ] Deployment to Render + Supabase Cloud + EAS Build
+- [ ] Terraform IaC for all AWS infrastructure
+- [ ] Kubernetes manifests for EKS/GKE deployment
 
 ## Agent Example
 
@@ -212,19 +225,27 @@ kickstand/
 │   │   │   ├── modules/
 │   │   │   │   ├── auth/             # Register, login, refresh
 │   │   │   │   ├── bikes/            # CRUD + mileage
+│   │   │   │   ├── bike-catalog/     # Make/model lookup
+│   │   │   │   ├── users/            # Profile management
 │   │   │   │   ├── workshops/        # Proximity search, price comparison
-│   │   │   │   └── service-logs/     # Maintenance record CRUD
+│   │   │   │   ├── service-logs/     # Maintenance record CRUD
+│   │   │   │   └── notifications/    # Push + cron scan jobs
 │   │   │   ├── seeds/                # Service type + workshop seeder
 │   │   │   ├── app.module.ts
 │   │   │   ├── health.controller.ts
 │   │   │   └── main.ts
 │   │   ├── drizzle/                  # Migration files
+│   │   ├── Dockerfile                # Multi-stage build
 │   │   └── test/
 │   └── mobile/                       # Expo React Native app
-│       ├── App.tsx
-│       ├── app.json
+│       ├── app/                      # Expo Router screens
+│       ├── components/               # 38 reusable UI components
+│       ├── lib/                      # Hooks, stores, API clients
 │       └── assets/
 ├── docs/
+│   ├── plans/                        # Infrastructure plans (ECS, Terraform, K8s)
+│   ├── user-stories/                 # SG-specific feature backlog
+│   └── research/                     # SG motorcycle community research
 ├── package.json                      # Workspace root
 └── README.md
 ```
@@ -282,7 +303,7 @@ npx ts-node scripts/scrape-bike-catalog.ts
 npx ts-node scripts/seed-bike-catalog.ts
 ```
 
-### 4. Start the API
+### 5. Start the API
 
 ```bash
 # From repo root
@@ -291,7 +312,7 @@ npm run api
 
 The API starts at `http://localhost:3000`. Hit `GET /health` to verify.
 
-### 5. Start the mobile app
+### 6. Start the mobile app
 
 ```bash
 # From repo root
@@ -319,6 +340,8 @@ npm run test:cov
 | `POST` | `/auth/register` | No | Create account |
 | `POST` | `/auth/login` | No | Sign in |
 | `POST` | `/auth/refresh` | No | Refresh token |
+| `GET` | `/users/me` | Yes | Get current user profile |
+| `PATCH` | `/users/me` | Yes | Update profile |
 | `GET` | `/bikes` | Yes | List user's bikes |
 | `POST` | `/bikes` | Yes | Add a bike |
 | `PATCH` | `/bikes/:id` | Yes | Update bike details |
@@ -329,13 +352,14 @@ npm run test:cov
 | `GET` | `/workshops/:id` | Yes | Workshop details |
 | `GET` | `/workshops/compare?service_type=X&bike_model=Y` | Yes | Compare prices |
 | `GET` | `/bikes/:bikeId/services` | Yes | List service logs (paginated) |
+| `GET` | `/bikes/:bikeId/services/:id` | Yes | Get service log detail |
 | `POST` | `/bikes/:bikeId/services` | Yes | Log a service |
+| `PATCH` | `/bikes/:bikeId/services/:id` | Yes | Update a service log |
 | `DELETE` | `/bikes/:bikeId/services/:id` | Yes | Delete a service log |
 | `GET` | `/bike-catalog/makes` | No | List all bike makes |
 | `GET` | `/bike-catalog/models?make=Honda` | No | List models for make |
 | `GET` | `/bike-catalog/:id` | No | Catalog entry details |
-| `GET` | `/bikes/:bikeId/services` | Yes | Paginated service logs |
-| `POST` | `/bikes/:bikeId/services` | Yes | Create service log |
+| `POST` | `/notifications/register-token` | Yes | Register Expo push token |
 
 ### Coming Soon (v1.1+)
 
@@ -343,8 +367,6 @@ npm run test:cov
 |---|---|---|
 | `POST` | `/agent/chat` | Chat with AI agent |
 | `POST` | `/agent/stream` | Streaming voice agent response |
-| `POST` | `/notifications/register-token` | Register Expo push token |
-| `POST` | `/notifications/trigger-scan` | Manually trigger compliance scan |
 
 ## Background Jobs
 
@@ -352,11 +374,11 @@ npm run test:cov
 |---|---|---|
 | Compliance Deadline Scanner | Daily 8am SGT | Tiered notifications at 30d / 14d / 7d / 1d before expiry |
 | Maintenance Reminder | Weekly Monday 8am | Mileage-based service reminders |
-| Workshop Data Freshness | Monthly | Flags unverified workshop pricing |
+| Workshop Data Freshness | Monthly | Flags unverified workshop pricing (>6 months stale) |
 
 ## Data Model
 
-9 tables: `users`, `bikes`, `service_types`, `maintenance_schedules`, `service_logs`, `workshops`, `workshop_services`, `notification_logs`, `agent_conversations`
+9 tables: `users`, `bikes`, `bike_catalog`, `service_types`, `maintenance_schedules`, `service_logs`, `workshops`, `workshop_services`, `notification_logs`, `agent_conversations`
 
 Key relationships:
 - A user owns many bikes
@@ -368,40 +390,52 @@ Key relationships:
 
 **Phase 1 — MVP (shipped)**
 - ✓ Bike profile management, multi-bike support
-- ✓ Service logging with 15 types
-- ✓ Compliance tracking (COE, road tax, insurance, inspection)
+- ✓ Service logging with full CRUD and 15 service types
+- ✓ Compliance tracking (COE, road tax, insurance, inspection) with auto-calculated SG dates
 - ✓ Workshop directory with proximity search & price comparison
-- ✓ Push notification setup
-- *In progress:* Agent voice interface, workshop comparison UI, service log editing
+- ✓ Push notifications with compliance + maintenance cron scan jobs
+- ✓ Deployed to AWS ECS on EC2 (ap-southeast-1) with ALB + CloudFront HTTPS
+- ✓ Sentry error monitoring + in-app feedback
+- ✓ EAS Update for OTA distribution
 
-**Phase 2 — Intelligence**
+**Phase 2 — Polish (in progress)**
+- Service log swipe-to-edit/delete with haptics
+- Receipt photo upload via Supabase Storage
+- Workshop discovery screen (mobile UI)
+
+**Phase 3 — Intelligence**
 - Mastra AI agent with voice + chat
 - Conversational bike advice based on service history
 - Proactive compliance/maintenance reminders with context
 - Workshop recommendation engine
 
-**Phase 3 — Community**
+**Phase 4 — Infrastructure**
+- Terraform IaC for all AWS resources
+- Kubernetes manifests (EKS/GKE)
+
+**Phase 5 — Community**
 - Community-contributed workshop data & reviews
 - Crowd-sourced pricing updates
 - Ride logs & trip tracking
-- Service plan templates
 
-**Phase 4 — Expansion**
-- Cross-border riding (Malaysia, Thailand)
-- VEP (Vehicle Entry Pass) tracking
-- Parts compatibility database & procurement
+**Phase 6 — Expansion**
+- Cross-border riding (Malaysia, Thailand) — VEP tracking, pre-departure checklists
+- COE renewal planning tools
+- License progression (2B → 2A → 2) notifications
 
 ## Deployment
 
-Target: $0/month total using free tiers.
-
 | Service | Tier | Purpose |
 |---|---|---|
-| Render | Free | Backend hosting |
+| AWS ECS on EC2 (ap-southeast-1) | Free tier (t3.micro) | Backend hosting, co-located with Supabase |
+| AWS ALB | Free tier | HTTPS load balancing |
+| AWS ECR | Free tier | Docker image registry |
 | Supabase | Free | PostgreSQL + Auth + Storage |
 | EAS Build | Free | Mobile builds |
+| EAS Update | Free | OTA updates |
 | Expo Push API | Free | Push notifications |
 | GitHub Actions | Free | CI/CD |
+| Sentry | Free | Error monitoring |
 
 ## License
 
