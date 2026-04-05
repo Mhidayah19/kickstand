@@ -8,7 +8,7 @@ import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
 import { Skeleton } from '../../../components/ui/skeleton';
 import * as Haptics from 'expo-haptics';
 import { useServiceLog, useDeleteServiceLog, useUpdateServiceLog } from '../../../lib/api/use-service-logs';
-import { useReceiptUpload } from '../../../lib/hooks/use-receipt-upload';
+import { useImageUpload } from '../../../lib/hooks/use-image-upload';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { colors } from '../../../lib/colors';
 import {
@@ -59,7 +59,11 @@ export default function ServiceDetailScreen() {
   const { data: log, isLoading } = useServiceLog(activeBikeId, id ?? null);
   const deleteLog = useDeleteServiceLog(activeBikeId);
   const updateLog = useUpdateServiceLog(activeBikeId);
-  const { isUploading, pickAndUpload } = useReceiptUpload(id ?? '');
+  const { isUploading, pickAndUpload } = useImageUpload({
+    bucket: 'receipts',
+    prefix: id ?? '',
+    dialogTitle: 'Add Receipt',
+  });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [receiptVisible, setReceiptVisible] = useState(false);
   const [receiptError, setReceiptError] = useState(false);

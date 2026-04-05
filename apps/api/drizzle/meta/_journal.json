@@ -29,6 +29,13 @@
       "when": 1774895347019,
       "tag": "0003_broad_hex",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1775384927034,
+      "tag": "0004_easy_blizzard",
+      "breakpoints": true
     }
   ]
 }

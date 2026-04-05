@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateServiceLog, useUpdateServiceLog } from '../api/use-service-logs';
@@ -78,6 +78,10 @@ export function useServiceLogForm(
     () => makeInitialParts(existingLog),
   );
 
+  const [receiptUrl, setReceiptUrl] = useState<string | null>(
+    () => existingLog?.receiptUrl ?? null,
+  );
+
   const [serviceTypeKey, mileage, date] = form.watch(['serviceTypeKey', 'mileage', 'date']) as [ServiceTypeKey, string, string];
   const errors = form.formState.errors;
 
@@ -92,6 +96,7 @@ export function useServiceLogForm(
       cost: values.cost.trim(),
       description: label,
       parts: filledParts.length > 0 ? filledParts : undefined,
+      receiptUrl: receiptUrl ?? undefined,
     };
 
     if (existingLog) {
@@ -107,6 +112,7 @@ export function useServiceLogForm(
     form.reset(makeDefaults(initialMileage, existingLog));
     nextPartId.current = existingLog?.parts?.length ?? 1;
     setParts(makeInitialParts(existingLog));
+    setReceiptUrl(existingLog?.receiptUrl ?? null);
   };
 
   return {
@@ -116,6 +122,8 @@ export function useServiceLogForm(
     serviceTypeKey,
     serviceTypeLabel: SERVICE_TYPE_LABELS[serviceTypeKey],
     mileage,
+    receiptUrl,
+    setReceiptUrl,
     setServiceTypeKey: (key: ServiceTypeKey) => form.setValue('serviceTypeKey', key),
     parts,
     addPart: () => setParts((prev) => [...prev, { id: nextPartId.current++, value: '' }]),

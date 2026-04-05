@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Animated, Pressable, Text, View } from 'react-native';
+import { ActivityIndicator, Animated, Image, Pressable, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
 import { Section } from '../ui/section';
@@ -10,13 +10,15 @@ import { ServiceTypeSelector } from './service-type-selector';
 import { PartsUsed } from './parts-used';
 import type { useServiceLogForm } from '../../lib/hooks/use-service-log-form';
 import type { FrequentType } from '../../lib/service-type-helpers';
+import { useImageUpload } from '../../lib/hooks/use-image-upload';
 
 interface ServiceLogFormBodyProps {
   form: ReturnType<typeof useServiceLogForm>;
   frequentTypes: FrequentType[];
+  bikeId: string;
 }
 
-export function ServiceLogFormBody({ form, frequentTypes }: ServiceLogFormBodyProps) {
+export function ServiceLogFormBody({ form, frequentTypes, bikeId }: ServiceLogFormBodyProps) {
   const [collapsed, setCollapsed] = useState(false);
   const collapseTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -47,9 +49,22 @@ export function ServiceLogFormBody({ form, frequentTypes }: ServiceLogFormBodyPr
     setCollapsed(false);
   }, []);
 
-  const handleEvidencePress = useCallback(() => {
-    Alert.alert('Coming Soon', 'Evidence upload will be available in a future update.');
-  }, []);
+  const { isUploading, pickAndUpload } = useImageUpload({
+    bucket: 'receipts',
+    prefix: bikeId,
+    dialogTitle: 'Add Evidence',
+  });
+
+  const handleEvidenceUpload = useCallback(async () => {
+    const result = await pickAndUpload();
+    if (result) {
+      form.setReceiptUrl(result.publicUrl);
+    }
+  }, [pickAndUpload, form.setReceiptUrl]);
+
+  const handleRemoveEvidence = useCallback(() => {
+    form.setReceiptUrl(null);
+  }, [form.setReceiptUrl]);
 
   return (
     <View>
@@ -111,13 +126,49 @@ export function ServiceLogFormBody({ form, frequentTypes }: ServiceLogFormBodyPr
           />
 
           <Section label="Evidence & Documentation">
-            <Pressable
-              onPress={handleEvidencePress}
-              className="border-2 border-dashed border-outline rounded-xl py-3xl items-center justify-center active:opacity-70"
-            >
-              <MaterialCommunityIcons name="camera-outline" size={28} color={colors.outline} />
-              <Text className="font-sans-bold text-sm text-outline mt-sm">Upload Evidence</Text>
-            </Pressable>
+            {form.receiptUrl ? (
+              <View>
+                <View style={{ width: '100%', borderRadius: 12, overflow: 'hidden', backgroundColor: colors.surfaceLow }}>
+                  <Image
+                    source={{ uri: form.receiptUrl }}
+                    style={{ width: '100%', height: 160 }}
+                    resizeMode="contain"
+                  />
+                </View>
+                <View className="flex-row gap-md mt-md">
+                  <Pressable
+                    onPress={handleEvidenceUpload}
+                    disabled={isUploading}
+                    className="flex-1 bg-surface-low py-sm rounded-xl items-center active:opacity-70"
+                  >
+                    <Text className="font-sans-bold text-xs text-charcoal">
+                      {isUploading ? 'Uploading…' : 'Replace'}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={handleRemoveEvidence}
+                    className="flex-1 bg-surface-low py-sm rounded-xl items-center active:opacity-70"
+                  >
+                    <Text className="font-sans-bold text-xs text-danger">Remove</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ) : (
+              <Pressable
+                onPress={handleEvidenceUpload}
+                disabled={isUploading}
+                className="border-2 border-dashed border-outline rounded-xl py-3xl items-center justify-center active:opacity-70"
+              >
+                {isUploading ? (
+                  <ActivityIndicator size="small" color={colors.outline} />
+                ) : (
+                  <MaterialCommunityIcons name="camera-outline" size={28} color={colors.outline} />
+                )}
+                <Text className="font-sans-bold text-sm text-outline mt-sm">
+                  {isUploading ? 'Uploading…' : 'Upload Evidence'}
+                </Text>
+              </Pressable>
+            )}
           </Section>
         </Animated.View>
       )}

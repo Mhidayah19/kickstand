@@ -13,6 +13,7 @@ export class UsersService {
     id: schema.users.id,
     email: schema.users.email,
     name: schema.users.name,
+    avatarUrl: schema.users.avatarUrl,
     createdAt: schema.users.createdAt,
   };
 
@@ -41,10 +42,14 @@ export class UsersService {
   }
 
   async updateProfile(userId: string, dto: UpdateProfileDto) {
-    if (dto.name !== undefined) {
+    const fields: Record<string, unknown> = {};
+    if (dto.name !== undefined) fields.name = dto.name;
+    if (dto.avatarUrl !== undefined) fields.avatarUrl = dto.avatarUrl || null;
+
+    if (Object.keys(fields).length > 0) {
       const [updated] = await this.db
         .update(schema.users)
-        .set({ name: dto.name, updatedAt: new Date() })
+        .set({ ...fields, updatedAt: new Date() })
         .where(eq(schema.users.id, userId))
         .returning({ id: schema.users.id });
 

@@ -40,6 +40,7 @@ describe('UsersService', () => {
         id: userId,
         email: 'rider@example.com',
         name: 'Alex',
+        avatarUrl: null,
         createdAt: new Date('2025-01-01'),
       };
 
@@ -52,6 +53,7 @@ describe('UsersService', () => {
         id: userId,
         email: 'rider@example.com',
         name: 'Alex',
+        avatarUrl: null,
         createdAt: userRow.createdAt,
         bikeCount: 2,
       });
@@ -74,6 +76,7 @@ describe('UsersService', () => {
         id: userId,
         email: 'rider@example.com',
         name: 'Alex Updated',
+        avatarUrl: null,
         createdAt: new Date('2025-01-01'),
       };
 
@@ -93,6 +96,7 @@ describe('UsersService', () => {
         id: userId,
         email: 'rider@example.com',
         name: 'Alex Updated',
+        avatarUrl: null,
         createdAt: updatedUser.createdAt,
         bikeCount: 1,
       });
@@ -106,6 +110,36 @@ describe('UsersService', () => {
       await expect(
         service.updateProfile('nonexistent', { name: 'Ghost' }),
       ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should update avatarUrl and return updated profile', async () => {
+      const userId = 'user-uuid-1';
+      const updatedUser = {
+        id: userId,
+        email: 'rider@example.com',
+        name: 'Alex',
+        avatarUrl: 'https://example.com/avatar.jpg',
+        createdAt: new Date('2025-01-01'),
+      };
+
+      mockDb.returning.mockResolvedValueOnce([{ id: userId }]);
+      mockDb.where.mockImplementationOnce(() => mockDb);
+      mockDb.where.mockResolvedValueOnce([updatedUser]);
+      mockDb.where.mockResolvedValueOnce([{ count: 1 }]);
+
+      const result = await service.updateProfile(userId, {
+        avatarUrl: 'https://example.com/avatar.jpg',
+      });
+
+      expect(mockDb.update).toHaveBeenCalled();
+      expect(result).toEqual({
+        id: userId,
+        email: 'rider@example.com',
+        name: 'Alex',
+        avatarUrl: 'https://example.com/avatar.jpg',
+        createdAt: updatedUser.createdAt,
+        bikeCount: 1,
+      });
     });
   });
 });
