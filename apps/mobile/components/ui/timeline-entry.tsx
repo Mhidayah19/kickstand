@@ -60,7 +60,7 @@ export function TimelineEntry({
               </Text>
               <Text className="font-sans-xbold text-xl text-charcoal">{title}</Text>
             </View>
-            <Text className="font-sans-bold text-lg text-charcoal">{cost}</Text>
+            <Text className="font-sans-xbold text-xl text-charcoal">{cost}</Text>
           </View>
 
           {tags && tags.length > 0 && (

@@ -5,23 +5,20 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { TopAppBar } from '../../../components/ui/top-app-bar';
 import { ScreenHeader } from '../../../components/ui/screen-header';
-import { FilterChips } from '../../../components/ui/filter-chips';
 import { SwipeableTimelineEntry } from '../../../components/ui/swipeable-timeline-entry';
 import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
 import { ServiceSearchBar } from '../../../components/service/service-search-bar';
 import { AnalyticsSheet } from '../../../components/service/analytics-sheet';
-import { DateRangeSheet } from '../../../components/service/date-range-sheet';
+import { FilterSheet } from '../../../components/service/filter-sheet';
 import { useServiceLogs, useDeleteServiceLog } from '../../../lib/api/use-service-logs';
 import { useBike, useBikes } from '../../../lib/api/use-bikes';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { colors } from '../../../lib/colors';
-import { formatDateRangeLabel } from '../../../lib/utils/service-analytics';
 import {
   SERVICE_TYPE_LABELS,
   SERVICE_TYPE_ICONS,
   SERVICE_TYPE_COLORS,
   SERVICE_FILTER_GROUPS,
-  FILTER_OPTIONS,
 } from '../../../lib/constants/service-types';
 import type { ServiceTypeKey, FilterGroupKey } from '../../../lib/constants/service-types';
 import type { ServiceLog } from '../../../lib/types/service-log';
@@ -44,7 +41,6 @@ function mapLogToTimeline(log: ServiceLog) {
     cost: formatCost(log.cost),
     icon: (SERVICE_TYPE_ICONS[key] ?? 'wrench') as string,
     color: SERVICE_TYPE_COLORS[key] ?? ('charcoal' as const),
-    tags: [{ label: SERVICE_TYPE_LABELS[key] ?? log.serviceType }],
     quote: log.description || undefined,
     parts: log.parts ?? undefined,
   };
@@ -62,7 +58,7 @@ export default function ServiceScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState<{ from: string; to: string } | null>(null);
   const [analyticsVisible, setAnalyticsVisible] = useState(false);
-  const [dateSheetVisible, setDateSheetVisible] = useState(false);
+  const [filterSheetVisible, setFilterSheetVisible] = useState(false);
 
   const logs = logsResponse?.data ?? [];
 
@@ -104,11 +100,15 @@ export default function ServiceScreen() {
   );
 
   const dateFilteredTotalSpend = useMemo(
-    () => dateRange
-      ? dateFilteredLogs.reduce((acc, log) => acc + (parseFloat(log.cost) || 0), 0)
-      : totalSpend,
+    () =>
+      dateRange
+        ? dateFilteredLogs.reduce((acc, log) => acc + (parseFloat(log.cost) || 0), 0)
+        : totalSpend,
     [dateFilteredLogs, dateRange, totalSpend],
   );
+
+  const hasActiveFilters = selectedFilter !== 'All' || dateRange !== null;
+  const activeFilterCount = (selectedFilter !== 'All' ? 1 : 0) + (dateRange ? 1 : 0);
 
   const deleteLog = useDeleteServiceLog(activeBikeId);
 
@@ -139,68 +139,56 @@ export default function ServiceScreen() {
       />
 
       <View className="px-6" style={{ paddingTop: 80 }}>
-        <ScreenHeader title="Service" size="md" />
-
-        {bike && (
-          <Text className="font-sans-medium text-sm text-sand mb-3">
-            {bike.make} {bike.model} {bike.year && `• ${bike.year}`}
-          </Text>
-        )}
-
-        {logs.length > 0 && (
-          <TouchableOpacity
-            className="bg-charcoal self-start flex-row items-center gap-3 px-4 py-2 rounded-xl mb-3"
-            onPress={() => setAnalyticsVisible(true)}
-            activeOpacity={0.8}
-          >
-            <Text className="font-sans-xbold text-lg text-surface-card">
-              ${totalSpend.toFixed(2)}
-            </Text>
-            <Text className="font-sans-bold text-xxs text-yellow uppercase tracking-wide-1">
-              ↗ Insights
-            </Text>
-          </TouchableOpacity>
-        )}
+        <ScreenHeader
+          title="Service History"
+          size="md"
+          rightAction={
+            logs.length > 0 ? (
+              <TouchableOpacity
+                className="bg-yellow flex-row items-center gap-1.5 px-3 py-1.5 rounded-xl"
+                onPress={() => setAnalyticsVisible(true)}
+                activeOpacity={0.8}
+              >
+                <Text className="font-sans-xbold text-sm text-charcoal">
+                  ${totalSpend.toFixed(2)}
+                </Text>
+                <MaterialCommunityIcons name="trending-up" size={13} color={colors.charcoal} />
+              </TouchableOpacity>
+            ) : undefined
+          }
+        />
 
         {logs.length > 0 && (
-          <ServiceSearchBar key={activeBikeId ?? 'none'} value={searchQuery} onChange={setSearchQuery} />
+          <ServiceSearchBar
+            key={activeBikeId ?? 'none'}
+            value={searchQuery}
+            onChange={setSearchQuery}
+          />
         )}
       </View>
 
       {logs.length > 0 && (
-        <View className="mb-4 flex-row items-center">
-          <View className="flex-1 pl-6">
-            <FilterChips
-              options={FILTER_OPTIONS}
-              selected={selectedFilter}
-              onSelect={(v) => setSelectedFilter(v as FilterGroupKey)}
-              wrap={false}
+        <View className="px-6 mt-3 mb-4">
+          <TouchableOpacity
+            className={`self-start flex-row items-center gap-2 px-4 py-2 rounded-full ${
+              hasActiveFilters ? 'bg-charcoal' : 'bg-surface-low'
+            }`}
+            onPress={() => setFilterSheetVisible(true)}
+            activeOpacity={0.8}
+          >
+            <MaterialCommunityIcons
+              name="tune-variant"
+              size={14}
+              color={hasActiveFilters ? colors.white : colors.sand}
             />
-          </View>
-          <View className="pr-6 pl-2">
-            {dateRange ? (
-              <TouchableOpacity
-                className="flex-row items-center gap-1 bg-yellow rounded-full px-3 py-1.5"
-                onPress={() => setDateSheetVisible(true)}
-                activeOpacity={0.8}
-              >
-                <Text className="font-sans-bold text-xs text-charcoal">
-                  {formatDateRangeLabel(dateRange.from, dateRange.to)}
-                </Text>
-                <TouchableOpacity onPress={() => setDateRange(null)} hitSlop={8}>
-                  <MaterialCommunityIcons name="close" size={12} color={colors.charcoal} />
-                </TouchableOpacity>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                className="bg-surface-low rounded-full p-2"
-                onPress={() => setDateSheetVisible(true)}
-                activeOpacity={0.8}
-              >
-                <MaterialCommunityIcons name="calendar-outline" size={18} color={colors.sand} />
-              </TouchableOpacity>
-            )}
-          </View>
+            <Text
+              className={`font-sans-bold text-sm ${
+                hasActiveFilters ? 'text-white' : 'text-sand'
+              }`}
+            >
+              {hasActiveFilters ? `Filters · ${activeFilterCount}` : 'Filter'}
+            </Text>
+          </TouchableOpacity>
         </View>
       )}
 
@@ -209,13 +197,14 @@ export default function ServiceScreen() {
           <ActivityIndicator size="large" color={colors.sand} />
         </View>
       ) : isEmpty ? (
-        <View className="flex-1 items-center justify-center px-8">
-          <MaterialCommunityIcons name="clipboard-text-outline" size={64} color={colors.sand} />
-          <Text className="font-sans-xbold text-xl text-charcoal mt-6 mb-2 text-center">
+        <View className="flex-1 px-6 justify-center">
+          <Text className="font-sans-xbold text-xl text-charcoal mb-2">
             No services logged yet
           </Text>
-          <Text className="font-sans-medium text-sm text-sand text-center mb-8">
-            Log your first service to start tracking your maintenance history.
+          <Text className="font-sans-medium text-sm text-sand">
+            {bike
+              ? `${bike.make} ${bike.model}'s service history starts here.`
+              : 'Log your first service to start tracking your maintenance history.'}
           </Text>
         </View>
       ) : (
@@ -224,15 +213,25 @@ export default function ServiceScreen() {
           showsVerticalScrollIndicator={false}
         >
           {filteredLogs.length === 0 ? (
-            <View className="items-center justify-center py-16">
+            <View className="items-center justify-center py-16 gap-4">
               <Text className="font-sans-medium text-sm text-sand text-center">
                 No services match your filters
               </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  setSelectedFilter('All');
+                  setDateRange(null);
+                  setSearchQuery('');
+                }}
+                activeOpacity={0.7}
+              >
+                <Text className="font-sans-bold text-sm text-charcoal">Clear filters</Text>
+              </TouchableOpacity>
             </View>
           ) : (
             <View className="relative">
               <View
-                className="absolute bg-sand/30"
+                className="absolute bg-sand/50"
                 style={{ left: 16, top: 0, bottom: 0, width: 2 }}
               />
               {filteredLogs.map((log) => {
@@ -243,7 +242,9 @@ export default function ServiceScreen() {
                     {...props}
                     onPress={() => router.push(`/service/${log.id}`)}
                     onDelete={() => handleDeleteLog(log.id, props.title)}
-                    onEdit={() => router.push(`/edit-service?logId=${log.id}&bikeId=${activeBikeId}`)}
+                    onEdit={() =>
+                      router.push(`/edit-service?logId=${log.id}&bikeId=${activeBikeId}`)
+                    }
                   />
                 );
               })}
@@ -271,13 +272,15 @@ export default function ServiceScreen() {
         dateRange={dateRange}
       />
 
-      <DateRangeSheet
-        visible={dateSheetVisible}
-        onClose={() => setDateSheetVisible(false)}
-        value={dateRange}
-        onApply={(range) => {
+      <FilterSheet
+        visible={filterSheetVisible}
+        onClose={() => setFilterSheetVisible(false)}
+        selectedFilter={selectedFilter}
+        dateRange={dateRange}
+        onApply={(filter, range) => {
+          setSelectedFilter(filter);
           setDateRange(range);
-          setDateSheetVisible(false);
+          setFilterSheetVisible(false);
         }}
       />
     </SafeAreaView>

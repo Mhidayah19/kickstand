@@ -24,13 +24,15 @@ export function ScreenHeader({ title, label, subtitle, rightAction, onTitlePress
         </Text>
       )}
       <View className="flex-row items-center justify-between">
-        {onTitlePress ? (
-          <Pressable onPress={onTitlePress}>
-            {titleElement}
-          </Pressable>
-        ) : (
-          titleElement
-        )}
+        <View className="flex-1 mr-3">
+          {onTitlePress ? (
+            <Pressable onPress={onTitlePress}>
+              {titleElement}
+            </Pressable>
+          ) : (
+            titleElement
+          )}
+        </View>
         {rightAction}
       </View>
       {subtitle && (

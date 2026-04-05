@@ -14,15 +14,33 @@ import { colors } from '../../../lib/colors';
 import {
   SERVICE_TYPE_LABELS,
 } from '../../../lib/constants/service-types';
-import type { ServiceTypeKey } from '../../../lib/constants/service-types';
+import type { ServiceTypeKey, IconName } from '../../../lib/constants/service-types';
 
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
-                'July', 'August', 'September', 'October', 'November', 'December'];
+const PART_ICON_RULES: { keywords: string[]; icon: IconName }[] = [
+  { keywords: ['spark', 'plug'],                    icon: 'lightning-bolt' },
+  { keywords: ['brake', 'fluid', 'dot'],            icon: 'alert-circle' },
+  { keywords: ['air', 'filter'],                    icon: 'air-filter' },
+  { keywords: ['oil', 'engine oil', 'fork oil'],    icon: 'oil' },
+  { keywords: ['chain'],                            icon: 'link-variant' },
+  { keywords: ['tire', 'tyre'],                     icon: 'circle-outline' },
+  { keywords: ['battery'],                          icon: 'battery' },
+  { keywords: ['coolant', 'antifreeze'],            icon: 'thermometer' },
+  { keywords: ['clutch'],                           icon: 'cog' },
+  { keywords: ['pad', 'brake pad'],                 icon: 'alert-circle' },
+];
 
-function formatFullDate(iso: string): string {
+function getPartIcon(name: string): IconName {
+  const lower = name.toLowerCase();
+  for (const rule of PART_ICON_RULES) {
+    if (rule.keywords.some((kw) => lower.includes(kw))) return rule.icon;
+  }
+  return 'wrench';
+}
+
+function formatDate(iso: string): string {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return 'Unknown date';
-  return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+  return d.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
 }
 
 function formatCost(cost: string): string {
@@ -44,6 +62,7 @@ export default function ServiceDetailScreen() {
   const { isUploading, pickAndUpload } = useReceiptUpload(id ?? '');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [receiptVisible, setReceiptVisible] = useState(false);
+  const [receiptError, setReceiptError] = useState(false);
 
   const handleEdit = useCallback(() => {
     if (!id || !activeBikeId) return;
@@ -140,50 +159,65 @@ export default function ServiceDetailScreen() {
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="mb-6">
-          <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">
-            Service Type
-          </Text>
-          <Text className="font-sans-xbold text-charcoal" style={{ fontSize: 28, lineHeight: 34 }}>
-            {serviceLabel}
-          </Text>
-        </View>
+        <Text className="font-sans-xbold text-charcoal mb-5" style={{ fontSize: 28, lineHeight: 34 }}>
+          Service Entry Details
+        </Text>
 
-        <View className="flex-row gap-8 mb-4">
-          <View>
-            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">Date</Text>
-            <Text className="font-sans-bold text-sm text-charcoal">{formatFullDate(log.date)}</Text>
+        {/* Metadata card */}
+        <View className="bg-surface-card rounded-2xl mb-4 overflow-hidden">
+          <View className="p-4">
+            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">
+              Service Type
+            </Text>
+            <Text className="font-sans-xbold text-charcoal" style={{ fontSize: 28, lineHeight: 34 }}>
+              {serviceLabel}
+            </Text>
           </View>
-          <View>
-            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">Cost</Text>
-            <Text className="font-sans-bold text-sm text-charcoal">{formatCost(log.cost)}</Text>
-          </View>
-        </View>
 
-        <View className="flex-row gap-8 mb-6">
-          <View>
+          <View className="h-px bg-surface-low mx-4" />
+
+          <View className="flex-row p-4">
+            <View className="flex-1">
+              <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">Date</Text>
+              <Text className="font-sans-bold text-sm text-charcoal">{formatDate(log.date)}</Text>
+            </View>
+            <View className="flex-1">
+              <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">Cost</Text>
+              <Text className="font-sans-xbold text-2xl text-charcoal">{formatCost(log.cost)}</Text>
+            </View>
+          </View>
+
+          <View className="h-px bg-surface-low mx-4" />
+
+          <View className="p-4">
             <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">Mileage</Text>
             <Text className="font-sans-bold text-sm text-charcoal">{formatMileage(log.mileageAt)}</Text>
           </View>
+
+          {!!log.description && (
+            <>
+              <View className="h-px bg-surface-low mx-4" />
+              <View className="p-4">
+                <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-2">
+                  Description/Notes
+                </Text>
+                <View className="bg-surface-low rounded-xl p-3">
+                  <Text className="font-sans-medium text-sm text-charcoal leading-relaxed">
+                    {log.description}
+                  </Text>
+                </View>
+              </View>
+            </>
+          )}
         </View>
 
-        {!!log.description && (
-          <View className="bg-surface-low rounded-2xl p-4 mb-6">
-            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-2">
-              Description / Notes
-            </Text>
-            <Text className="font-sans-medium text-sm text-charcoal leading-relaxed">
-              {log.description}
-            </Text>
-          </View>
-        )}
-
         {log.parts && log.parts.length > 0 && (
-          <View className="mb-6">
+          <View className="mb-4">
             <Text className="font-sans-xbold text-base text-charcoal mb-3">Parts Replaced</Text>
             <View className="flex-row flex-wrap gap-2">
               {log.parts.map((part, index) => (
-                <View key={`${index}-${part}`} className="bg-surface-low px-3 py-2 rounded-full">
+                <View key={`${index}-${part}`} className="bg-surface-card px-3 py-2 rounded-full flex-row items-center gap-1.5">
+                  <MaterialCommunityIcons name={getPartIcon(part)} size={12} color={colors.charcoal} />
                   <Text className="font-sans-bold text-xs text-charcoal">{part}</Text>
                 </View>
               ))}
@@ -196,14 +230,15 @@ export default function ServiceDetailScreen() {
             Receipt
           </Text>
 
-          {log.receiptUrl ? (
+          {log.receiptUrl && !receiptError ? (
             <>
               <Pressable onPress={() => setReceiptVisible(true)} className="active:opacity-80">
                 <View style={{ width: '100%', borderRadius: 16, overflow: 'hidden', backgroundColor: colors.surfaceLow }}>
                   <Image
                     source={{ uri: log.receiptUrl }}
-                    style={{ width: '100%', height: 200 }}
+                    style={{ width: '100%', height: 160 }}
                     resizeMode="contain"
+                    onError={() => setReceiptError(true)}
                   />
                 </View>
                 <Text className="font-sans-medium text-xs text-sand mt-2 text-center">
@@ -213,9 +248,9 @@ export default function ServiceDetailScreen() {
               <Pressable
                 onPress={handleReceiptUpload}
                 disabled={isUploading}
-                className="mt-3 items-center active:opacity-70"
+                className="mt-3 self-start bg-surface-low px-4 py-2 rounded-full active:opacity-70"
               >
-                <Text className="font-sans-bold text-xs text-sand">
+                <Text className="font-sans-bold text-xs text-charcoal">
                   {isUploading ? 'Uploading…' : 'Replace receipt'}
                 </Text>
               </Pressable>
@@ -238,13 +273,15 @@ export default function ServiceDetailScreen() {
           )}
         </View>
 
-        <TouchableOpacity
-          onPress={() => setShowDeleteDialog(true)}
-          className="items-center active:opacity-70"
-          hitSlop={8}
-        >
-          <Text className="font-sans-bold text-sm text-danger">Delete this log</Text>
-        </TouchableOpacity>
+        <View className="bg-danger/5 rounded-2xl p-4 mt-4 items-center">
+          <TouchableOpacity
+            onPress={() => setShowDeleteDialog(true)}
+            className="active:opacity-70"
+            hitSlop={8}
+          >
+            <Text className="font-sans-bold text-sm text-danger">Delete this log</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
       <ConfirmationDialog
