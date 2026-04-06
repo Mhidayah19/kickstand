@@ -4,15 +4,14 @@ import { colors } from '../../lib/colors';
 import type { TimelineColor } from '../../lib/service-type-meta';
 
 interface TimelineEntryProps {
-  date: string;
   title: string;
   cost: string;
-  icon: string;
   color: TimelineColor;
   tags?: { label: string; danger?: boolean }[];
   quote?: string;
   imageUri?: string;
   parts?: string[];
+  mileage?: string;
   onPress?: () => void;
   onLongPress?: () => void;
 }
@@ -28,39 +27,40 @@ function truncate(str: string, max: number): string {
 }
 
 export function TimelineEntry({
-  date,
   title,
   cost,
-  icon,
   color,
   tags,
   quote,
   imageUri,
   parts,
+  mileage,
   onPress,
   onLongPress,
 }: TimelineEntryProps) {
   return (
     <Pressable onPress={onPress} onLongPress={onLongPress}>
-      <View className="relative pl-12 mb-12">
-        {/* Node */}
-        <View
-          className="absolute left-0 top-1 w-8 h-8 rounded-full items-center justify-center z-10"
-          style={{ backgroundColor: nodeColors[color] }}
-        >
-          <MaterialCommunityIcons name={icon as any} size={14} color={colors.white} />
-        </View>
-
+      <View className="relative pl-12 mb-4">
         {/* Card */}
         <View className="bg-surface-card p-6 rounded-2xl">
           <View className="flex-row justify-between items-start mb-4">
             <View className="flex-1 mr-4">
-              <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-widest mb-1">
-                {date}
-              </Text>
-              <Text className="font-sans-xbold text-xl text-charcoal">{title}</Text>
+              <View className="flex-row items-center gap-2 mb-1">
+                <View
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: nodeColors[color] }}
+                />
+                <Text className="font-sans-xbold text-xl text-charcoal">{title}</Text>
+              </View>
+              {mileage && (
+                <Text className="font-sans-medium text-xs text-charcoal/60 mt-0.5">
+                  {mileage}
+                </Text>
+              )}
             </View>
-            <Text className="font-sans-xbold text-xl text-charcoal">{cost}</Text>
+            <View className="flex-row items-center gap-2">
+              <Text className="font-sans-xbold text-xl text-charcoal">{cost}</Text>
+            </View>
           </View>
 
           {tags && tags.length > 0 && (
@@ -69,12 +69,12 @@ export function TimelineEntry({
                 <View
                   key={tag.label}
                   className={`px-3 py-1 rounded-full ${
-                    tag.danger ? 'bg-danger-surface' : 'bg-surface-low'
+                    tag.danger ? 'bg-danger-surface' : 'bg-charcoal'
                   }`}
                 >
                   <Text
                     className={`font-sans-bold text-xxs uppercase tracking-widest ${
-                      tag.danger ? 'text-danger' : 'text-charcoal'
+                      tag.danger ? 'text-danger' : 'text-white'
                     }`}
                   >
                     {tag.label}
@@ -87,10 +87,11 @@ export function TimelineEntry({
           {parts && parts.length > 0 && (
             <View className="flex-row flex-wrap gap-2 mb-4">
               {parts.map((part, index) => (
-                <View key={`${index}-${part}`} className="px-3 py-1 rounded-full bg-surface-low">
-                  <Text className="font-sans-bold text-xxs text-sand">
+                <View key={`${index}-${part}`} className="flex-row items-center gap-1 px-3 py-1 rounded-full bg-surface-low">
+                  <Text className="font-sans-bold text-xxs text-charcoal">
                     {truncate(part, 24)}
                   </Text>
+                  <MaterialCommunityIcons name="wrench" size={10} color={colors.sand} />
                 </View>
               ))}
             </View>
@@ -98,7 +99,7 @@ export function TimelineEntry({
 
           {quote && (
             <View className="bg-sand/10 rounded-xl p-3">
-              <Text className="text-sm text-sand italic font-sans-medium">{quote}</Text>
+              <Text className="text-sm text-charcoal italic font-sans-medium">{quote}</Text>
             </View>
           )}
 
@@ -108,6 +109,12 @@ export function TimelineEntry({
               className="w-full h-32 rounded-xl mt-2"
               resizeMode="cover"
             />
+          )}
+
+          {onPress && (
+            <View className="absolute right-4 top-0 bottom-0 justify-center">
+              <MaterialCommunityIcons name="chevron-right" size={20} color={colors.sand} />
+            </View>
           )}
         </View>
       </View>

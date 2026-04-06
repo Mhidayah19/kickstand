@@ -43,12 +43,12 @@ export function ServiceSearchBar({ value, onChange }: ServiceSearchBarProps) {
 
   return (
     <View className="bg-surface-low rounded-xl px-4 py-3 flex-row items-center gap-3 overflow-hidden mb-3">
-      <MaterialCommunityIcons name="magnify" size={18} color={colors.sand} />
+      <MaterialCommunityIcons name="magnify" size={18} color={colors.charcoal} />
       <TextInput
         ref={inputRef}
         className="flex-1 font-sans-medium text-sm text-charcoal"
-        placeholder="Search services, parts, notes..."
-        placeholderTextColor={colors.sand}
+        placeholder="Search logs..."
+        placeholderTextColor={colors.charcoal + '99'}
         defaultValue={value}
         onChangeText={handleChange}
         onFocus={handleFocus}

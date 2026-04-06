@@ -68,30 +68,45 @@ export function DateRangeSheet({ visible, onClose, value, onApply }: DateRangeSh
 
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-      <Text className="font-sans-xbold text-lg text-charcoal mb-1">Filter by Date</Text>
-      <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-2 mb-5">
-        Select a preset or custom range
+      <Text className="font-sans-xbold text-2xl text-charcoal mb-1">Select Date Range</Text>
+      <Text className="font-sans-medium text-sm text-charcoal mb-6">
+        Filter service logs by timeframe
       </Text>
 
-      {/* Preset chips */}
-      <View className="flex-row flex-wrap gap-2 mb-5">
-        {PRESETS.map(({ key, label }) => (
-          <TouchableOpacity
-            key={key}
-            onPress={() => handlePreset(key)}
-            className={`px-4 py-2 rounded-full ${
-              activePreset === key ? 'bg-charcoal' : 'bg-surface-low'
-            }`}
-          >
-            <Text
-              className={`font-sans-bold text-sm ${
-                activePreset === key ? 'text-white' : 'text-sand'
+      <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-2 mb-3">
+        Quick Select
+      </Text>
+
+      <View className="flex-row flex-wrap gap-2 mb-6">
+        {PRESETS.map(({ key, label }) => {
+          const isActive = activePreset === key;
+          const isCustomType = key === 'custom';
+
+          return (
+            <TouchableOpacity
+              key={key}
+              onPress={() => handlePreset(key)}
+              className={`px-4 py-2 rounded-full flex-row items-center gap-1 ${
+                isActive && !isCustomType
+                  ? 'bg-charcoal'
+                  : isCustomType
+                  ? 'border border-charcoal bg-transparent'
+                  : 'bg-surface-low'
               }`}
             >
-              {label}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                className={`font-sans-bold text-sm ${
+                  isActive && !isCustomType ? 'text-white' : 'text-charcoal'
+                }`}
+              >
+                {label}
+              </Text>
+              {isActive && !isCustomType && (
+                <Text className="text-white">✓</Text>
+              )}
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       {/* Custom date pickers */}
@@ -113,7 +128,9 @@ export function DateRangeSheet({ visible, onClose, value, onApply }: DateRangeSh
       )}
 
       <PrimaryButton
-        label="Apply Filter"
+        label="Apply Range"
+        icon="arrow-right"
+        variant="accent"
         onPress={handleApply}
         disabled={applyDisabled}
       />

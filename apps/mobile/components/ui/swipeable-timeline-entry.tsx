@@ -14,15 +14,14 @@ const SWIPE_THRESHOLD = 60;
 const SWIPE_ANIMATION_RANGE = 80;
 
 interface SwipeableTimelineEntryProps {
-  date: string;
   title: string;
   cost: string;
-  icon: string;
   color: TimelineColor;
   tags?: { label: string; danger?: boolean }[];
   quote?: string;
   imageUri?: string;
   parts?: string[];
+  mileage?: string;
   onPress?: () => void;
   onDelete: () => void;
   onEdit: () => void;

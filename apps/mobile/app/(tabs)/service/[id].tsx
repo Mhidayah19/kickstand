@@ -163,10 +163,6 @@ export default function ServiceDetailScreen() {
         contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}
       >
-        <Text className="font-sans-xbold text-charcoal mb-5" style={{ fontSize: 28, lineHeight: 34 }}>
-          Service Entry Details
-        </Text>
-
         {/* Metadata card */}
         <View className="bg-surface-card rounded-2xl mb-4 overflow-hidden">
           <View className="p-4">
