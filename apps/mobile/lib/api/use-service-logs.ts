@@ -80,14 +80,9 @@ export function useUpdateServiceLog(bikeId: string | null) {
       apiClient.patch<ServiceLog>(`/bikes/${bikeId}/services/${logId}`, input),
     onSuccess: (data, { logId }) => {
       if (!bikeId) return;
-      // Write PATCH response directly into the detail cache — no refetch needed
       queryClient.setQueryData(serviceLogsKeys.detail(bikeId, logId), data);
-      // Invalidate list queries only — the predicate skips the detail key
-      // (detail keys have a string 3rd element; list keys have an object)
-      queryClient.invalidateQueries({
-        queryKey: serviceLogsKeys.byBike(bikeId),
-        predicate: (query) => typeof query.queryKey[2] !== 'string',
-      });
+      queryClient.invalidateQueries({ queryKey: serviceLogsKeys.byBike(bikeId) });
+      queryClient.invalidateQueries({ queryKey: serviceLogsKeys.all });
     },
   });
 }
