@@ -99,15 +99,15 @@ export function FilterSheet({
         <Text className="font-sans-xbold text-lg text-charcoal">Filters</Text>
         {hasActiveFilters && (
           <TouchableOpacity onPress={handleReset} activeOpacity={0.7} hitSlop={8}>
-            <Text className="font-sans-bold text-sm text-sand">Reset</Text>
+            <Text className="font-sans-bold text-sm text-charcoal">Reset</Text>
           </TouchableOpacity>
         )}
       </View>
-      <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-2 mb-6">
+      <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-2 mb-6">
         Category and date range
       </Text>
 
-      <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mb-3">
+      <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-1 mb-3">
         Category
       </Text>
       <View className="flex-row flex-wrap gap-2 mb-6">
@@ -121,7 +121,7 @@ export function FilterSheet({
           >
             <Text
               className={`font-sans-bold text-sm ${
-                activeCategory === option ? 'text-white' : 'text-sand'
+                activeCategory === option ? 'text-white' : 'text-charcoal'
               }`}
             >
               {option}
@@ -130,7 +130,7 @@ export function FilterSheet({
         ))}
       </View>
 
-      <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mb-3">
+      <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-1 mb-3">
         Date Range
       </Text>
       <View className="flex-row flex-wrap gap-2 mb-5">
@@ -144,7 +144,7 @@ export function FilterSheet({
           >
             <Text
               className={`font-sans-bold text-sm ${
-                activePreset === key ? 'text-white' : 'text-sand'
+                activePreset === key ? 'text-white' : 'text-charcoal'
               }`}
             >
               {label}
@@ -165,7 +165,7 @@ export function FilterSheet({
         </View>
       )}
 
-      <PrimaryButton label="Apply Filters" onPress={handleApply} disabled={applyDisabled} />
+      <PrimaryButton label="Apply Filters" variant="accent" onPress={handleApply} disabled={applyDisabled} />
     </BottomSheet>
   );
 }

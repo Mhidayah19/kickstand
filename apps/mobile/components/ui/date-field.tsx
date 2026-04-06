@@ -75,7 +75,7 @@ export function DateField({ label, value = '', onChange, error, className }: Dat
         activeOpacity={0.7}
       >
         <Label.Root onPress={handleOpen}>
-          <Label.Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mb-2">
+          <Label.Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-1 mb-2">
             {label}
           </Label.Text>
         </Label.Root>
@@ -101,7 +101,7 @@ export function DateField({ label, value = '', onChange, error, className }: Dat
           <View className="bg-surface rounded-t-3xl px-6 pb-8 pt-4">
             <View className="flex-row justify-between items-center mb-2">
               <Pressable onPress={handleClose} hitSlop={8}>
-                <Text className="font-sans-bold text-sm text-sand">Cancel</Text>
+                <Text className="font-sans-bold text-sm text-charcoal">Cancel</Text>
               </Pressable>
               <Pressable onPress={handleDone} hitSlop={8}>
                 <Text className="font-sans-bold text-sm text-yellow">Done</Text>

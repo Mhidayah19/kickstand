@@ -5,18 +5,16 @@ import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { TopAppBar } from '../../../components/ui/top-app-bar';
 import { ScreenHeader } from '../../../components/ui/screen-header';
-import { SwipeableTimelineEntry } from '../../../components/ui/swipeable-timeline-entry';
-import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
+import { TimelineEntry } from '../../../components/ui/timeline-entry';
 import { ServiceSearchBar } from '../../../components/service/service-search-bar';
 import { AnalyticsSheet } from '../../../components/service/analytics-sheet';
 import { FilterSheet } from '../../../components/service/filter-sheet';
-import { useServiceLogs, useDeleteServiceLog } from '../../../lib/api/use-service-logs';
+import { useServiceLogs } from '../../../lib/api/use-service-logs';
 import { useBike, useBikes } from '../../../lib/api/use-bikes';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { colors } from '../../../lib/colors';
 import {
   SERVICE_TYPE_LABELS,
-  SERVICE_TYPE_ICONS,
   SERVICE_TYPE_COLORS,
   SERVICE_FILTER_GROUPS,
 } from '../../../lib/constants/service-types';
@@ -33,16 +31,19 @@ function formatCost(cost: string): string {
   return isNaN(num) ? '$0.00' : `$${num.toFixed(2)}`;
 }
 
+function formatMileage(km: number): string {
+  return `${km.toLocaleString()} km`;
+}
+
 function mapLogToTimeline(log: ServiceLog) {
   const key = log.serviceType as ServiceTypeKey;
   return {
-    date: formatDate(log.date),
     title: SERVICE_TYPE_LABELS[key] ?? log.serviceType,
     cost: formatCost(log.cost),
-    icon: (SERVICE_TYPE_ICONS[key] ?? 'wrench') as string,
     color: SERVICE_TYPE_COLORS[key] ?? ('charcoal' as const),
     quote: log.description || undefined,
     parts: log.parts ?? undefined,
+    mileage: log.mileageAt ? formatMileage(log.mileageAt) : undefined,
   };
 }
 
@@ -54,7 +55,6 @@ export default function ServiceScreen() {
   const { data: logsResponse, isLoading } = useServiceLogs(activeBikeId, 100);
 
   const [selectedFilter, setSelectedFilter] = useState<FilterGroupKey>('All');
-  const [pendingDelete, setPendingDelete] = useState<{ id: string; label: string } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [dateRange, setDateRange] = useState<{ from: string; to: string } | null>(null);
   const [analyticsVisible, setAnalyticsVisible] = useState(false);
@@ -107,21 +107,18 @@ export default function ServiceScreen() {
     [dateFilteredLogs, dateRange, totalSpend],
   );
 
+  const groupedLogs = useMemo(() => {
+    const map = new Map<string, ServiceLog[]>();
+    for (const log of filteredLogs) {
+      const key = log.date.slice(0, 10);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(log);
+    }
+    return Array.from(map.entries()).map(([dateKey, entries]) => ({ dateKey, entries }));
+  }, [filteredLogs]);
+
   const hasActiveFilters = selectedFilter !== 'All' || dateRange !== null;
   const activeFilterCount = (selectedFilter !== 'All' ? 1 : 0) + (dateRange ? 1 : 0);
-
-  const deleteLog = useDeleteServiceLog(activeBikeId);
-
-  const handleDeleteLog = useCallback((logId: string, serviceLabel: string) => {
-    setPendingDelete({ id: logId, label: serviceLabel });
-  }, []);
-
-  const handleConfirmDelete = useCallback(() => {
-    if (pendingDelete) deleteLog.mutate(pendingDelete.id);
-    setPendingDelete(null);
-  }, [pendingDelete, deleteLog.mutate]);
-
-  const handleCancelDelete = useCallback(() => setPendingDelete(null), []);
 
   const handleAddBike = useCallback(() => {
     router.push('/add-bike');
@@ -159,38 +156,36 @@ export default function ServiceScreen() {
         />
 
         {logs.length > 0 && (
-          <ServiceSearchBar
-            key={activeBikeId ?? 'none'}
-            value={searchQuery}
-            onChange={setSearchQuery}
-          />
+          <View className="flex-row items-center gap-3">
+            <View className="flex-1">
+              <ServiceSearchBar
+                key={activeBikeId ?? 'none'}
+                value={searchQuery}
+                onChange={setSearchQuery}
+              />
+            </View>
+            <TouchableOpacity
+              className="flex-row items-center justify-center rounded-xl mb-3 bg-charcoal"
+              style={{ height: 46, width: 46 }}
+              onPress={() => setFilterSheetVisible(true)}
+              activeOpacity={0.8}
+            >
+              <MaterialCommunityIcons
+                name="tune-variant"
+                size={16}
+                color={colors.white}
+              />
+              {hasActiveFilters && (
+                <View className="bg-yellow rounded-full w-4 h-4 items-center justify-center">
+                  <Text className="font-sans-xbold text-charcoal" style={{ fontSize: 10 }}>
+                    {activeFilterCount}
+                  </Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          </View>
         )}
       </View>
-
-      {logs.length > 0 && (
-        <View className="px-6 mt-3 mb-4">
-          <TouchableOpacity
-            className={`self-start flex-row items-center gap-2 px-4 py-2 rounded-full ${
-              hasActiveFilters ? 'bg-charcoal' : 'bg-surface-low'
-            }`}
-            onPress={() => setFilterSheetVisible(true)}
-            activeOpacity={0.8}
-          >
-            <MaterialCommunityIcons
-              name="tune-variant"
-              size={14}
-              color={hasActiveFilters ? colors.white : colors.sand}
-            />
-            <Text
-              className={`font-sans-bold text-sm ${
-                hasActiveFilters ? 'text-white' : 'text-sand'
-              }`}
-            >
-              {hasActiveFilters ? `Filters · ${activeFilterCount}` : 'Filter'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
 
       {isLoading ? (
         <View className="flex-1 items-center justify-center">
@@ -234,34 +229,42 @@ export default function ServiceScreen() {
                 className="absolute bg-sand/50"
                 style={{ left: 16, top: 0, bottom: 0, width: 2 }}
               />
-              {filteredLogs.map((log) => {
-                const props = mapLogToTimeline(log);
-                return (
-                  <SwipeableTimelineEntry
-                    key={log.id}
-                    {...props}
-                    onPress={() => router.push(`/service/${log.id}`)}
-                    onDelete={() => handleDeleteLog(log.id, props.title)}
-                    onEdit={() =>
-                      router.push(`/edit-service?logId=${log.id}&bikeId=${activeBikeId}`)
-                    }
-                  />
-                );
-              })}
+              {groupedLogs.map(({ dateKey, entries }, groupIndex) => (
+                <View key={dateKey}>
+                  {/* Date node */}
+                  <View
+                    className="flex-row items-center"
+                    style={{ marginTop: groupIndex === 0 ? 8 : 24, marginBottom: 12 }}
+                  >
+                    <View
+                      className="absolute w-5 h-5 rounded-full bg-charcoal z-10"
+                      style={{ left: 7 }}
+                    />
+                    <Text
+                      className="font-sans-bold text-xxs text-sand uppercase tracking-widest"
+                      style={{ marginLeft: 36 }}
+                    >
+                      {formatDate(dateKey)}
+                    </Text>
+                  </View>
+
+                  {/* Entries for this date */}
+                  {entries.map((log) => {
+                    const props = mapLogToTimeline(log);
+                    return (
+                      <TimelineEntry
+                        key={log.id}
+                        {...props}
+                        onPress={() => router.push(`/service/${log.id}`)}
+                      />
+                    );
+                  })}
+                </View>
+              ))}
             </View>
           )}
         </ScrollView>
       )}
-
-      <ConfirmationDialog
-        visible={!!pendingDelete}
-        title="Delete Service Log"
-        body={`Are you sure you want to delete this ${pendingDelete?.label ?? ''} log?`}
-        confirmLabel="Delete"
-        confirmVariant="danger"
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
-      />
 
       <AnalyticsSheet
         visible={analyticsVisible}
