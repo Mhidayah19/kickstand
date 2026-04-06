@@ -60,6 +60,7 @@ export default function AddServiceScreen() {
       <ServiceLogFormBody
         form={form}
         frequentTypes={frequentTypes}
+        bikeId={activeBikeId ?? ''}
       />
     </ModalFormScreen>
   );

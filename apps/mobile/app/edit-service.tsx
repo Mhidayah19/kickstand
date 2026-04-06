@@ -55,6 +55,7 @@ function EditServiceForm({ log, bikeId, bikeLabel, frequentTypes, onClose }: Edi
       <ServiceLogFormBody
         form={form}
         frequentTypes={frequentTypes}
+        bikeId={bikeId}
       />
     </ModalFormScreen>
   );

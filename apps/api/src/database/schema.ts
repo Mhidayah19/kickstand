@@ -24,6 +24,7 @@ export const users = pgTable('users', {
   name: text('name').notNull(),
   expoToken: text('expo_token'),
   activeBikeId: uuid('active_bike_id'),
+  avatarUrl: text('avatar_url'),
   createdAt: timestamp('created_at', { withTimezone: true })
     .notNull()
     .defaultNow(),

@@ -2,6 +2,7 @@ import React, { useCallback } from 'react';
 import { View, Text } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { colors } from '../../lib/colors';
 import { SafeScreen } from '../../components/ui/safe-screen';
 import { ProfileHero } from '../../components/ui/profile-hero';
@@ -9,7 +10,8 @@ import { ListCard } from '../../components/ui/list-card';
 import { PrimaryButton } from '../../components/ui/primary-button';
 import { useBikes } from '../../lib/api/use-bikes';
 import { useBikeStore } from '../../lib/store/bike-store';
-import { useProfile } from '../../lib/api/use-profile';
+import { useProfile, useUpdateProfile } from '../../lib/api/use-profile';
+import { useImageUpload } from '../../lib/hooks/use-image-upload';
 
 export default function SettingsScreen() {
   const router = useRouter();
@@ -17,6 +19,26 @@ export default function SettingsScreen() {
   const { activeBikeId, setActiveBikeId } = useBikeStore();
   const { data: profile } = useProfile();
   const activeBike = bikes?.find((b) => b.id === activeBikeId);
+  const updateProfile = useUpdateProfile();
+  const { pickAndUpload: pickAvatar } = useImageUpload({
+    bucket: 'avatars',
+    prefix: profile?.id ?? 'unknown',
+    dialogTitle: 'Profile Photo',
+  });
+
+  const onProfileMutationSuccess = useCallback(() => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+  }, []);
+
+  const handleAvatarUpload = useCallback(async () => {
+    const result = await pickAvatar();
+    if (!result) return;
+    updateProfile.mutate({ avatarUrl: result.publicUrl }, { onSuccess: onProfileMutationSuccess });
+  }, [pickAvatar, updateProfile, onProfileMutationSuccess]);
+
+  const handleAvatarRemove = useCallback(() => {
+    updateProfile.mutate({ avatarUrl: null }, { onSuccess: onProfileMutationSuccess });
+  }, [updateProfile, onProfileMutationSuccess]);
 
   const handleAddBike = useCallback(() => {
     router.push('/add-bike');
@@ -35,6 +57,9 @@ export default function SettingsScreen() {
         <ProfileHero
           name={profile?.name ?? '—'}
           role={`${profile?.bikeCount ?? 0} ${(profile?.bikeCount ?? 0) === 1 ? 'bike' : 'bikes'} in garage`}
+          avatarUri={profile?.avatarUrl ?? undefined}
+          onAvatarPress={handleAvatarUpload}
+          onAvatarRemove={profile?.avatarUrl ? handleAvatarRemove : undefined}
         />
       </View>
 
