@@ -19,13 +19,14 @@ interface ServiceLogFormBodyProps {
 }
 
 export function ServiceLogFormBody({ form, frequentTypes, bikeId }: ServiceLogFormBodyProps) {
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(() => !!form.serviceTypeKey);
   const collapseTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => () => clearTimeout(collapseTimer.current), []);
 
-  const formOpacity = useRef(new Animated.Value(0)).current;
-  const formTranslateY = useRef(new Animated.Value(12)).current;
+  const initiallyCollapsed = !!form.serviceTypeKey;
+  const formOpacity = useRef(new Animated.Value(initiallyCollapsed ? 1 : 0)).current;
+  const formTranslateY = useRef(new Animated.Value(initiallyCollapsed ? 0 : 12)).current;
 
   useEffect(() => {
     if (!collapsed) {
