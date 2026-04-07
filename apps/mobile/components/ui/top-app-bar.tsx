@@ -120,7 +120,7 @@ export function TopAppBar({
 
         {/* Modal Content */}
         <View className="flex-1 justify-end">
-          <BlurView intensity={90} tint="dark" className="pb-8">
+          <View className="pb-8">
             <View className="mx-6 rounded-3xl overflow-hidden bg-surface-card">
               {/* Header */}
               <View className="px-6 pt-5 pb-4">
@@ -166,7 +166,7 @@ export function TopAppBar({
                 <Text className="text-base font-sans-bold text-charcoal">Add Bike</Text>
               </Pressable>
             </View>
-          </BlurView>
+          </View>
         </View>
       </Modal>
     </>
