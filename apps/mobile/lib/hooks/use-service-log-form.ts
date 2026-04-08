@@ -49,8 +49,7 @@ function makeInitialParts(existingLog?: ServiceLog): { id: number; value: string
 
 // NOTE: existingLog is captured at mount time via closure. useForm reads defaultValues once on mount,
 // so if the parent re-renders with a refreshed existingLog, the form will NOT re-initialise.
-// Callers should ensure this hook is only mounted once per edit session (i.e. don't keep the
-// modal mounted while re-fetching — let it unmount and remount).
+// Callers should ensure this hook is only mounted once per edit session.
 export function useServiceLogForm(
   bikeId: string | null,
   initialMileage?: number,
@@ -71,16 +70,25 @@ export function useServiceLogForm(
     }
   }, [initialMileage]);
 
-  // Seeded to parts.length because makeInitialParts assigns zero-based IDs (0…n-1).
-  // addPart uses post-increment, so the first new part gets id n. Keep in sync if makeInitialParts changes.
   const nextPartId = useRef(existingLog?.parts?.length ?? 1);
   const [parts, setParts] = useState<{ id: number; value: string }[]>(
     () => makeInitialParts(existingLog),
   );
 
-  const [receiptUrl, setReceiptUrl] = useState<string | null>(
-    () => existingLog?.receiptUrl ?? null,
+  const [receiptUrls, setReceiptUrls] = useState<string[]>(
+    () => existingLog?.receiptUrls ?? [],
   );
+
+  const addReceiptUrls = useCallback((urls: string[]) => {
+    setReceiptUrls((prev) => {
+      const combined = [...prev, ...urls];
+      return combined.slice(0, 5);
+    });
+  }, []);
+
+  const removeReceiptUrl = useCallback((index: number) => {
+    setReceiptUrls((prev) => prev.filter((_, i) => i !== index));
+  }, []);
 
   const [serviceTypeKey, mileage, date] = form.watch(['serviceTypeKey', 'mileage', 'date']) as [ServiceTypeKey, string, string];
   const errors = form.formState.errors;
@@ -96,7 +104,7 @@ export function useServiceLogForm(
       cost: values.cost.trim(),
       description: label,
       parts: filledParts.length > 0 ? filledParts : undefined,
-      receiptUrl: receiptUrl ?? undefined,
+      receiptUrls: receiptUrls.length > 0 ? receiptUrls : undefined,
     };
 
     if (existingLog) {
@@ -112,7 +120,7 @@ export function useServiceLogForm(
     form.reset(makeDefaults(initialMileage, existingLog));
     nextPartId.current = existingLog?.parts?.length ?? 1;
     setParts(makeInitialParts(existingLog));
-    setReceiptUrl(existingLog?.receiptUrl ?? null);
+    setReceiptUrls(existingLog?.receiptUrls ?? []);
   };
 
   return {
@@ -122,8 +130,9 @@ export function useServiceLogForm(
     serviceTypeKey,
     serviceTypeLabel: SERVICE_TYPE_LABELS[serviceTypeKey],
     mileage,
-    receiptUrl,
-    setReceiptUrl,
+    receiptUrls,
+    addReceiptUrls,
+    removeReceiptUrl,
     setServiceTypeKey: (key: ServiceTypeKey) => form.setValue('serviceTypeKey', key),
     parts,
     addPart: () => setParts((prev) => [...prev, { id: nextPartId.current++, value: '' }]),
