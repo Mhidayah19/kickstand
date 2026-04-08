@@ -20,7 +20,7 @@ export interface CreateServiceLogInput {
   mileageAt: number;
   date: string;
   workshopId?: string;
-  receiptUrl?: string;
+  receiptUrls?: string[];
 }
 
 export interface UpdateServiceLogInput {
@@ -31,7 +31,7 @@ export interface UpdateServiceLogInput {
   mileageAt?: number;
   date?: string;
   workshopId?: string;
-  receiptUrl?: string;
+  receiptUrls?: string[];
 }
 
 /**
