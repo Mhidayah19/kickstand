@@ -63,7 +63,7 @@ export class ServiceLogsService {
         cost: schema.serviceLogs.cost,
         mileageAt: schema.serviceLogs.mileageAt,
         date: schema.serviceLogs.date,
-        receiptUrl: schema.serviceLogs.receiptUrl,
+        receiptUrls: schema.serviceLogs.receiptUrls,
         createdAt: schema.serviceLogs.createdAt,
         updatedAt: schema.serviceLogs.updatedAt,
       })
