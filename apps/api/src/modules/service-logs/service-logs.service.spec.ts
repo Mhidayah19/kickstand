@@ -81,6 +81,28 @@ describe('ServiceLogsService', () => {
 
       expect(result).toEqual(log);
     });
+
+    it('should store receiptUrls array when provided', async () => {
+      mockBikesService.findOneByUser.mockResolvedValue({ id: 'bike-1', userId: 'user-1' });
+      const log = {
+        id: 'log-1',
+        bikeId: 'bike-1',
+        serviceType: 'oil_change',
+        receiptUrls: ['https://example.com/r1.jpg'],
+      };
+      mockDb.returning.mockResolvedValue([log]);
+
+      const result = await service.create('bike-1', 'user-1', {
+        serviceType: 'oil_change',
+        description: 'Regular',
+        cost: '45.00',
+        mileageAt: 15000,
+        date: '2026-04-08',
+        receiptUrls: ['https://example.com/r1.jpg'],
+      });
+
+      expect(result.receiptUrls).toEqual(['https://example.com/r1.jpg']);
+    });
   });
 
   describe('findAllByUser', () => {

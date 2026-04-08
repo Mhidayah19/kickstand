@@ -7,6 +7,7 @@ import {
   IsNumberString,
   IsIn,
   IsArray,
+  ArrayMaxSize,
   Min,
 } from 'class-validator';
 import { SERVICE_TYPE_KEYS } from '../../../common/constants/service-types';
@@ -38,6 +39,8 @@ export class CreateServiceLogDto {
   workshopId?: string;
 
   @IsOptional()
-  @IsString()
-  receiptUrl?: string;
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMaxSize(5)
+  receiptUrls?: string[];
 }

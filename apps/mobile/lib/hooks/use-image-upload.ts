@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../supabase';
@@ -20,12 +20,16 @@ export interface ImageUploadResult {
 
 export interface UseImageUploadReturn {
   isUploading: boolean;
+  uploadingCount: number;
   pickAndUpload: () => Promise<ImageUploadResult | null>;
+  pickAndUploadMultiple: (max: number) => Promise<string[]>;
 }
 
 export function useImageUpload(config: ImageUploadConfig): UseImageUploadReturn {
   const { bucket, prefix, dialogTitle = 'Add Photo', dialogSubtitle = 'Choose a source', quality = 0.8 } = config;
-  const [isUploading, setIsUploading] = useState(false);
+  const [uploadingCount, setUploadingCount] = useState(0);
+
+  const isUploading = uploadingCount > 0;
 
   const pickerOptions = useMemo<ImagePicker.ImagePickerOptions>(() => ({
     mediaTypes: ['images'] as ImagePicker.MediaType[],
@@ -35,10 +39,9 @@ export function useImageUpload(config: ImageUploadConfig): UseImageUploadReturn 
 
   const uploadAsset = useCallback(async (asset: ImagePicker.ImagePickerAsset): Promise<ImageUploadResult | null> => {
     const ext = asset.uri.split('.').pop() ?? 'jpg';
-    const filename = `${prefix}-${Date.now()}.${ext}`;
+    const filename = `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const contentType = asset.mimeType ?? 'image/jpeg';
 
-    setIsUploading(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
 
@@ -60,7 +63,6 @@ export function useImageUpload(config: ImageUploadConfig): UseImageUploadReturn 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
         console.error('[useImageUpload] Upload error:', err);
-        Alert.alert('Upload failed', 'Could not upload image. Please try again.');
         return null;
       }
 
@@ -68,10 +70,7 @@ export function useImageUpload(config: ImageUploadConfig): UseImageUploadReturn 
       return { publicUrl: data.publicUrl };
     } catch (err) {
       console.error('[useImageUpload] Unexpected error:', err);
-      Alert.alert('Upload failed', 'Could not upload image. Please try again.');
       return null;
-    } finally {
-      setIsUploading(false);
     }
   }, [bucket, prefix]);
 
@@ -81,31 +80,86 @@ export function useImageUpload(config: ImageUploadConfig): UseImageUploadReturn 
 
     const result = await ImagePicker.launchCameraAsync(pickerOptions);
     if (result.canceled || result.assets.length === 0) return null;
-    return uploadAsset(result.assets[0]);
+
+    setUploadingCount(1);
+    try {
+      return await uploadAsset(result.assets[0]);
+    } finally {
+      setUploadingCount(0);
+    }
   }, [uploadAsset, pickerOptions]);
 
-  const pickFromLibrary = useCallback(async (): Promise<ImageUploadResult | null> => {
+  const pickFromLibrary = useCallback(async (max = 1): Promise<ImagePicker.ImagePickerAsset[]> => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) return null;
+    if (!permission.granted) return [];
 
-    const result = await ImagePicker.launchImageLibraryAsync(pickerOptions);
-    if (result.canceled || result.assets.length === 0) return null;
-    return uploadAsset(result.assets[0]);
-  }, [uploadAsset, pickerOptions]);
+    const result = await ImagePicker.launchImageLibraryAsync({
+      ...pickerOptions,
+      allowsMultipleSelection: max > 1,
+      selectionLimit: max,
+    });
+    if (result.canceled) return [];
+    return result.assets;
+  }, [pickerOptions]);
+
+  const showSourceAlert = useCallback(
+    function showSourceAlert<T>(
+      onCamera: () => Promise<T>,
+      onLibrary: () => Promise<T>,
+      onCancel: T,
+    ): Promise<T> {
+      return new Promise((resolve) => {
+        Alert.alert(dialogTitle, dialogSubtitle, [
+          { text: 'Camera', onPress: async () => resolve(await onCamera()) },
+          { text: 'Photo Library', onPress: async () => resolve(await onLibrary()) },
+          { text: 'Cancel', style: 'cancel', onPress: () => resolve(onCancel) },
+        ]);
+      });
+    },
+    [dialogSubtitle, dialogTitle],
+  );
+
+  const uploadSingleFromLibrary = useCallback(async (): Promise<ImageUploadResult | null> => {
+    const assets = await pickFromLibrary(1);
+    if (assets.length === 0) return null;
+
+    setUploadingCount(1);
+    try {
+      return await uploadAsset(assets[0]);
+    } finally {
+      setUploadingCount(0);
+    }
+  }, [pickFromLibrary, uploadAsset]);
 
   const pickAndUpload = useCallback((): Promise<ImageUploadResult | null> => {
-    return new Promise((resolve) => {
-      Alert.alert(
-        dialogTitle,
-        dialogSubtitle,
-        [
-          { text: 'Camera', onPress: async () => resolve(await captureFromCamera()) },
-          { text: 'Photo Library', onPress: async () => resolve(await pickFromLibrary()) },
-          { text: 'Cancel', style: 'cancel', onPress: () => resolve(null) },
-        ],
-      );
-    });
-  }, [dialogTitle, dialogSubtitle, captureFromCamera, pickFromLibrary]);
+    return showSourceAlert(
+      () => captureFromCamera(),
+      uploadSingleFromLibrary,
+      null,
+    );
+  }, [captureFromCamera, showSourceAlert, uploadSingleFromLibrary]);
 
-  return { isUploading, pickAndUpload };
+  const pickAndUploadMultiple = useCallback((max: number): Promise<string[]> => {
+    return showSourceAlert(
+      async () => {
+        const single = await captureFromCamera();
+        return single ? [single.publicUrl] : [];
+      },
+      async () => {
+        const assets = await pickFromLibrary(max);
+        if (assets.length === 0) return [];
+        const urls: string[] = [];
+        setUploadingCount(assets.length);
+        for (const asset of assets) {
+          const result = await uploadAsset(asset);
+          if (result) urls.push(result.publicUrl);
+          setUploadingCount((prev) => prev - 1);
+        }
+        return urls;
+      },
+      [],
+    );
+  }, [captureFromCamera, pickFromLibrary, showSourceAlert, uploadAsset]);
+
+  return { isUploading, uploadingCount, pickAndUpload, pickAndUploadMultiple };
 }

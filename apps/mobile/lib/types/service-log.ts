@@ -8,7 +8,7 @@ export interface ServiceLog {
   cost: string;
   mileageAt: number;
   date: string;
-  receiptUrl: string | null;
+  receiptUrls: string[];
   createdAt: string;
   updatedAt: string;
 }

@@ -5,6 +5,7 @@ import { ServiceLogsService } from './service-logs.service';
 import { SupabaseAuthGuard } from '../../common/guards/supabase-auth.guard';
 import { DRIZZLE } from '../../database/database.module';
 import { ListServiceLogsDto } from './dto/list-service-logs.dto';
+import { CreateServiceLogDto } from './dto/create-service-log.dto';
 
 describe('ServiceLogsController', () => {
   let controller: ServiceLogsController;
@@ -155,4 +156,33 @@ describe('ServiceLogsController', () => {
       );
     });
   });
+
+  describe('CreateServiceLogDto validation', () => {
+    it('should accept receiptUrls as an array of strings up to 5 items', async () => {
+      const dto = Object.assign(new CreateServiceLogDto(), {
+        serviceType: 'oil_change',
+        description: 'Oil change',
+        cost: '45.00',
+        mileageAt: 15000,
+        date: '2026-04-08',
+        receiptUrls: ['https://example.com/r1.jpg', 'https://example.com/r2.jpg'],
+      });
+      const errors = await validate(dto);
+      expect(errors.filter(e => e.property === 'receiptUrls')).toHaveLength(0);
+    });
+
+    it('should reject receiptUrls with more than 5 items', async () => {
+      const dto = Object.assign(new CreateServiceLogDto(), {
+        serviceType: 'oil_change',
+        description: 'Oil change',
+        cost: '45.00',
+        mileageAt: 15000,
+        date: '2026-04-08',
+        receiptUrls: ['a', 'b', 'c', 'd', 'e', 'f'],
+      });
+      const errors = await validate(dto);
+      expect(errors.some(e => e.property === 'receiptUrls')).toBe(true);
+    });
+  });
 });
+

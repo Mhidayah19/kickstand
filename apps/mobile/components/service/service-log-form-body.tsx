@@ -1,16 +1,16 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Animated, Image, Pressable, Text, View } from 'react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { colors } from '../../lib/colors';
+import { Animated, View } from 'react-native';
 import { Section } from '../ui/section';
 import { TextField } from '../ui/text-field';
 import { DateField } from '../ui/date-field';
 import { FormField } from '../ui/form-field';
 import { ServiceTypeSelector } from './service-type-selector';
 import { PartsUsed } from './parts-used';
+import { ReceiptStrip } from './ReceiptStrip';
+import { ReceiptViewer } from './ReceiptViewer';
+import { useImageUpload } from '../../lib/hooks/use-image-upload';
 import type { useServiceLogForm } from '../../lib/hooks/use-service-log-form';
 import type { FrequentType } from '../../lib/service-type-helpers';
-import { useImageUpload } from '../../lib/hooks/use-image-upload';
 
 interface ServiceLogFormBodyProps {
   form: ReturnType<typeof useServiceLogForm>;
@@ -21,6 +21,8 @@ interface ServiceLogFormBodyProps {
 export function ServiceLogFormBody({ form, frequentTypes, bikeId }: ServiceLogFormBodyProps) {
   const [collapsed, setCollapsed] = useState(() => !!form.serviceTypeKey);
   const collapseTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [viewerVisible, setViewerVisible] = useState(false);
 
   useEffect(() => () => clearTimeout(collapseTimer.current), []);
 
@@ -46,26 +48,25 @@ export function ServiceLogFormBody({ form, frequentTypes, bikeId }: ServiceLogFo
     collapseTimer.current = setTimeout(() => setCollapsed(true), 150);
   }, [form.setServiceTypeKey]);
 
-  const handleExpand = useCallback(() => {
-    setCollapsed(false);
-  }, []);
+  const handleExpand = useCallback(() => setCollapsed(false), []);
 
-  const { isUploading, pickAndUpload } = useImageUpload({
+  const { uploadingCount, pickAndUploadMultiple } = useImageUpload({
     bucket: 'receipts',
     prefix: bikeId,
     dialogTitle: 'Add Evidence',
   });
 
-  const handleEvidenceUpload = useCallback(async () => {
-    const result = await pickAndUpload();
-    if (result) {
-      form.setReceiptUrl(result.publicUrl);
-    }
-  }, [pickAndUpload, form.setReceiptUrl]);
+  const handleAdd = useCallback(async () => {
+    const remaining = 5 - form.receiptUrls.length;
+    if (remaining <= 0) return;
+    const urls = await pickAndUploadMultiple(remaining);
+    if (urls.length > 0) form.addReceiptUrls(urls);
+  }, [form.receiptUrls.length, form.addReceiptUrls, pickAndUploadMultiple]);
 
-  const handleRemoveEvidence = useCallback(() => {
-    form.setReceiptUrl(null);
-  }, [form.setReceiptUrl]);
+  const handlePress = useCallback((index: number) => {
+    setViewerIndex(index);
+    setViewerVisible(true);
+  }, []);
 
   return (
     <View>
@@ -127,52 +128,23 @@ export function ServiceLogFormBody({ form, frequentTypes, bikeId }: ServiceLogFo
           />
 
           <Section label="Evidence & Documentation">
-            {form.receiptUrl ? (
-              <View>
-                <View style={{ width: '100%', borderRadius: 12, overflow: 'hidden', backgroundColor: colors.surfaceLow }}>
-                  <Image
-                    source={{ uri: form.receiptUrl }}
-                    style={{ width: '100%', height: 160 }}
-                    resizeMode="contain"
-                  />
-                </View>
-                <View className="flex-row gap-md mt-md">
-                  <Pressable
-                    onPress={handleEvidenceUpload}
-                    disabled={isUploading}
-                    className="flex-1 bg-surface-low py-sm rounded-xl items-center active:opacity-70"
-                  >
-                    <Text className="font-sans-bold text-xs text-charcoal">
-                      {isUploading ? 'Uploading…' : 'Replace'}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={handleRemoveEvidence}
-                    className="flex-1 bg-surface-low py-sm rounded-xl items-center active:opacity-70"
-                  >
-                    <Text className="font-sans-bold text-xs text-danger">Remove</Text>
-                  </Pressable>
-                </View>
-              </View>
-            ) : (
-              <Pressable
-                onPress={handleEvidenceUpload}
-                disabled={isUploading}
-                className="border-2 border-dashed border-outline rounded-xl py-3xl items-center justify-center active:opacity-70"
-              >
-                {isUploading ? (
-                  <ActivityIndicator size="small" color={colors.outline} />
-                ) : (
-                  <MaterialCommunityIcons name="camera-outline" size={28} color={colors.outline} />
-                )}
-                <Text className="font-sans-bold text-sm text-outline mt-sm">
-                  {isUploading ? 'Uploading…' : 'Upload Evidence'}
-                </Text>
-              </Pressable>
-            )}
+            <ReceiptStrip
+              urls={form.receiptUrls}
+              onAdd={handleAdd}
+              onRemove={form.removeReceiptUrl}
+              onPress={handlePress}
+              uploadingCount={uploadingCount}
+            />
           </Section>
         </Animated.View>
       )}
+
+      <ReceiptViewer
+        urls={form.receiptUrls}
+        initialIndex={viewerIndex}
+        visible={viewerVisible}
+        onClose={() => setViewerVisible(false)}
+      />
     </View>
   );
 }

@@ -12,7 +12,7 @@ function makeLog(serviceType: string, date: string): ServiceLog {
     cost: '0',
     mileageAt: 1000,
     date,
-    receiptUrl: null,
+    receiptUrls: [],
     createdAt: date,
     updatedAt: date,
   };
