@@ -17,7 +17,7 @@ function makeLog(overrides: Partial<ServiceLog> = {}): ServiceLog {
     cost: '0',
     mileageAt: 1000,
     date: '2026-01-01',
-    receiptUrl: null,
+    receiptUrls: [],
     createdAt: '2026-01-01T00:00:00Z',
     updatedAt: '2026-01-01T00:00:00Z',
     ...overrides,

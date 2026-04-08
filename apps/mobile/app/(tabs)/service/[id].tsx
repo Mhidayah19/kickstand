@@ -1,11 +1,13 @@
 // apps/mobile/app/(tabs)/service/[id].tsx
 import React, { useCallback, useState } from 'react';
-import { Alert, Modal, ScrollView, Text, TouchableOpacity, View, Image, Pressable, ActivityIndicator } from 'react-native';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
 import { Skeleton } from '../../../components/ui/skeleton';
+import { ReceiptStrip } from '../../../components/service/ReceiptStrip';
+import { ReceiptViewer } from '../../../components/service/ReceiptViewer';
 import * as Haptics from 'expo-haptics';
 import { useServiceLog, useDeleteServiceLog, useUpdateServiceLog } from '../../../lib/api/use-service-logs';
 import { useImageUpload } from '../../../lib/hooks/use-image-upload';
@@ -59,14 +61,14 @@ export default function ServiceDetailScreen() {
   const { data: log, isLoading } = useServiceLog(activeBikeId, id ?? null);
   const deleteLog = useDeleteServiceLog(activeBikeId);
   const updateLog = useUpdateServiceLog(activeBikeId);
-  const { isUploading, pickAndUpload } = useImageUpload({
+  const { uploadingCount, pickAndUploadMultiple } = useImageUpload({
     bucket: 'receipts',
     prefix: id ?? '',
     dialogTitle: 'Add Receipt',
   });
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [receiptVisible, setReceiptVisible] = useState(false);
-  const [receiptError, setReceiptError] = useState(false);
+  const [viewerIndex, setViewerIndex] = useState(0);
+  const [viewerVisible, setViewerVisible] = useState(false);
 
   const handleEdit = useCallback(() => {
     if (!id || !activeBikeId) return;
@@ -87,19 +89,37 @@ export default function ServiceDetailScreen() {
     });
   }, [id, deleteLog, router]);
 
-  const handleReceiptUpload = useCallback(async () => {
-    const result = await pickAndUpload();
-    if (!result) return;
+  const handleAdd = useCallback(async () => {
+    if (!log) return;
+    const existing = log.receiptUrls ?? [];
+    const remaining = 5 - existing.length;
+    if (remaining <= 0) return;
+    const newUrls = await pickAndUploadMultiple(remaining);
+    if (newUrls.length === 0) return;
     updateLog.mutate(
-      { logId: id!, input: { receiptUrl: result.publicUrl } },
+      { logId: id!, input: { receiptUrls: [...existing, ...newUrls] } },
       {
-        onSuccess: () => {
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        },
+        onSuccess: () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
         onError: () => Alert.alert('Error', 'Failed to save receipt. Please try again.'),
       },
     );
-  }, [pickAndUpload, updateLog, id]);
+  }, [log, id, pickAndUploadMultiple, updateLog]);
+
+  const handleRemove = useCallback((index: number) => {
+    if (!log) return;
+    const updated = (log.receiptUrls ?? []).filter((_, i) => i !== index);
+    updateLog.mutate(
+      { logId: id!, input: { receiptUrls: updated } },
+      {
+        onError: () => Alert.alert('Error', 'Failed to remove receipt. Please try again.'),
+      },
+    );
+  }, [log, id, updateLog]);
+
+  const handlePress = useCallback((index: number) => {
+    setViewerIndex(index);
+    setViewerVisible(true);
+  }, []);
 
   if (isLoading) {
     return (
@@ -142,6 +162,7 @@ export default function ServiceDetailScreen() {
 
   const key = log.serviceType as ServiceTypeKey;
   const serviceLabel = SERVICE_TYPE_LABELS[key] ?? log.serviceType;
+  const receiptUrls = log.receiptUrls ?? [];
 
   return (
     <SafeAreaView className="flex-1 bg-surface">
@@ -227,50 +248,15 @@ export default function ServiceDetailScreen() {
 
         <View className="mb-8">
           <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-3">
-            Receipt
+            Receipts
           </Text>
-
-          {log.receiptUrl && !receiptError ? (
-            <>
-              <Pressable onPress={() => setReceiptVisible(true)} className="active:opacity-80">
-                <View style={{ width: '100%', borderRadius: 16, overflow: 'hidden', backgroundColor: colors.surfaceLow }}>
-                  <Image
-                    source={{ uri: log.receiptUrl }}
-                    style={{ width: '100%', height: 160 }}
-                    resizeMode="contain"
-                    onError={() => setReceiptError(true)}
-                  />
-                </View>
-                <Text className="font-sans-medium text-xs text-sand mt-2 text-center">
-                  Tap to view full size
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={handleReceiptUpload}
-                disabled={isUploading}
-                className="mt-3 self-start bg-surface-low px-4 py-2 rounded-full active:opacity-70"
-              >
-                <Text className="font-sans-bold text-xs text-charcoal">
-                  {isUploading ? 'Uploading…' : 'Replace receipt'}
-                </Text>
-              </Pressable>
-            </>
-          ) : (
-            <Pressable
-              onPress={handleReceiptUpload}
-              disabled={isUploading}
-              className="border-2 border-dashed border-sand/30 rounded-2xl p-6 items-center active:opacity-70"
-            >
-              {isUploading ? (
-                <ActivityIndicator size="small" color={colors.sand} />
-              ) : (
-                <MaterialCommunityIcons name="camera-plus-outline" size={24} color={colors.sand} />
-              )}
-              <Text className="font-sans-bold text-xs text-sand mt-2">
-                {isUploading ? 'Uploading…' : 'Add receipt photo'}
-              </Text>
-            </Pressable>
-          )}
+          <ReceiptStrip
+            urls={receiptUrls}
+            onAdd={handleAdd}
+            onRemove={handleRemove}
+            onPress={handlePress}
+            uploadingCount={uploadingCount}
+          />
         </View>
 
         <View className="bg-danger/5 rounded-2xl p-4 mt-4 items-center">
@@ -294,28 +280,12 @@ export default function ServiceDetailScreen() {
         onCancel={() => setShowDeleteDialog(false)}
       />
 
-      <Modal
-        visible={receiptVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setReceiptVisible(false)}
-      >
-        <Pressable
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', alignItems: 'center', justifyContent: 'center' }}
-          onPress={() => setReceiptVisible(false)}
-        >
-          {log.receiptUrl && (
-            <Image
-              source={{ uri: log.receiptUrl }}
-              style={{ width: '100%', height: '70%' }}
-              resizeMode="contain"
-            />
-          )}
-          <Text style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'PlusJakartaSans_500Medium', fontSize: 12, marginTop: 16 }}>
-            Tap anywhere to close
-          </Text>
-        </Pressable>
-      </Modal>
+      <ReceiptViewer
+        urls={receiptUrls}
+        initialIndex={viewerIndex}
+        visible={viewerVisible}
+        onClose={() => setViewerVisible(false)}
+      />
     </SafeAreaView>
   );
 }
