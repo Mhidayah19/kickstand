@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ServiceLogFormBody } from '../components/service/service-log-form-body';
 import { ModalFormScreen } from '../components/ui/modal-form-screen';
+import { ConfirmationDialog } from '../components/ui/confirmation-dialog';
 import { useBike } from '../lib/api/use-bikes';
 import { useAllServiceLogs } from '../lib/api/use-service-logs';
 import { useBikeStore } from '../lib/store/bike-store';
@@ -16,6 +17,7 @@ export default function AddServiceScreen() {
   const { data: bike } = useBike(activeBikeId);
   const { data: allLogs } = useAllServiceLogs();
   const form = useServiceLogForm(activeBikeId, bike?.currentMileage);
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   const frequentTypes = useMemo(
     () => getFrequentServiceTypes(allLogs?.data ?? [], 3),
@@ -39,6 +41,15 @@ export default function AddServiceScreen() {
   }, [activeBikeId, form.handleSave, router]);
 
   const handleClose = useCallback(() => {
+    if (form.isDirty) {
+      setShowDiscardDialog(true);
+      return;
+    }
+    router.back();
+  }, [form.isDirty, router]);
+
+  const handleConfirmDiscard = useCallback(() => {
+    setShowDiscardDialog(false);
     form.handleReset();
     router.back();
   }, [form.handleReset, router]);
@@ -51,17 +62,29 @@ export default function AddServiceScreen() {
   } : undefined, [form.serviceTypeKey, form.isPending, handleSave]);
 
   return (
-    <ModalFormScreen
-      onClose={handleClose}
-      title="New Service Log"
-      subtitle={bikeLabel}
-      cta={cta}
-    >
-      <ServiceLogFormBody
-        form={form}
-        frequentTypes={frequentTypes}
-        bikeId={activeBikeId ?? ''}
+    <>
+      <ModalFormScreen
+        onClose={handleClose}
+        title="New Service Log"
+        subtitle={bikeLabel}
+        cta={cta}
+      >
+        <ServiceLogFormBody
+          form={form}
+          frequentTypes={frequentTypes}
+          bikeId={activeBikeId ?? ''}
+        />
+      </ModalFormScreen>
+
+      <ConfirmationDialog
+        visible={showDiscardDialog}
+        title="Discard Log?"
+        body="You have unsaved changes. They will be lost if you close now."
+        confirmLabel="Discard"
+        confirmVariant="danger"
+        onConfirm={handleConfirmDiscard}
+        onCancel={() => setShowDiscardDialog(false)}
       />
-    </ModalFormScreen>
+    </>
   );
 }

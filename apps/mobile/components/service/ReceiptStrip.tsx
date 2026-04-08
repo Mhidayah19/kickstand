@@ -42,6 +42,7 @@ interface ReceiptStripProps {
   onPress: (index: number) => void;
   uploadingCount?: number;
   maxCount?: number;
+  removable?: boolean;
 }
 
 export function ReceiptStrip({
@@ -51,6 +52,7 @@ export function ReceiptStrip({
   onPress,
   uploadingCount = 0,
   maxCount = 5,
+  removable = true,
 }: ReceiptStripProps) {
   const hasReceipts = urls.length > 0;
   const canAddMore = urls.length + uploadingCount < maxCount;
@@ -82,13 +84,15 @@ export function ReceiptStrip({
             <Pressable onPress={() => onPress(index)} style={{ flex: 1 }} className="active:opacity-80">
               <Image source={{ uri }} style={{ width: THUMB, height: THUMB }} resizeMode="cover" />
             </Pressable>
-            <Pressable
-              onPress={() => onRemove(index)}
-              hitSlop={4}
-              style={removeBadgeStyle}
-            >
-              <MaterialCommunityIcons name="close" size={10} color="#fff" />
-            </Pressable>
+            {removable && (
+              <Pressable
+                onPress={() => onRemove(index)}
+                hitSlop={4}
+                style={removeBadgeStyle}
+              >
+                <MaterialCommunityIcons name="close" size={10} color="#fff" />
+              </Pressable>
+            )}
           </View>
         ))}
 
