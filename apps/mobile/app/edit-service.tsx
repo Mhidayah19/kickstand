@@ -1,9 +1,10 @@
 // apps/mobile/app/edit-service.tsx
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ServiceLogFormBody } from '../components/service/service-log-form-body';
 import { ModalFormScreen } from '../components/ui/modal-form-screen';
+import { ConfirmationDialog } from '../components/ui/confirmation-dialog';
 import { useBike } from '../lib/api/use-bikes';
 import { useAllServiceLogs, useServiceLog } from '../lib/api/use-service-logs';
 import { useServiceLogForm } from '../lib/hooks/use-service-log-form';
@@ -22,6 +23,7 @@ interface EditServiceFormProps {
 function EditServiceForm({ log, bikeId, bikeLabel, frequentTypes, onClose }: EditServiceFormProps) {
   const router = useRouter();
   const form = useServiceLogForm(bikeId, undefined, log);
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   const handleSave = useCallback(async () => {
     try {
@@ -34,6 +36,15 @@ function EditServiceForm({ log, bikeId, bikeLabel, frequentTypes, onClose }: Edi
   }, [form.handleSave, router]);
 
   const handleClose = useCallback(() => {
+    if (form.isDirty) {
+      setShowDiscardDialog(true);
+      return;
+    }
+    onClose();
+  }, [form.isDirty, onClose]);
+
+  const handleConfirmDiscard = useCallback(() => {
+    setShowDiscardDialog(false);
     form.handleReset();
     onClose();
   }, [form.handleReset, onClose]);
@@ -46,18 +57,30 @@ function EditServiceForm({ log, bikeId, bikeLabel, frequentTypes, onClose }: Edi
   } : undefined, [form.serviceTypeKey, form.isPending, handleSave]);
 
   return (
-    <ModalFormScreen
-      onClose={handleClose}
-      title="Edit Service Log"
-      subtitle={bikeLabel}
-      cta={cta}
-    >
-      <ServiceLogFormBody
-        form={form}
-        frequentTypes={frequentTypes}
-        bikeId={bikeId}
+    <>
+      <ModalFormScreen
+        onClose={handleClose}
+        title="Edit Service Log"
+        subtitle={bikeLabel}
+        cta={cta}
+      >
+        <ServiceLogFormBody
+          form={form}
+          frequentTypes={frequentTypes}
+          bikeId={bikeId}
+        />
+      </ModalFormScreen>
+
+      <ConfirmationDialog
+        visible={showDiscardDialog}
+        title="Discard Changes?"
+        body="You have unsaved changes. They will be lost if you close now."
+        confirmLabel="Discard"
+        confirmVariant="danger"
+        onConfirm={handleConfirmDiscard}
+        onCancel={() => setShowDiscardDialog(false)}
       />
-    </ModalFormScreen>
+    </>
   );
 }
 

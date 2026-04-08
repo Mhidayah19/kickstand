@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateServiceLog, useUpdateServiceLog } from '../api/use-service-logs';
@@ -77,6 +77,7 @@ export function useServiceLogForm(
     () => makeInitialParts(existingLog),
   );
 
+  const initialReceiptUrls = useRef(existingLog?.receiptUrls ?? []);
   const [receiptUrls, setReceiptUrls] = useState<string[]>(
     () => existingLog?.receiptUrls ?? [],
   );
@@ -118,6 +119,17 @@ export function useServiceLogForm(
 
   const handleSave = form.handleSubmit(submitHandler);
 
+  const initialParts = useRef(existingLog?.parts ?? []);
+
+  const isDirty = useMemo(
+    () =>
+      form.formState.isDirty ||
+      JSON.stringify(receiptUrls) !== JSON.stringify(initialReceiptUrls.current) ||
+      JSON.stringify(parts.map((p) => p.value.trim()).filter(Boolean)) !==
+        JSON.stringify(initialParts.current),
+    [form.formState.isDirty, receiptUrls, parts],
+  );
+
   const handleReset = () => {
     userEditedMileage.current = existingLog != null;
     form.reset(makeDefaults(initialMileage, existingLog));
@@ -136,7 +148,7 @@ export function useServiceLogForm(
     receiptUrls,
     addReceiptUrls,
     removeReceiptUrl,
-    setServiceTypeKey: (key: ServiceTypeKey) => form.setValue('serviceTypeKey', key),
+    setServiceTypeKey: (key: ServiceTypeKey) => form.setValue('serviceTypeKey', key, { shouldDirty: true }),
     parts,
     addPart: () => setParts((prev) => [...prev, { id: nextPartId.current++, value: '' }]),
     removePart: (id: number) =>
@@ -145,12 +157,13 @@ export function useServiceLogForm(
       setParts((prev) => prev.map((p) => (p.id === id ? { ...p, value } : p))),
     setMileage: (value: string) => {
       userEditedMileage.current = true;
-      form.setValue('mileage', formatMileage(value), { shouldValidate: true });
+      form.setValue('mileage', formatMileage(value), { shouldValidate: true, shouldDirty: true });
     },
-    setDate: (value: string) => form.setValue('date', value, { shouldValidate: true }),
-    setCost: (value: string) => form.setValue('cost', value, { shouldValidate: true }),
+    setDate: (value: string) => form.setValue('date', value, { shouldValidate: true, shouldDirty: true }),
+    setCost: (value: string) => form.setValue('cost', value, { shouldValidate: true, shouldDirty: true }),
     handleSave,
     handleReset,
+    isDirty,
     isPending: createLog.isPending || updateLog.isPending,
   };
 }

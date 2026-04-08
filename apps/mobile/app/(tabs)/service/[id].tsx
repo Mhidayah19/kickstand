@@ -253,6 +253,7 @@ export default function ServiceDetailScreen() {
             onRemove={handleRemove}
             onPress={handlePress}
             uploadingCount={uploadingCount}
+            removable={false}
           />
         </View>
 
