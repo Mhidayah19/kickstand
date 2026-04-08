@@ -1,20 +1,15 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import {
-  FlatList,
+  Dimensions,
   Image,
   Modal,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Pressable,
+  ScrollView,
   Text,
   View,
-  useWindowDimensions,
 } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, {
-  runOnJS,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
 
@@ -25,123 +20,24 @@ interface ReceiptViewerProps {
   onClose: () => void;
 }
 
-// Per-image zoomable wrapper — isolates shared values so each image resets independently
-function ZoomableImage({
-  uri,
-  width,
-  height,
-  onZoomChange,
-}: {
-  uri: string;
-  width: number;
-  height: number;
-  onZoomChange: (zoomed: boolean) => void;
-}) {
-  const scale = useSharedValue(1);
-  const savedScale = useSharedValue(1);
-  const translateX = useSharedValue(0);
-  const translateY = useSharedValue(0);
-  const savedTranslateX = useSharedValue(0);
-  const savedTranslateY = useSharedValue(0);
-
-  const notifyZoom = useCallback(
-    (zoomed: boolean) => onZoomChange(zoomed),
-    [onZoomChange],
-  );
-
-  const pinchGesture = Gesture.Pinch()
-    .onUpdate((e) => {
-      'worklet';
-      const next = Math.max(1, Math.min(5, savedScale.value * e.scale));
-      scale.value = next;
-      if (next > 1.05) {
-        runOnJS(notifyZoom)(true);
-      }
-    })
-    .onEnd(() => {
-      'worklet';
-      if (scale.value < 1.05) {
-        scale.value = withSpring(1);
-        savedScale.value = 1;
-        translateX.value = withSpring(0);
-        translateY.value = withSpring(0);
-        savedTranslateX.value = 0;
-        savedTranslateY.value = 0;
-        runOnJS(notifyZoom)(false);
-      } else {
-        savedScale.value = scale.value;
-      }
-    });
-
-  const panGesture = Gesture.Pan()
-    .onUpdate((e) => {
-      'worklet';
-      if (scale.value <= 1) return;
-      translateX.value = savedTranslateX.value + e.translationX;
-      translateY.value = savedTranslateY.value + e.translationY;
-    })
-    .onEnd(() => {
-      'worklet';
-      savedTranslateX.value = translateX.value;
-      savedTranslateY.value = translateY.value;
-    });
-
-  const doubleTapGesture = Gesture.Tap()
-    .numberOfTaps(2)
-    .onEnd(() => {
-      'worklet';
-      scale.value = withSpring(1);
-      savedScale.value = 1;
-      translateX.value = withSpring(0);
-      translateY.value = withSpring(0);
-      savedTranslateX.value = 0;
-      savedTranslateY.value = 0;
-      runOnJS(notifyZoom)(false);
-    });
-
-  const composed = Gesture.Simultaneous(
-    doubleTapGesture,
-    Gesture.Simultaneous(pinchGesture, panGesture),
-  );
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { translateX: translateX.value },
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
-  }));
-
-  return (
-    <GestureDetector gesture={composed}>
-      <Animated.View style={[{ width, height, alignItems: 'center', justifyContent: 'center' }, animatedStyle]}>
-        <Image
-          source={{ uri }}
-          style={{ width, height }}
-          resizeMode="contain"
-        />
-      </Animated.View>
-    </GestureDetector>
-  );
-}
-
 export function ReceiptViewer({ urls, initialIndex, visible, onClose }: ReceiptViewerProps) {
-  const { width, height } = useWindowDimensions();
+  const { width, height } = Dimensions.get('window');
   const [activeIndex, setActiveIndex] = useState(initialIndex);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const listRef = useRef<FlatList>(null);
+  const scrollRef = useRef<ScrollView>(null);
 
-  const handleZoomChange = useCallback((zoomed: boolean) => {
-    setIsZoomed(zoomed);
-  }, []);
+  // Scroll to the correct page when the modal becomes visible
+  const handleShow = () => {
+    setActiveIndex(initialIndex);
+    // Defer scroll until layout is ready
+    setTimeout(() => {
+      scrollRef.current?.scrollTo({ x: initialIndex * width, animated: false });
+    }, 0);
+  };
 
-  const handleViewableItemsChanged = useCallback(({ viewableItems }: any) => {
-    if (viewableItems.length > 0) {
-      setActiveIndex(viewableItems[0].index ?? 0);
-    }
-  }, []);
-
-  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const page = Math.round(e.nativeEvent.contentOffset.x / width);
+    if (page !== activeIndex) setActiveIndex(page);
+  };
 
   return (
     <Modal
@@ -150,6 +46,7 @@ export function ReceiptViewer({ urls, initialIndex, visible, onClose }: ReceiptV
       animationType="fade"
       onRequestClose={onClose}
       statusBarTranslucent
+      onShow={handleShow}
     >
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.95)' }}>
         {/* Counter */}
@@ -195,28 +92,35 @@ export function ReceiptViewer({ urls, initialIndex, visible, onClose }: ReceiptV
           <MaterialCommunityIcons name="close" size={16} color="#fff" />
         </Pressable>
 
-        {/* Image pager */}
-        <FlatList
-          ref={listRef}
-          data={urls}
-          keyExtractor={(uri, i) => `${uri}-${i}`}
+        {/* Paged image scroller */}
+        <ScrollView
+          ref={scrollRef}
           horizontal
           pagingEnabled
-          scrollEnabled={!isZoomed}
           showsHorizontalScrollIndicator={false}
-          initialScrollIndex={initialIndex}
-          getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
-          onViewableItemsChanged={handleViewableItemsChanged}
-          viewabilityConfig={viewabilityConfig}
-          renderItem={({ item }) => (
-            <ZoomableImage
-              uri={item}
-              width={width}
-              height={height}
-              onZoomChange={handleZoomChange}
-            />
-          )}
-        />
+          onMomentumScrollEnd={handleScroll}
+          scrollEventThrottle={16}
+          style={{ flex: 1 }}
+        >
+          {urls.map((uri, i) => (
+            <Pressable
+              key={`${uri}-${i}`}
+              onPress={onClose}
+              style={{
+                width,
+                height,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Image
+                source={{ uri }}
+                style={{ width, height: height * 0.8 }}
+                resizeMode="contain"
+              />
+            </Pressable>
+          ))}
+        </ScrollView>
 
         {/* Dot indicator */}
         {urls.length > 1 && (
@@ -259,7 +163,7 @@ export function ReceiptViewer({ urls, initialIndex, visible, onClose }: ReceiptV
             letterSpacing: 0.5,
           }}
         >
-          Pinch to zoom  ·  Double-tap to reset
+          Swipe to navigate  ·  Tap to close
         </Text>
       </View>
     </Modal>
