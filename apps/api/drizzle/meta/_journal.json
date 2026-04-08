@@ -36,6 +36,13 @@
       "when": 1775384927034,
       "tag": "0004_easy_blizzard",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1775651044000,
+      "tag": "0005_receipt_urls",
+      "breakpoints": true
     }
   ]
 }

@@ -136,7 +136,7 @@ export const serviceLogs = pgTable(
     cost: decimal('cost', { precision: 10, scale: 2 }).notNull(),
     mileageAt: integer('mileage_at').notNull(),
     date: date('date').notNull(),
-    receiptUrl: text('receipt_url'),
+    receiptUrls: text('receipt_urls').array().notNull().default([]),
     createdAt: timestamp('created_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
