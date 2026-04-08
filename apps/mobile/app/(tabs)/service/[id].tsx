@@ -12,9 +12,7 @@ import { useServiceLog, useDeleteServiceLog, useUpdateServiceLog } from '../../.
 import { useImageUpload } from '../../../lib/hooks/use-image-upload';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { colors } from '../../../lib/colors';
-import {
-  SERVICE_TYPE_LABELS,
-} from '../../../lib/constants/service-types';
+import { SERVICE_TYPE_LABELS } from '../../../lib/constants/service-types';
 import type { ServiceTypeKey, IconName } from '../../../lib/constants/service-types';
 
 const PART_ICON_RULES: { keywords: string[]; icon: IconName }[] = [
@@ -50,7 +48,7 @@ function formatCost(cost: string): string {
 }
 
 function formatMileage(mileage: number): string {
-  return mileage.toLocaleString('en-US') + ' km';
+  return `${mileage.toLocaleString('en-US')} km`;
 }
 
 export default function ServiceDetailScreen() {
@@ -106,7 +104,7 @@ export default function ServiceDetailScreen() {
 
   const handleRemove = useCallback((index: number) => {
     if (!log) return;
-    const updated = (log.receiptUrls).filter((_, i) => i !== index);
+    const updated = log.receiptUrls.filter((_, i) => i !== index);
     updateLog.mutate(
       { logId: id!, input: { receiptUrls: updated } },
       {

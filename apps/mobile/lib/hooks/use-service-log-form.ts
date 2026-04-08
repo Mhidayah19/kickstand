@@ -70,7 +70,7 @@ export function useServiceLogForm(
     if (initialMileage != null && !userEditedMileage.current) {
       form.setValue('mileage', formatMileage(String(initialMileage)));
     }
-  }, [initialMileage]);
+  }, [form, initialMileage]);
 
   const nextPartId = useRef(existingLog?.parts?.length ?? 1);
   const [parts, setParts] = useState<{ id: number; value: string }[]>(
@@ -89,7 +89,11 @@ export function useServiceLogForm(
     setReceiptUrls((prev) => prev.filter((_, i) => i !== index));
   }, []);
 
-  const [serviceTypeKey, mileage, date] = form.watch(['serviceTypeKey', 'mileage', 'date']) as [ServiceTypeKey, string, string];
+  const [serviceTypeKey, mileage, date] = form.watch([
+    'serviceTypeKey',
+    'mileage',
+    'date',
+  ]) as [ServiceTypeKey, string, string];
   const errors = form.formState.errors;
 
   async function submitHandler(values: ServiceLogFormValues) {
@@ -110,7 +114,7 @@ export function useServiceLogForm(
       return updateLog.mutateAsync({ logId: existingLog.id, input: payload });
     }
     return createLog.mutateAsync(payload);
-  };
+  }
 
   const handleSave = form.handleSubmit(submitHandler);
 

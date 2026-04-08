@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../supabase';
@@ -102,39 +102,43 @@ export function useImageUpload(config: ImageUploadConfig): UseImageUploadReturn 
     return result.assets;
   }, [pickerOptions]);
 
-  function showSourceAlert<T>(
-    onCamera: () => Promise<T>,
-    onLibrary: () => Promise<T>,
-    onCancel: T,
-  ): Promise<T> {
-    return new Promise((resolve) => {
-      Alert.alert(dialogTitle, dialogSubtitle, [
-        { text: 'Camera',        onPress: async () => resolve(await onCamera()) },
-        { text: 'Photo Library', onPress: async () => resolve(await onLibrary()) },
-        { text: 'Cancel', style: 'cancel', onPress: () => resolve(onCancel) },
-      ]);
-    });
-  }
+  const showSourceAlert = useCallback(
+    function showSourceAlert<T>(
+      onCamera: () => Promise<T>,
+      onLibrary: () => Promise<T>,
+      onCancel: T,
+    ): Promise<T> {
+      return new Promise((resolve) => {
+        Alert.alert(dialogTitle, dialogSubtitle, [
+          { text: 'Camera', onPress: async () => resolve(await onCamera()) },
+          { text: 'Photo Library', onPress: async () => resolve(await onLibrary()) },
+          { text: 'Cancel', style: 'cancel', onPress: () => resolve(onCancel) },
+        ]);
+      });
+    },
+    [dialogSubtitle, dialogTitle],
+  );
 
-  // Original single-upload method — kept for bike avatar use
+  const uploadSingleFromLibrary = useCallback(async (): Promise<ImageUploadResult | null> => {
+    const assets = await pickFromLibrary(1);
+    if (assets.length === 0) return null;
+
+    setUploadingCount(1);
+    try {
+      return await uploadAsset(assets[0]);
+    } finally {
+      setUploadingCount(0);
+    }
+  }, [pickFromLibrary, uploadAsset]);
+
   const pickAndUpload = useCallback((): Promise<ImageUploadResult | null> => {
     return showSourceAlert(
       () => captureFromCamera(),
-      async () => {
-        const assets = await pickFromLibrary(1);
-        if (assets.length === 0) return null;
-        setUploadingCount(1);
-        try {
-          return await uploadAsset(assets[0]);
-        } finally {
-          setUploadingCount(0);
-        }
-      },
+      uploadSingleFromLibrary,
       null,
     );
-  }, [dialogTitle, dialogSubtitle, captureFromCamera, pickFromLibrary, uploadAsset]);
+  }, [captureFromCamera, showSourceAlert, uploadSingleFromLibrary]);
 
-  // Multi-upload: picks up to `max` images, uploads sequentially, returns successful URLs
   const pickAndUploadMultiple = useCallback((max: number): Promise<string[]> => {
     return showSourceAlert(
       async () => {
@@ -155,7 +159,7 @@ export function useImageUpload(config: ImageUploadConfig): UseImageUploadReturn 
       },
       [],
     );
-  }, [dialogTitle, dialogSubtitle, captureFromCamera, pickFromLibrary, uploadAsset]);
+  }, [captureFromCamera, pickFromLibrary, showSourceAlert, uploadAsset]);
 
   return { isUploading, uploadingCount, pickAndUpload, pickAndUploadMultiple };
 }

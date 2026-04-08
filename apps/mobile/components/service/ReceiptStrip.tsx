@@ -5,6 +5,35 @@ import { colors } from '../../lib/colors';
 
 const THUMB = 72;
 const THUMB_RADIUS = 10;
+const BADGE_SIZE = 18;
+
+const thumbContainerStyle = {
+  width: THUMB,
+  height: THUMB,
+  borderRadius: THUMB_RADIUS,
+  overflow: 'hidden' as const,
+  backgroundColor: colors.surfaceLow,
+};
+
+const removeBadgeStyle = {
+  position: 'absolute' as const,
+  top: 4,
+  right: 4,
+  width: BADGE_SIZE,
+  height: BADGE_SIZE,
+  borderRadius: BADGE_SIZE / 2,
+  backgroundColor: colors.danger,
+  alignItems: 'center' as const,
+  justifyContent: 'center' as const,
+};
+
+function getUploadingLabel(uploadingCount: number): string {
+  if (uploadingCount > 1) {
+    return `${uploadingCount} left`;
+  }
+
+  return 'Uploading';
+}
 
 interface ReceiptStripProps {
   urls: string[];
@@ -23,9 +52,11 @@ export function ReceiptStrip({
   uploadingCount = 0,
   maxCount = 5,
 }: ReceiptStripProps) {
+  const hasReceipts = urls.length > 0;
   const canAddMore = urls.length + uploadingCount < maxCount;
+  const isEmpty = !hasReceipts && uploadingCount === 0;
 
-  if (urls.length === 0 && uploadingCount === 0) {
+  if (isEmpty) {
     return (
       <Pressable
         onPress={onAdd}
@@ -47,27 +78,14 @@ export function ReceiptStrip({
         contentContainerStyle={{ gap: 8, paddingVertical: 2 }}
       >
         {urls.map((uri, index) => (
-          <View
-            key={`${uri}-${index}`}
-            style={{ width: THUMB, height: THUMB, borderRadius: THUMB_RADIUS, overflow: 'hidden', backgroundColor: colors.surfaceLow }}
-          >
+          <View key={`${uri}-${index}`} style={thumbContainerStyle}>
             <Pressable onPress={() => onPress(index)} style={{ flex: 1 }} className="active:opacity-80">
               <Image source={{ uri }} style={{ width: THUMB, height: THUMB }} resizeMode="cover" />
             </Pressable>
             <Pressable
               onPress={() => onRemove(index)}
               hitSlop={4}
-              style={{
-                position: 'absolute',
-                top: 4,
-                right: 4,
-                width: 18,
-                height: 18,
-                borderRadius: 9,
-                backgroundColor: colors.danger,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+              style={removeBadgeStyle}
             >
               <MaterialCommunityIcons name="close" size={10} color="#fff" />
             </Pressable>
@@ -88,7 +106,7 @@ export function ReceiptStrip({
           >
             <ActivityIndicator size="small" color={colors.yellow} />
             <Text style={{ color: colors.yellow, fontSize: 9, fontFamily: 'PlusJakartaSans_700Bold' }}>
-              {uploadingCount > 1 ? `${uploadingCount} left` : 'Uploading'}
+              {getUploadingLabel(uploadingCount)}
             </Text>
           </View>
         )}
