@@ -1,4 +1,3 @@
-// apps/mobile/app/(tabs)/service/[id].tsx
 import React, { useCallback, useState } from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -91,7 +90,7 @@ export default function ServiceDetailScreen() {
 
   const handleAdd = useCallback(async () => {
     if (!log) return;
-    const existing = log.receiptUrls ?? [];
+    const existing = log.receiptUrls;
     const remaining = 5 - existing.length;
     if (remaining <= 0) return;
     const newUrls = await pickAndUploadMultiple(remaining);
@@ -107,7 +106,7 @@ export default function ServiceDetailScreen() {
 
   const handleRemove = useCallback((index: number) => {
     if (!log) return;
-    const updated = (log.receiptUrls ?? []).filter((_, i) => i !== index);
+    const updated = (log.receiptUrls).filter((_, i) => i !== index);
     updateLog.mutate(
       { logId: id!, input: { receiptUrls: updated } },
       {
@@ -162,7 +161,7 @@ export default function ServiceDetailScreen() {
 
   const key = log.serviceType as ServiceTypeKey;
   const serviceLabel = SERVICE_TYPE_LABELS[key] ?? log.serviceType;
-  const receiptUrls = log.receiptUrls ?? [];
+  const receiptUrls = log.receiptUrls;
 
   return (
     <SafeAreaView className="flex-1 bg-surface">

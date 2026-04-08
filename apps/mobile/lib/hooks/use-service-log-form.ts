@@ -17,6 +17,8 @@ function todayISO(): string {
   return new Date().toISOString().split('T')[0];
 }
 
+const MAX_RECEIPTS = 5;
+
 function formatMileage(raw: string): string {
   const digits = raw.replace(/\D/g, '');
   if (!digits) return '';
@@ -80,10 +82,7 @@ export function useServiceLogForm(
   );
 
   const addReceiptUrls = useCallback((urls: string[]) => {
-    setReceiptUrls((prev) => {
-      const combined = [...prev, ...urls];
-      return combined.slice(0, 5);
-    });
+    setReceiptUrls((prev) => [...prev, ...urls].slice(0, MAX_RECEIPTS));
   }, []);
 
   const removeReceiptUrl = useCallback((index: number) => {
@@ -93,7 +92,7 @@ export function useServiceLogForm(
   const [serviceTypeKey, mileage, date] = form.watch(['serviceTypeKey', 'mileage', 'date']) as [ServiceTypeKey, string, string];
   const errors = form.formState.errors;
 
-  const submitHandler = async (values: ServiceLogFormValues) => {
+  async function submitHandler(values: ServiceLogFormValues) {
     const mileageNum = parseInt(values.mileage.replace(/,/g, ''), 10);
     const label = SERVICE_TYPE_LABELS[values.serviceTypeKey as ServiceTypeKey] ?? values.serviceTypeKey;
     const filledParts = parts.map((p) => p.value.trim()).filter(Boolean);

@@ -1,14 +1,10 @@
 import React from 'react';
-import {
-  ActivityIndicator,
-  Image,
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
+
+const THUMB = 72;
+const THUMB_RADIUS = 10;
 
 interface ReceiptStripProps {
   urls: string[];
@@ -29,7 +25,6 @@ export function ReceiptStrip({
 }: ReceiptStripProps) {
   const canAddMore = urls.length + uploadingCount < maxCount;
 
-  // Empty state — no images and nothing uploading
   if (urls.length === 0 && uploadingCount === 0) {
     return (
       <Pressable
@@ -51,20 +46,14 @@ export function ReceiptStrip({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ gap: 8, paddingVertical: 2 }}
       >
-        {/* Uploaded thumbnails */}
         {urls.map((uri, index) => (
           <View
             key={`${uri}-${index}`}
-            style={{ width: 72, height: 72, borderRadius: 10, overflow: 'hidden', backgroundColor: colors.surfaceLow }}
+            style={{ width: THUMB, height: THUMB, borderRadius: THUMB_RADIUS, overflow: 'hidden', backgroundColor: colors.surfaceLow }}
           >
             <Pressable onPress={() => onPress(index)} style={{ flex: 1 }} className="active:opacity-80">
-              <Image
-                source={{ uri }}
-                style={{ width: 72, height: 72 }}
-                resizeMode="cover"
-              />
+              <Image source={{ uri }} style={{ width: THUMB, height: THUMB }} resizeMode="cover" />
             </Pressable>
-            {/* Remove badge */}
             <Pressable
               onPress={() => onRemove(index)}
               hitSlop={4}
@@ -85,13 +74,12 @@ export function ReceiptStrip({
           </View>
         ))}
 
-        {/* Uploading slots */}
         {uploadingCount > 0 && (
           <View
             style={{
-              width: 72,
-              height: 72,
-              borderRadius: 10,
+              width: THUMB,
+              height: THUMB,
+              borderRadius: THUMB_RADIUS,
               backgroundColor: colors.surfaceLow,
               alignItems: 'center',
               justifyContent: 'center',
@@ -105,14 +93,13 @@ export function ReceiptStrip({
           </View>
         )}
 
-        {/* Add slot */}
         {canAddMore && (
           <Pressable
             onPress={onAdd}
             style={{
-              width: 72,
-              height: 72,
-              borderRadius: 10,
+              width: THUMB,
+              height: THUMB,
+              borderRadius: THUMB_RADIUS,
               borderWidth: 1.5,
               borderStyle: 'dashed',
               borderColor: colors.outline,
@@ -130,15 +117,7 @@ export function ReceiptStrip({
         )}
       </ScrollView>
 
-      <Text
-        style={{
-          color: colors.sand,
-          fontSize: 10,
-          fontFamily: 'PlusJakartaSans_500Medium',
-          textAlign: 'right',
-          marginTop: 4,
-        }}
-      >
+      <Text className="font-sans-medium text-xxs text-sand text-right mt-1">
         {urls.length} of {maxCount}
       </Text>
     </View>

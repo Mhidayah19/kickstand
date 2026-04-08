@@ -25,19 +25,16 @@ export function ReceiptViewer({ urls, initialIndex, visible, onClose }: ReceiptV
   const [activeIndex, setActiveIndex] = useState(initialIndex);
   const scrollRef = useRef<ScrollView>(null);
 
-  // Scroll to the correct page when the modal becomes visible
-  const handleShow = () => {
+  // Scroll to the correct page once the modal layout is ready
+  function handleShow() {
     setActiveIndex(initialIndex);
-    // Defer scroll until layout is ready
-    setTimeout(() => {
-      scrollRef.current?.scrollTo({ x: initialIndex * width, animated: false });
-    }, 0);
-  };
+    setTimeout(() => scrollRef.current?.scrollTo({ x: initialIndex * width, animated: false }), 0);
+  }
 
-  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+  function handleScroll(e: NativeSyntheticEvent<NativeScrollEvent>) {
     const page = Math.round(e.nativeEvent.contentOffset.x / width);
     if (page !== activeIndex) setActiveIndex(page);
-  };
+  }
 
   return (
     <Modal
