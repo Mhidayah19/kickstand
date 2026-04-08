@@ -163,24 +163,32 @@ Kickstand operates in two core modes:
 - [x] Bike Detail — hero card, specs, 4 compliance dates, service history, edit/delete with confirmation
 - [x] Add Bike — 5-step form with catalog search, license class picker, auto-calculated SG compliance dates
 - [x] Edit Bike — pre-filled form for all bike fields
-- [x] Service History — vertical timeline, filter by service category, total spend counter, paginated
-- [x] Service Detail — full record view with parts pills, edit and delete actions
-- [x] Add Service — type selector with recent suggestions, cost/mileage/date/parts inputs
-- [x] Edit Service — pre-filled form
+- [x] Service History — date-grouped timeline, filter by service category, date range picker, search, total spend counter, analytics sheet, paginated
+- [x] Service Detail — full record view with parts pills, receipt photos with full-screen viewer, edit and delete actions
+- [x] Add Service — type selector with recent suggestions, cost/mileage/date/parts inputs, receipt photo capture & upload
+- [x] Edit Service — pre-filled form with unsaved changes guard, receipt management
 - [x] Settings — profile display, logout
 - [x] 38 reusable UI components (buttons, cards, inputs, timeline, bottom sheet, skeleton loaders, etc.)
 - [x] ESLint + TypeScript strict mode
 - [x] Sentry error tracking + session replay + in-app feedback button
 - [x] EAS Update (OTA updates via Expo Go)
+- [x] Service receipt photo upload via Supabase Storage
+- [x] Swipe-to-edit/delete on service entries with haptic feedback
+- [x] Service cost breakdown & analytics (monthly trends, category breakdown)
 
 ### Coming Soon (v1.1+)
 
-- [ ] Mastra AI agent with voice interface (agent tab screen exists, tools not yet implemented)
+**Agent & Intelligence (Phase 3)**
+- [ ] Mastra AI agent with voice + chat interface (agent tab screen exists, tools not yet implemented)
 - [ ] 9 agent tools: get_bike_profile, get_service_history, get_compliance_status, find_workshops_nearby, compare_workshop_prices, get_workshop_details, get_maintenance_schedule, log_service, update_mileage
-- [ ] Workshop discovery screen (API is fully built, no mobile UI yet)
-- [ ] Service log swipe-to-edit/delete with haptic feedback
-- [ ] Receipt photo upload via Supabase Storage
+- [ ] Conversational bike advice based on service history and compliance status
+
+**UI Enhancements (Phase 2 - In Progress)**
+- [ ] Workshop discovery screen (API is fully built, mobile UI in progress)
+- [ ] Full-screen image viewer with pinch-to-zoom for receipt photos
 - [ ] Dark mode (toggle exists in settings, not wired)
+
+**Infrastructure & Settings (Phase 4)**
 - [ ] Personal info / security settings (menu items exist, not functional)
 - [ ] Terraform IaC for all AWS infrastructure
 - [ ] Kubernetes manifests for EKS/GKE deployment
@@ -398,27 +406,31 @@ Key relationships:
 - ✓ Sentry error monitoring + in-app feedback
 - ✓ EAS Update for OTA distribution
 
-**Phase 2 — Polish (in progress)**
-- Service log swipe-to-edit/delete with haptics
-- Receipt photo upload via Supabase Storage
-- Workshop discovery screen (mobile UI)
+**Phase 2 — Polish (shipped)**
+- ✓ Service log swipe-to-edit/delete with haptics
+- ✓ Receipt photo upload & full-screen viewer
+- ✓ Service history date-grouped timeline with advanced filtering
+- ✓ Analytics sheet with cost breakdown by category
+- ✓ Search + date range picker for service history
+- ✓ Unsaved changes guard on forms
+- 🔄 Workshop discovery screen (API ready, UI in progress)
 
-**Phase 3 — Intelligence**
-- Mastra AI agent with voice + chat
+**Phase 3 — Intelligence (in progress)**
+- Mastra AI agent with voice + chat interface
 - Conversational bike advice based on service history
-- Proactive compliance/maintenance reminders with context
+- 9 agent tools for bike management, compliance, and workshop discovery
 - Workshop recommendation engine
 
-**Phase 4 — Infrastructure**
+**Phase 4 — Infrastructure (queued)**
 - Terraform IaC for all AWS resources
 - Kubernetes manifests (EKS/GKE)
 
-**Phase 5 — Community**
+**Phase 5 — Community (future)**
 - Community-contributed workshop data & reviews
 - Crowd-sourced pricing updates
 - Ride logs & trip tracking
 
-**Phase 6 — Expansion**
+**Phase 6 — Expansion (future)**
 - Cross-border riding (Malaysia, Thailand) — VEP tracking, pre-departure checklists
 - COE renewal planning tools
 - License progression (2B → 2A → 2) notifications
