@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from './client';
+import { attentionKeys } from './use-attention';
 import type { PaginatedResponse } from '../types/api';
 import type { ServiceLog } from '../types/service-log';
 
@@ -69,6 +70,7 @@ export function useCreateServiceLog(bikeId: string | null) {
       if (!bikeId) return;
       queryClient.invalidateQueries({ queryKey: serviceLogsKeys.byBike(bikeId) });
       queryClient.invalidateQueries({ queryKey: serviceLogsKeys.all });
+      queryClient.invalidateQueries({ queryKey: attentionKeys.byBike(bikeId) });
     },
   });
 }
@@ -83,6 +85,7 @@ export function useUpdateServiceLog(bikeId: string | null) {
       queryClient.setQueryData(serviceLogsKeys.detail(bikeId, logId), data);
       queryClient.invalidateQueries({ queryKey: serviceLogsKeys.byBike(bikeId) });
       queryClient.invalidateQueries({ queryKey: serviceLogsKeys.all });
+      queryClient.invalidateQueries({ queryKey: attentionKeys.byBike(bikeId) });
     },
   });
 }
@@ -96,6 +99,7 @@ export function useDeleteServiceLog(bikeId: string | null) {
       if (!bikeId) return;
       queryClient.invalidateQueries({ queryKey: serviceLogsKeys.byBike(bikeId) });
       queryClient.invalidateQueries({ queryKey: serviceLogsKeys.all });
+      queryClient.invalidateQueries({ queryKey: attentionKeys.byBike(bikeId) });
     },
   });
 }

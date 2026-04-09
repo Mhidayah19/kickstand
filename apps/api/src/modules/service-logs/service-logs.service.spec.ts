@@ -83,7 +83,10 @@ describe('ServiceLogsService', () => {
     });
 
     it('should store receiptUrls array when provided', async () => {
-      mockBikesService.findOneByUser.mockResolvedValue({ id: 'bike-1', userId: 'user-1' });
+      mockBikesService.findOneByUser.mockResolvedValue({
+        id: 'bike-1',
+        userId: 'user-1',
+      });
       const log = {
         id: 'log-1',
         bikeId: 'bike-1',

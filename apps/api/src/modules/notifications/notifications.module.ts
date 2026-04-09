@@ -5,8 +5,11 @@ import { NotificationsScanService } from './notifications-scan.service';
 import { ComplianceScannerJob } from './jobs/compliance-scanner.job';
 import { MaintenanceReminderJob } from './jobs/maintenance-reminder.job';
 import { WorkshopFreshnessJob } from './jobs/workshop-freshness.job';
+import { MaintenanceStatusModule } from '../maintenance-status/maintenance-status.module';
+import { ComplianceStatusModule } from '../compliance-status/compliance-status.module';
 
 @Module({
+  imports: [MaintenanceStatusModule, ComplianceStatusModule],
   controllers: [NotificationsController],
   providers: [
     NotificationsService,

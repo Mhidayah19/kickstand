@@ -1,20 +1,13 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { eq, and, desc, or } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import * as Sentry from '@sentry/nestjs';
 import { DRIZZLE } from '../../../database/database.module';
 import type { DrizzleDB } from '../../../database/database.types';
 import * as schema from '../../../database/schema';
 import { NotificationsService } from '../notifications.service';
-
-interface DueItem {
-  serviceType: string;
-  tier: 'due' | 'approaching';
-  lastMileage: number;
-  currentMileage: number;
-  intervalKm: number | null;
-  timeBased?: boolean;
-}
+import { MaintenanceStatusService } from '../../maintenance-status/maintenance-status.service';
+import type { MaintenanceStatusItem } from '../../maintenance-status/types';
 
 @Injectable()
 export class MaintenanceReminderJob {
@@ -23,6 +16,7 @@ export class MaintenanceReminderJob {
   constructor(
     @Inject(DRIZZLE) private readonly db: DrizzleDB,
     private readonly notificationsService: NotificationsService,
+    private readonly maintenanceStatusService: MaintenanceStatusService,
   ) {}
 
   @Cron('0 8 * * 1', { timeZone: 'Asia/Singapore' })
@@ -34,7 +28,6 @@ export class MaintenanceReminderJob {
     this.logger.log('Starting maintenance reminder scan');
     try {
       const users = await this.db.select().from(schema.users).execute();
-
       if (users.length === 0) {
         this.logger.log('No users found, skipping maintenance reminder scan');
         return { usersNotified: 0, notificationsSent: 0 };
@@ -53,102 +46,29 @@ export class MaintenanceReminderJob {
           .execute();
 
         for (const bike of bikes) {
-          const schedules = await this.db
-            .select()
-            .from(schema.maintenanceSchedules)
-            .where(
-              or(
-                eq(schema.maintenanceSchedules.bikeModel, bike.model),
-                bike.make
-                  ? eq(
-                      schema.maintenanceSchedules.bikeModel,
-                      `${bike.make} ${bike.model}`,
-                    )
-                  : undefined,
-              ),
-            )
-            .execute();
+          const items = await this.maintenanceStatusService.computeForBike(
+            bike.id,
+          );
+          const dueItems: MaintenanceStatusItem[] = [];
 
-          if (schedules.length === 0) continue;
+          for (const item of items) {
+            if (item.status === 'ok') continue;
 
-          const dueItems: DueItem[] = [];
-
-          for (const schedule of schedules) {
-            // Find most recent service_log for this type
-            const logs = await this.db
-              .select()
-              .from(schema.serviceLogs)
-              .where(
-                and(
-                  eq(schema.serviceLogs.bikeId, bike.id),
-                  eq(schema.serviceLogs.serviceType, schedule.serviceType),
-                ),
-              )
-              .orderBy(desc(schema.serviceLogs.date))
-              .limit(1)
-              .execute();
-
-            const lastLog = logs[0] ?? null;
-            const lastMileage = lastLog ? lastLog.mileageAt : 0;
-            const currentMileage = bike.currentMileage;
-
-            let tier: 'due' | 'approaching' | null = null;
-            let timeBased = false;
-
-            // Check mileage-based
-            if (schedule.intervalKm) {
-              const used = currentMileage - lastMileage;
-              if (used >= schedule.intervalKm) {
-                tier = 'due';
-              } else if (used >= schedule.intervalKm * 0.8) {
-                tier = 'approaching';
-              }
-            }
-
-            // Check time-based (only if we have a reference date from a log)
-            if (!tier && schedule.intervalMonths && lastLog) {
-              const lastDate = new Date(lastLog.date);
-              const now = new Date();
-              const monthsElapsed =
-                (now.getFullYear() - lastDate.getFullYear()) * 12 +
-                (now.getMonth() - lastDate.getMonth());
-
-              if (monthsElapsed >= schedule.intervalMonths) {
-                tier = 'due';
-                timeBased = true;
-              } else if (monthsElapsed >= schedule.intervalMonths * 0.8) {
-                tier = 'approaching';
-                timeBased = true;
-              }
-            }
-
-            if (!tier) continue;
-
-            // Dedup check
             const alreadySent = await this.notificationsService.hasAlreadySent(
               user.id,
               bike.id,
               'maintenance',
-              schedule.serviceType,
-              tier,
+              item.key,
+              item.status === 'overdue' ? 'due' : 'approaching',
             );
-
             if (alreadySent) continue;
 
-            dueItems.push({
-              serviceType: schedule.serviceType,
-              tier,
-              lastMileage,
-              currentMileage,
-              intervalKm: schedule.intervalKm,
-              timeBased,
-            });
+            dueItems.push(item);
           }
 
           if (dueItems.length === 0) continue;
 
           const body = this.formatBody(dueItems, bike.model);
-
           await this.notificationsService.sendBatchPush([
             { to: user.expoToken, title: 'Kickstand Maintenance', body },
           ]);
@@ -158,8 +78,8 @@ export class MaintenanceReminderJob {
               user.id,
               bike.id,
               'maintenance',
-              item.serviceType,
-              item.tier,
+              item.key,
+              item.status === 'overdue' ? 'due' : 'approaching',
             );
           }
 
@@ -173,10 +93,7 @@ export class MaintenanceReminderJob {
         'Maintenance reminder scan complete',
       );
 
-      return {
-        usersNotified: notifiedUserIds.size,
-        notificationsSent,
-      };
+      return { usersNotified: notifiedUserIds.size, notificationsSent };
     } catch (error: unknown) {
       this.logger.error({ error }, 'Maintenance reminder scan failed');
       Sentry.captureException(error);
@@ -184,34 +101,42 @@ export class MaintenanceReminderJob {
     }
   }
 
-  private formatBody(items: DueItem[], bikeModel: string): string {
+  private formatBody(
+    items: MaintenanceStatusItem[],
+    bikeModel: string,
+  ): string {
     if (items.length > 1) {
       const parts = items
-        .map((i) => {
-          const label = i.serviceType.replace(/_/g, ' ');
-          return `${label} (${i.tier === 'due' ? 'overdue' : 'approaching'})`;
-        })
+        .map(
+          (i) =>
+            `${i.label} (${i.status === 'overdue' ? 'overdue' : 'approaching'})`,
+        )
         .join(', ');
       return `${items.length} services due on your ${bikeModel}: ${parts}`;
     }
 
     const item = items[0];
-    const label = item.serviceType.replace(/_/g, ' ');
 
-    if (item.tier === 'due') {
-      return `${label.charAt(0).toUpperCase() + label.slice(1)} overdue — last done at ${this.formatKm(item.lastMileage)}km, you're now at ${this.formatKm(item.currentMileage)}km`;
+    if (item.status === 'overdue') {
+      return `${item.label} overdue — last done at ${this.formatKm(item.lastMileage ?? 0)}km, you're now at ${this.formatKm(item.currentMileage)}km`;
     }
 
-    // Approaching — time-based: mention "approaching" explicitly
-    if (item.timeBased) {
-      return `${label.charAt(0).toUpperCase() + label.slice(1)} approaching — service due soon based on time elapsed`;
+    // Detect time-triggered approaching: schedule has intervalKm but km used < 80% threshold
+    const kmUsed =
+      item.intervalKm != null && item.deltaKm != null
+        ? item.intervalKm - item.deltaKm
+        : null;
+    const kmTriggered =
+      kmUsed != null &&
+      item.intervalKm != null &&
+      kmUsed >= item.intervalKm * 0.8;
+
+    if (!kmTriggered) {
+      return `${item.label} approaching — service due soon based on time elapsed`;
     }
 
-    // Approaching — mileage-based: mention km remaining
-    const remaining = item.intervalKm
-      ? item.intervalKm - (item.currentMileage - item.lastMileage)
-      : 0;
-    return `You're ${this.formatKm(remaining)}km away from your next ${label}`;
+    const remaining = item.deltaKm ?? 0;
+    return `You're ${this.formatKm(remaining)}km away from your next ${item.label}`;
   }
 
   private formatKm(km: number): string {
