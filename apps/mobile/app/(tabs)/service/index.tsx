@@ -12,6 +12,7 @@ import { FilterSheet } from '../../../components/service/filter-sheet';
 import { useServiceLogs } from '../../../lib/api/use-service-logs';
 import { useBike, useBikes } from '../../../lib/api/use-bikes';
 import { useBikeStore } from '../../../lib/store/bike-store';
+import { useAttention } from '../../../lib/api/use-attention';
 import { colors } from '../../../lib/colors';
 import {
   SERVICE_TYPE_LABELS,
@@ -53,6 +54,12 @@ export default function ServiceScreen() {
   const { data: bike } = useBike(activeBikeId);
   const { data: bikes } = useBikes();
   const { data: logsResponse, isLoading } = useServiceLogs(activeBikeId, 100);
+  const { data: attention } = useAttention(activeBikeId);
+
+  const badgeCount = attention?.summary.needsAttention ?? 0;
+  const handleNotificationPress = useCallback(() => {
+    router.push('/notifications' as any);
+  }, [router]);
 
   const [selectedFilter, setSelectedFilter] = useState<FilterGroupKey>('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -133,6 +140,8 @@ export default function ServiceScreen() {
         bikes={bikes?.map((b) => ({ id: b.id, model: b.model, year: b.year })) ?? []}
         onBikeChange={setActiveBikeId}
         onAddBikePress={handleAddBike}
+        onNotificationPress={handleNotificationPress}
+        unreadNotifications={badgeCount}
       />
 
       <View className="px-6" style={{ paddingTop: 80 }}>

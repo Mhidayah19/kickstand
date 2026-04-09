@@ -1,32 +1,28 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { Cron } from '@nestjs/schedule';
-import { or, and, gte, lte, eq, isNotNull } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import * as Sentry from '@sentry/nestjs';
 import { DRIZZLE } from '../../../database/database.module';
 import type { DrizzleDB } from '../../../database/database.types';
 import * as schema from '../../../database/schema';
 import { NotificationsService } from '../notifications.service';
-
-const DEADLINE_FIELDS = [
-  'coeExpiry',
-  'roadTaxExpiry',
-  'insuranceExpiry',
-  'inspectionDue',
-] as const;
-
-const DEADLINE_LABELS: Record<string, string> = {
-  coeExpiry: 'COE',
-  roadTaxExpiry: 'road tax',
-  insuranceExpiry: 'insurance',
-  inspectionDue: 'inspection',
-};
+import { ComplianceStatusService } from '../../compliance-status/compliance-status.service';
+import type { ComplianceStatusItem } from '../../compliance-status/types';
 
 const TIERS = [
-  { name: '30d', minDays: 29, maxDays: 30 },
-  { name: '14d', minDays: 13, maxDays: 14 },
-  { name: '7d', minDays: 6, maxDays: 7 },
-  { name: '1d', minDays: 0, maxDays: 1 },
+  { name: '1d', maxDays: 1 },
+  { name: '7d', maxDays: 7 },
+  { name: '14d', maxDays: 14 },
+  { name: '30d', maxDays: 30 },
 ] as const;
+
+function tierFor(daysRemaining: number): string | null {
+  if (daysRemaining < 0) return 'due';
+  for (const tier of TIERS) {
+    if (daysRemaining <= tier.maxDays) return tier.name;
+  }
+  return null;
+}
 
 @Injectable()
 export class ComplianceScannerJob {
@@ -35,6 +31,7 @@ export class ComplianceScannerJob {
   constructor(
     @Inject(DRIZZLE) private readonly db: DrizzleDB,
     private readonly notificationsService: NotificationsService,
+    private readonly complianceStatusService: ComplianceStatusService,
   ) {}
 
   @Cron('0 8 * * *', { timeZone: 'Asia/Singapore' })
@@ -45,124 +42,67 @@ export class ComplianceScannerJob {
   async run(): Promise<{ usersNotified: number; notificationsSent: number }> {
     this.logger.log('Starting compliance scan');
     try {
-      const today = new Date();
-      let totalSent = 0;
+      const users = await this.db.select().from(schema.users).execute();
+      if (users.length === 0) {
+        return { usersNotified: 0, notificationsSent: 0 };
+      }
+
+      let notificationsSent = 0;
       const notifiedUserIds = new Set<string>();
 
-      for (const tier of TIERS) {
-        const minDate = new Date(today);
-        minDate.setUTCDate(minDate.getUTCDate() + tier.minDays);
-        const maxDate = new Date(today);
-        maxDate.setUTCDate(maxDate.getUTCDate() + tier.maxDays);
+      for (const user of users) {
+        if (!user.expoToken) continue;
 
-        const minStr = minDate.toISOString().split('T')[0];
-        const maxStr = maxDate.toISOString().split('T')[0];
-
-        const bikeColumns = {
-          id: schema.bikes.id,
-          userId: schema.bikes.userId,
-          coeExpiry: schema.bikes.coeExpiry,
-          roadTaxExpiry: schema.bikes.roadTaxExpiry,
-          insuranceExpiry: schema.bikes.insuranceExpiry,
-          inspectionDue: schema.bikes.inspectionDue,
-          expoToken: schema.users.expoToken,
-        };
-
-        const rows = await this.db
-          .select(bikeColumns)
+        const bikes = await this.db
+          .select()
           .from(schema.bikes)
-          .innerJoin(schema.users, eq(schema.bikes.userId, schema.users.id))
-          .where(
-            and(
-              isNotNull(schema.users.expoToken),
-              or(
-                and(
-                  gte(schema.bikes.coeExpiry, minStr),
-                  lte(schema.bikes.coeExpiry, maxStr),
-                ),
-                and(
-                  gte(schema.bikes.roadTaxExpiry, minStr),
-                  lte(schema.bikes.roadTaxExpiry, maxStr),
-                ),
-                and(
-                  gte(schema.bikes.insuranceExpiry, minStr),
-                  lte(schema.bikes.insuranceExpiry, maxStr),
-                ),
-                and(
-                  gte(schema.bikes.inspectionDue, minStr),
-                  lte(schema.bikes.inspectionDue, maxStr),
-                ),
-              ),
-            ),
-          )
+          .where(eq(schema.bikes.userId, user.id))
           .execute();
 
-        if (rows.length === 0) continue;
+        for (const bike of bikes) {
+          const items = await this.complianceStatusService.computeForBike(
+            bike.id,
+          );
+          for (const item of items) {
+            if (item.status === 'ok') continue;
 
-        const messages: { to: string; title: string; body: string }[] = [];
-
-        for (const row of rows) {
-          if (!row.expoToken) continue;
-
-          const unsentFields: string[] = [];
-
-          for (const field of DEADLINE_FIELDS) {
-            const value = row[field];
-            if (!value) continue;
-
-            const deadline = new Date(value);
-            if (deadline < minDate || deadline > maxDate) continue;
+            const tier = tierFor(item.daysRemaining);
+            if (!tier) continue;
 
             const alreadySent = await this.notificationsService.hasAlreadySent(
-              row.userId,
-              row.id,
+              user.id,
+              bike.id,
               'compliance',
-              field,
-              tier.name,
+              item.key,
+              tier,
             );
+            if (alreadySent) continue;
 
-            if (!alreadySent) {
-              unsentFields.push(field);
-            }
-          }
+            const body = this.formatBody(item, bike.model);
+            await this.notificationsService.sendBatchPush([
+              { to: user.expoToken, title: 'Kickstand Compliance', body },
+            ]);
 
-          if (unsentFields.length === 0) continue;
-
-          const body = this.formatBody(unsentFields, tier.name, row);
-          messages.push({
-            to: row.expoToken,
-            title: 'Kickstand Reminder',
-            body,
-          });
-
-          for (const field of unsentFields) {
             await this.notificationsService.logNotification(
-              row.userId,
-              row.id,
+              user.id,
+              bike.id,
               'compliance',
-              field,
-              tier.name,
+              item.key,
+              tier, // tier is string: 'due' for overdue, '1d'/'7d'/'14d'/'30d' for approaching windows
             );
+
+            notifiedUserIds.add(user.id);
+            notificationsSent++;
           }
-
-          notifiedUserIds.add(row.userId);
-          totalSent++;
-        }
-
-        if (messages.length > 0) {
-          await this.notificationsService.sendBatchPush(messages);
         }
       }
 
       this.logger.log(
-        { usersNotified: notifiedUserIds.size, notificationsSent: totalSent },
+        { usersNotified: notifiedUserIds.size, notificationsSent },
         'Compliance scan complete',
       );
 
-      return {
-        usersNotified: notifiedUserIds.size,
-        notificationsSent: totalSent,
-      };
+      return { usersNotified: notifiedUserIds.size, notificationsSent };
     } catch (error: unknown) {
       this.logger.error({ error }, 'Compliance scan failed');
       Sentry.captureException(error);
@@ -170,57 +110,10 @@ export class ComplianceScannerJob {
     }
   }
 
-  private formatBody(
-    fields: string[],
-    tier: string,
-    row: Record<string, any>,
-  ): string {
-    if (fields.length > 1) {
-      const items = fields
-        .map((f) => {
-          const label = DEADLINE_LABELS[f] || f;
-          const dateStr = row[f] as string;
-          const formatted = this.formatDate(dateStr);
-          return `${label} (${formatted})`;
-        })
-        .join(' and ');
-      return `${fields.length} deadlines coming up: ${items}`;
+  private formatBody(item: ComplianceStatusItem, bikeModel: string): string {
+    if (item.status === 'overdue') {
+      return `${item.label} overdue on your ${bikeModel} — expired ${Math.abs(item.daysRemaining)} day${Math.abs(item.daysRemaining) === 1 ? '' : 's'} ago`;
     }
-
-    const field = fields[0];
-    const label = DEADLINE_LABELS[field] || field;
-    const dateStr = row[field] as string;
-
-    switch (tier) {
-      case '30d':
-        return `Heads up — your ${label} expires on ${this.formatDate(dateStr)}`;
-      case '14d':
-        return `Your ${label} expires in 2 weeks`;
-      case '7d':
-        return `${label.charAt(0).toUpperCase() + label.slice(1)} expires in 7 days — don't forget`;
-      case '1d':
-        return `${label.charAt(0).toUpperCase() + label.slice(1)} expires TOMORROW`;
-      default:
-        return `Your ${label} is expiring soon`;
-    }
-  }
-
-  private formatDate(dateStr: string): string {
-    const d = new Date(dateStr);
-    const months = [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ];
-    return `${d.getUTCDate()} ${months[d.getUTCMonth()]}`;
+    return `${item.label} due in ${item.daysRemaining} day${item.daysRemaining === 1 ? '' : 's'} on your ${bikeModel}`;
   }
 }

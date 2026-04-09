@@ -5,6 +5,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MaintenanceReminderJob } from './maintenance-reminder.job';
 import { NotificationsService } from '../notifications.service';
+import { MaintenanceStatusService } from '../../maintenance-status/maintenance-status.service';
 import { DRIZZLE } from '../../../database/database.module';
 
 const TODAY = new Date('2026-03-19T00:00:00.000Z');
@@ -66,8 +67,9 @@ describe('MaintenanceReminderJob', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MaintenanceReminderJob,
-        { provide: DRIZZLE, useValue: mockDb },
+        MaintenanceStatusService,
         { provide: NotificationsService, useValue: mockNotificationsService },
+        { provide: DRIZZLE, useValue: mockDb },
       ],
     }).compile();
 
@@ -93,6 +95,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce(users)
         .mockResolvedValueOnce(bikes)
+        .mockResolvedValueOnce([baseBike]) // computeForBike: select bike
         .mockResolvedValueOnce(schedules)
         .mockResolvedValueOnce([lastLog]);
 
@@ -127,6 +130,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([bike])
+        .mockResolvedValueOnce([bike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule])
         .mockResolvedValueOnce([lastLog]);
 
@@ -161,6 +165,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([bike])
+        .mockResolvedValueOnce([bike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule])
         .mockResolvedValueOnce([lastLog]);
 
@@ -183,6 +188,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([bike])
+        .mockResolvedValueOnce([bike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule])
         .mockResolvedValueOnce([lastLog]);
 
@@ -210,6 +216,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([bike])
+        .mockResolvedValueOnce([bike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule])
         .mockResolvedValueOnce([lastLog]);
 
@@ -239,6 +246,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([baseBike])
+        .mockResolvedValueOnce([baseBike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule])
         .mockResolvedValueOnce([]); // no service logs
 
@@ -263,6 +271,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([bike])
+        .mockResolvedValueOnce([bike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule])
         .mockResolvedValueOnce([]);
 
@@ -277,6 +286,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([baseBike])
+        .mockResolvedValueOnce([baseBike]) // computeForBike: select bike
         .mockResolvedValueOnce([]); // no schedules for this model
 
       await job.run();
@@ -296,6 +306,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([baseBike])
+        .mockResolvedValueOnce([baseBike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule])
         .mockResolvedValueOnce([lastLog]);
 
@@ -317,6 +328,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([baseBike])
+        .mockResolvedValueOnce([baseBike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule])
         .mockResolvedValueOnce([lastLog]);
 
@@ -360,6 +372,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([baseBike])
+        .mockResolvedValueOnce([baseBike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule, chainSchedule])
         .mockResolvedValueOnce([oilLog]) // last oil_change log
         .mockResolvedValueOnce([chainLog]); // last chain_adjustment log
@@ -386,6 +399,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([baseBike])
+        .mockResolvedValueOnce([baseBike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule])
         .mockResolvedValueOnce([lastLog]);
 
@@ -408,6 +422,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([bike])
+        .mockResolvedValueOnce([bike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule])
         .mockResolvedValueOnce([lastLog]);
 
@@ -431,6 +446,7 @@ describe('MaintenanceReminderJob', () => {
       mockDb.execute
         .mockResolvedValueOnce([baseUser])
         .mockResolvedValueOnce([baseBike])
+        .mockResolvedValueOnce([baseBike]) // computeForBike: select bike
         .mockResolvedValueOnce([oilChangeSchedule])
         .mockResolvedValueOnce([lastLog]);
 

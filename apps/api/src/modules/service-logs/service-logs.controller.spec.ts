@@ -165,10 +165,15 @@ describe('ServiceLogsController', () => {
         cost: '45.00',
         mileageAt: 15000,
         date: '2026-04-08',
-        receiptUrls: ['https://example.com/r1.jpg', 'https://example.com/r2.jpg'],
+        receiptUrls: [
+          'https://example.com/r1.jpg',
+          'https://example.com/r2.jpg',
+        ],
       });
       const errors = await validate(dto);
-      expect(errors.filter(e => e.property === 'receiptUrls')).toHaveLength(0);
+      expect(errors.filter((e) => e.property === 'receiptUrls')).toHaveLength(
+        0,
+      );
     });
 
     it('should reject receiptUrls with more than 5 items', async () => {
@@ -181,8 +186,7 @@ describe('ServiceLogsController', () => {
         receiptUrls: ['a', 'b', 'c', 'd', 'e', 'f'],
       });
       const errors = await validate(dto);
-      expect(errors.some(e => e.property === 'receiptUrls')).toBe(true);
+      expect(errors.some((e) => e.property === 'receiptUrls')).toBe(true);
     });
   });
 });
-

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ServiceLogFormBody } from '../components/service/service-log-form-body';
 import { ModalFormScreen } from '../components/ui/modal-form-screen';
 import { ConfirmationDialog } from '../components/ui/confirmation-dialog';
@@ -10,13 +10,18 @@ import { useBikeStore } from '../lib/store/bike-store';
 import { useServiceLogForm } from '../lib/hooks/use-service-log-form';
 import { formatBikeLabel } from '../lib/format-bike-label';
 import { getFrequentServiceTypes } from '../lib/service-type-helpers';
+import { SERVICE_TYPE_KEYS, type ServiceTypeKey } from '../lib/constants/service-types';
 
 export default function AddServiceScreen() {
   const router = useRouter();
+  const { serviceType: serviceTypeParam } = useLocalSearchParams<{ serviceType?: string }>();
+  const initialServiceType = SERVICE_TYPE_KEYS.includes(serviceTypeParam as ServiceTypeKey)
+    ? (serviceTypeParam as ServiceTypeKey)
+    : undefined;
   const activeBikeId = useBikeStore((s) => s.activeBikeId);
   const { data: bike } = useBike(activeBikeId);
   const { data: allLogs } = useAllServiceLogs();
-  const form = useServiceLogForm(activeBikeId, bike?.currentMileage);
+  const form = useServiceLogForm(activeBikeId, bike?.currentMileage, undefined, initialServiceType);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   const frequentTypes = useMemo(

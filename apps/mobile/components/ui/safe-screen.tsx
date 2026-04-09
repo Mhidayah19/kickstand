@@ -1,6 +1,9 @@
 import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 import { TopAppBar } from './top-app-bar';
+import { useAttention } from '../../lib/api/use-attention';
+import { useBikeStore } from '../../lib/store/bike-store';
 
 interface SafeScreenProps {
   children: React.ReactNode;
@@ -35,6 +38,13 @@ export function SafeScreen({
   onAddBikePress,
   unreadNotifications,
 }: SafeScreenProps) {
+  const router = useRouter();
+  const { activeBikeId } = useBikeStore();
+  const { data: attention } = useAttention(activeBikeId);
+
+  const badgeCount = unreadNotifications ?? (attention?.summary.needsAttention ?? 0);
+  const handleNotificationPress = onNotificationPress ?? (() => router.push('/notifications' as any));
+
   return (
     <SafeAreaView className={`flex-1 bg-surface ${className}`}>
       {showAppBar && (
@@ -42,9 +52,9 @@ export function SafeScreen({
           activeBike={activeBike}
           bikes={bikes}
           onBikeChange={onBikeChange}
-          onNotificationPress={onNotificationPress}
+          onNotificationPress={handleNotificationPress}
           onAddBikePress={onAddBikePress}
-          unreadNotifications={unreadNotifications}
+          unreadNotifications={badgeCount}
         />
       )}
       {scrollable ? (

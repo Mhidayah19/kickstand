@@ -25,7 +25,7 @@ function formatMileage(raw: string): string {
   return Number(digits).toLocaleString('en-US');
 }
 
-function makeDefaults(initialMileage?: number, existingLog?: ServiceLog): ServiceLogFormValues {
+function makeDefaults(initialMileage?: number, existingLog?: ServiceLog, initialServiceType?: ServiceTypeKey): ServiceLogFormValues {
   if (existingLog) {
     return {
       serviceTypeKey: existingLog.serviceType as ServiceTypeKey,
@@ -35,7 +35,7 @@ function makeDefaults(initialMileage?: number, existingLog?: ServiceLog): Servic
     };
   }
   return {
-    serviceTypeKey: SERVICE_TYPE_KEYS[0],
+    serviceTypeKey: initialServiceType ?? SERVICE_TYPE_KEYS[0],
     mileage: initialMileage != null ? formatMileage(String(initialMileage)) : '',
     date: todayISO(),
     cost: '',
@@ -56,6 +56,7 @@ export function useServiceLogForm(
   bikeId: string | null,
   initialMileage?: number,
   existingLog?: ServiceLog,
+  initialServiceType?: ServiceTypeKey,
 ) {
   const createLog = useCreateServiceLog(bikeId);
   const updateLog = useUpdateServiceLog(bikeId);
@@ -63,7 +64,7 @@ export function useServiceLogForm(
 
   const form = useForm<ServiceLogFormValues>({
     resolver: zodResolver(serviceLogSchema),
-    defaultValues: makeDefaults(initialMileage, existingLog),
+    defaultValues: makeDefaults(initialMileage, existingLog, initialServiceType),
   });
 
   useEffect(() => {
@@ -132,7 +133,7 @@ export function useServiceLogForm(
 
   const handleReset = () => {
     userEditedMileage.current = existingLog != null;
-    form.reset(makeDefaults(initialMileage, existingLog));
+    form.reset(makeDefaults(initialMileage, existingLog, initialServiceType));
     nextPartId.current = existingLog?.parts?.length ?? 1;
     setParts(makeInitialParts(existingLog));
     setReceiptUrls(existingLog?.receiptUrls ?? []);
