@@ -63,7 +63,7 @@ export default function AddServiceScreen() {
     label: form.isPending ? 'Saving...' : 'Save Log',
     icon: 'check-circle',
     onPress: handleSave,
-    disabled: form.isPending,
+    disabled: form.isPending || !form.canSave,
   } : undefined, [form.serviceTypeKey, form.isPending, handleSave]);
 
   return (

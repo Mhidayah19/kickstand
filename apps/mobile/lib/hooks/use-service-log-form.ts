@@ -13,6 +13,13 @@ import {
 } from '../validation/service-log-schema';
 import type { ServiceLog } from '../types/service-log';
 
+interface LineItem {
+  id: string;
+  category: string;
+  amount: number;
+  note?: string;
+}
+
 function todayISO(): string {
   return new Date().toISOString().split('T')[0];
 }
@@ -77,6 +84,27 @@ export function useServiceLogForm(
   const [parts, setParts] = useState<{ id: number; value: string }[]>(
     () => makeInitialParts(existingLog),
   );
+
+  const [lineItems, setLineItems] = useState<LineItem[]>([]);
+  const [remainderIsLabour, setRemainderIsLabour] = useState(true);
+
+  const totalAllocated = lineItems.reduce((sum, li) => sum + li.amount, 0);
+  // parse cost from form value (strip commas, dollar signs)
+  const totalAmountNum = parseFloat((form.watch('cost') ?? '').replace(/[^0-9.]/g, '')) || 0;
+  const remainder = totalAmountNum - totalAllocated;
+  const canSave = remainderIsLabour ? remainder >= 0 : Math.abs(remainder) < 0.01;
+
+  const addLineItem = () => {
+    setLineItems((curr) => [...curr, { id: Math.random().toString(36).slice(2), category: '', amount: 0 }]);
+  };
+
+  const updateLineItem = (id: string, patch: Partial<LineItem>) => {
+    setLineItems((curr) => curr.map((li) => (li.id === id ? { ...li, ...patch } : li)));
+  };
+
+  const removeLineItem = (id: string) => {
+    setLineItems((curr) => curr.filter((li) => li.id !== id));
+  };
 
   const initialReceiptUrls = useRef(existingLog?.receiptUrls ?? []);
   const [receiptUrls, setReceiptUrls] = useState<string[]>(
@@ -166,5 +194,15 @@ export function useServiceLogForm(
     handleReset,
     isDirty,
     isPending: createLog.isPending || updateLog.isPending,
+    lineItems,
+    addLineItem,
+    updateLineItem,
+    removeLineItem,
+    totalAllocated,
+    totalAmount: totalAmountNum,
+    remainder,
+    remainderIsLabour,
+    setRemainderIsLabour,
+    canSave,
   };
 }

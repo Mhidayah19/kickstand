@@ -59,13 +59,13 @@ export function SafeScreen({
       )}
       {scrollable ? (
         <ScrollView
-          contentContainerStyle={{ paddingTop: 80, paddingBottom: 128, paddingHorizontal: 24 }}
+          contentContainerStyle={{ paddingTop: showAppBar ? 80 : 16, paddingBottom: 128, paddingHorizontal: 24 }}
           showsVerticalScrollIndicator={false}
         >
           {children}
         </ScrollView>
       ) : (
-        <View className="flex-1 px-6" style={{ paddingTop: 80 }}>
+        <View className="flex-1 px-6" style={{ paddingTop: showAppBar ? 80 : 16 }}>
           {children}
         </View>
       )}
