@@ -8,6 +8,7 @@ import { SafeScreen } from '../../components/ui/safe-screen';
 import { ProfileHero } from '../../components/ui/profile-hero';
 import { ListCard } from '../../components/ui/list-card';
 import { PrimaryButton } from '../../components/ui/primary-button';
+import { Section } from '../../components/ui/section';
 import { useBikes } from '../../lib/api/use-bikes';
 import { useBikeStore } from '../../lib/store/bike-store';
 import { useProfile, useUpdateProfile } from '../../lib/api/use-profile';
@@ -52,23 +53,28 @@ export default function SettingsScreen() {
       onBikeChange={setActiveBikeId}
       onAddBikePress={handleAddBike}
     >
-      {/* Profile Hero */}
+      {/* Header */}
+      <View className="mb-10">
+        <Text className="text-[34px] font-sans-xbold text-charcoal leading-[1.05] tracking-tight">
+          {profile?.name ?? '—'}
+        </Text>
+        <Text className="text-sm font-sans-medium text-charcoal/55 mt-1">
+          {profile?.bikeCount ?? 0} {(profile?.bikeCount ?? 0) === 1 ? 'bike' : 'bikes'} in garage
+        </Text>
+      </View>
+
+      {/* Avatar */}
       <View className="mb-8">
         <ProfileHero
-          name={profile?.name ?? '—'}
-          role={`${profile?.bikeCount ?? 0} ${(profile?.bikeCount ?? 0) === 1 ? 'bike' : 'bikes'} in garage`}
           avatarUri={profile?.avatarUrl ?? undefined}
           onAvatarPress={handleAvatarUpload}
           onAvatarRemove={profile?.avatarUrl ? handleAvatarRemove : undefined}
         />
       </View>
 
-      {/* Account Settings Section */}
-      <View className="mb-8">
-        <Text className="text-xxs font-sans-xbold tracking-wide-2 text-outline uppercase px-2 mb-4">
-          ACCOUNT SETTINGS
-        </Text>
-        <View className="bg-surface-card rounded-2xl overflow-hidden">
+      {/* Account Settings */}
+      <Section eyebrow="ACCOUNT">
+        <View className="bg-sand/10 rounded-2xl overflow-hidden">
           <ListCard
             icon="account"
             title="Personal Info"
@@ -88,14 +94,11 @@ export default function SettingsScreen() {
             onPress={() => {}}
           />
         </View>
-      </View>
+      </Section>
 
-      {/* Appearance Section */}
-      <View className="mb-8">
-        <Text className="text-xxs font-sans-xbold tracking-wide-2 text-outline uppercase px-2 mb-4">
-          APPEARANCE
-        </Text>
-        <View className="bg-surface-card rounded-2xl p-5">
+      {/* Appearance */}
+      <Section eyebrow="APPEARANCE">
+        <View className="bg-sand/10 rounded-2xl p-5">
           {/* Dark Mode Row */}
           <View className="flex-row items-center justify-between mb-6">
             <View className="flex-row items-center gap-3">
@@ -129,7 +132,7 @@ export default function SettingsScreen() {
             </View>
           </View>
         </View>
-      </View>
+      </Section>
 
       {/* Log Out Button */}
       <PrimaryButton label="Log Out" onPress={() => {}} />

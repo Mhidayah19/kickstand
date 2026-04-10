@@ -48,14 +48,14 @@ export function UpcomingServiceCard({
         >
           {label}
         </Text>
-        <View className="flex-row items-start">
+        <View className="flex-row items-end">
           <Text
             className={`text-[22px] font-sans-xbold ${valueColor} leading-none`}
             style={{ fontVariant: ['tabular-nums'] }}
           >
             {value}
           </Text>
-          <Text className={`text-sm font-sans-bold ${unitColor} ml-1`}>{unit}</Text>
+          <Text className={`text-sm font-sans-bold ${unitColor} ml-1 pb-0.5`}>{unit}</Text>
         </View>
         {supporting && (
           <Text className={`text-[10px] font-sans-medium ${supportColor} mt-0.5`}>

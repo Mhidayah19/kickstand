@@ -3,8 +3,8 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
 
 interface ProfileHeroProps {
-  name: string;
-  role: string;
+  name?: string;
+  role?: string;
   avatarUri?: string;
   onAvatarPress?: () => void;
   onAvatarRemove?: () => void;
@@ -53,12 +53,14 @@ export function ProfileHero({ name, role, avatarUri, onAvatarPress, onAvatarRemo
         ) : (
           avatarCircle
         )}
-        <Text className="font-sans-xbold text-2xl text-charcoal mb-1">{name}</Text>
-        <View className="bg-charcoal px-3 py-1 rounded-full">
-          <Text className="font-sans-bold text-xxs text-white uppercase tracking-wide-1">
-            {role}
-          </Text>
-        </View>
+        {name && <Text className="font-sans-xbold text-2xl text-charcoal mb-1">{name}</Text>}
+        {role && (
+          <View className="bg-charcoal px-3 py-1 rounded-full">
+            <Text className="font-sans-bold text-xxs text-white uppercase tracking-wide-1">
+              {role}
+            </Text>
+          </View>
+        )}
       </View>
     </View>
   );

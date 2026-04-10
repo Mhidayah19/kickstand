@@ -29,6 +29,24 @@ const unitPaddingClasses: Record<DisplaySize, string> = {
   xl: 'pb-4',
 };
 
+// React Native clips the last glyph when letterSpacing is negative.
+// These values match the tailwind config display-* tokens so padding stays in sync.
+const letterSpacing: Record<DisplaySize, number> = {
+  sm: -1.92,
+  md: -3.2,
+  lg: -4.4,
+  xl: -5.28,
+};
+
+// For xl size, downscale when the value is wide to prevent layout overflow
+const resolveSize = (requested: DisplaySize, value: string): DisplaySize => {
+  if (requested !== 'xl') return requested;
+  const len = value.replace(/,/g, '').length;
+  if (len >= 5) return 'md';
+  if (len >= 3) return 'lg';
+  return 'xl';
+};
+
 export function CountdownDisplay({
   value,
   unit,
@@ -36,23 +54,21 @@ export function CountdownDisplay({
   size = 'xl',
   tone = 'surface',
 }: CountdownDisplayProps) {
+  const effectiveSize = resolveSize(size, value);
   const primaryText = tone === 'surface' ? 'text-surface' : 'text-charcoal';
   const secondaryText = tone === 'surface' ? 'text-sand' : 'text-charcoal/55';
   const tertiaryText = tone === 'surface' ? 'text-surface/70' : 'text-charcoal/55';
 
   return (
     <View>
-      <View className="flex-row items-end flex-1">
+      <View className="flex-row items-end">
         <Text
-          className={`${sizeClasses[size]} ${primaryText} font-sans-xbold flex-shrink`}
-          style={{ fontVariant: ['tabular-nums'] }}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.5}
+          className={`${sizeClasses[effectiveSize]} ${primaryText} font-sans-xbold`}
+          style={{ fontVariant: ['tabular-nums'], paddingRight: Math.ceil(Math.abs(letterSpacing[effectiveSize])) }}
         >
           {value}
         </Text>
-        <Text className={`${unitPaddingClasses[size]} text-xl font-sans-bold ${secondaryText} ml-2 flex-shrink-0`}>
+        <Text className={`${unitPaddingClasses[effectiveSize]} text-xl font-sans-bold ${secondaryText} ml-2`}>
           {unit}
         </Text>
       </View>
