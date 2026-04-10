@@ -1,4 +1,4 @@
-import type { ConfidenceLevel } from '../../components/prediction/confidence-badge';
+export type ConfidenceLevel = 'high' | 'medium' | 'low' | 'unknown';
 
 interface Input {
   daysOfRidingData: number;

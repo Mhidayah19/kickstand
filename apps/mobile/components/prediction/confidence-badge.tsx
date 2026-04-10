@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native';
+import type { ConfidenceLevel } from '../../lib/prediction/resolve-confidence';
 
-export type ConfidenceLevel = 'high' | 'medium' | 'low' | 'unknown';
+export type { ConfidenceLevel };
 
 interface ConfidenceBadgeProps {
   level: ConfidenceLevel;

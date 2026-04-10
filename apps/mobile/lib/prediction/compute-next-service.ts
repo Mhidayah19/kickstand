@@ -1,5 +1,4 @@
-import type { ConfidenceLevel } from '../../components/prediction/confidence-badge';
-import { resolveConfidence } from './resolve-confidence';
+import { type ConfidenceLevel, resolveConfidence } from './resolve-confidence';
 
 interface ComputeInput {
   currentMileage: number;
