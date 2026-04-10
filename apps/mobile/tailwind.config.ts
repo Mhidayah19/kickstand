@@ -26,11 +26,16 @@ const config: Config = {
       },
       fontSize: {
         xxs: ['10px', { lineHeight: '14px' }],
+        'display-sm': ['48px', { lineHeight: '48px', letterSpacing: '-1.92px' }],
+        'display-md': ['64px', { lineHeight: '64px', letterSpacing: '-3.2px' }],
+        'display-lg': ['80px', { lineHeight: '80px', letterSpacing: '-4.4px' }],
+        'display-xl': ['96px', { lineHeight: '96px', letterSpacing: '-5.28px' }],
       },
       letterSpacing: {
         'wide-1': '2px',
         'wide-2': '3px',
         widest: '4px',
+        atelier: '2.2px',
       },
       borderRadius: {
         sm: '8px',
@@ -38,6 +43,7 @@ const config: Config = {
         lg: '16px',
         xl: '20px',
         '2xl': '24px',
+        '2.5xl': '28px',
         '3xl': '32px',
       },
       spacing: {
