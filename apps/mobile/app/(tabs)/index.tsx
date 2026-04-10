@@ -22,6 +22,8 @@ import { useServiceLogs } from '../../lib/api/use-service-logs';
 import { useBikeStore } from '../../lib/store/bike-store';
 import { computeNextService } from '../../lib/prediction/compute-next-service';
 import { getActiveSeasonalCallout } from '../../lib/seasonal';
+import { serviceTypeToMeta } from '../../lib/service-type-meta';
+import { daysAgo, formatDaysAgo } from '../../lib/format';
 import { colors } from '../../lib/colors';
 
 export default function HomeScreen() {
@@ -92,9 +94,6 @@ export default function HomeScreen() {
         onBikeChange={setActiveBikeId}
       >
         <DevAuthToggle>
-          <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-1">
-            01 · Your garage
-          </Text>
           <Text className="text-[34px] font-sans-xbold text-charcoal leading-[1.05]">
             Welcome to Kickstand
           </Text>
@@ -120,22 +119,6 @@ export default function HomeScreen() {
       onBikeChange={setActiveBikeId}
       onAddBikePress={handleAddBike}
     >
-      {/* Header */}
-      <View className="mb-10">
-        <View className="flex-row items-baseline justify-between mb-3">
-          <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55">
-            01 · Current bike
-          </Text>
-        </View>
-        <Text className="text-[34px] font-sans-xbold text-charcoal leading-[1.05] tracking-tight">
-          {activeBike.make} {activeBike.model}
-        </Text>
-        <Text className="text-sm font-sans-medium text-charcoal/55 mt-1">
-          {activeBike.currentMileage?.toLocaleString() ?? 0} km
-          {lastService && ` · Last serviced ${daysAgo(lastService.date)} days ago`}
-        </Text>
-      </View>
-
       {/* Hero pedestal with prediction countdown */}
       <View className="mb-8">
         <HeroPedestal onPress={handlePrediction}>
@@ -307,29 +290,26 @@ export default function HomeScreen() {
               Nothing logged yet — tap + to add a service.
             </Text>
           ) : (
-            recentServices.map((log) => (
-              <ListCard
-                key={log.id}
-                icon="wrench"
-                iconBg="bg-sand/20"
-                iconColor={colors.charcoal}
-                title={log.serviceType}
-                subtitle={new Date(log.date).toLocaleDateString('en-GB', {
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric',
-                })}
-              />
-            ))
+            recentServices.map((log) => {
+              const meta = serviceTypeToMeta(log.serviceType);
+              const agoText = formatDaysAgo(daysAgo(log.date));
+              const cost = parseFloat(log.cost);
+              return (
+                <ListCard
+                  key={log.id}
+                  icon={meta.icon}
+                  iconBg={meta.iconBg}
+                  iconColor={meta.iconColor}
+                  title={meta.label}
+                  subtitle={agoText}
+                  trailing={!isNaN(cost) ? `S$${cost.toFixed(0)}` : undefined}
+                />
+              );
+            })
           )}
         </View>
       </Section>
 
     </SafeScreen>
   );
-}
-
-function daysAgo(dateIso: string): number {
-  const delta = Date.now() - new Date(dateIso).getTime();
-  return Math.max(0, Math.floor(delta / (1000 * 60 * 60 * 24)));
 }

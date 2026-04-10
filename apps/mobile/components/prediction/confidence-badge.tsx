@@ -20,7 +20,7 @@ const label: Record<ConfidenceLevel, string> = {
   high: 'High confidence',
   medium: 'Medium confidence',
   low: 'Early estimate',
-  unknown: 'Manufacturer default',
+  unknown: 'Default',
 };
 
 export function ConfidenceBadge({ level, onDark = true }: ConfidenceBadgeProps) {

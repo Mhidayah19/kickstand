@@ -2,11 +2,10 @@ import { router } from 'expo-router';
 import React, { useMemo, useCallback } from 'react';
 import { Text, View, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { BikeImageCard } from '../../../components/bike/bike-image-card';
+import { BikeImageCard, type BikeStatPill } from '../../../components/bike/bike-image-card';
 import { EmptyState } from '../../../components/ui/empty-state';
 import { colors } from '../../../lib/colors';
 import { SafeScreen } from '../../../components/ui/safe-screen';
-import { ScreenHeader } from '../../../components/ui/screen-header';
 import { Section } from '../../../components/ui/section';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { useBikes } from '../../../lib/api/use-bikes';
@@ -14,14 +13,45 @@ import { useBikeStore } from '../../../lib/store/bike-store';
 import { daysUntil, getComplianceVariant } from '../../../lib/theme';
 import type { Bike } from '../../../lib/types/bike';
 
-function getBikeStatus(bike: Bike): 'ready' | 'overdue' {
-  const dates = [bike.inspectionDue, bike.roadTaxExpiry, bike.insuranceExpiry, bike.coeExpiry];
-  for (const d of dates) {
-    const days = daysUntil(d);
+function getBikeInfo(bike: Bike): { status: 'ready' | 'overdue'; stats: BikeStatPill[] } {
+  const complianceDates: { label: string; date: string | null }[] = [
+    { label: 'Road tax', date: bike.roadTaxExpiry },
+    { label: 'Insurance', date: bike.insuranceExpiry },
+    { label: 'Inspection', date: bike.inspectionDue },
+    { label: 'COE', date: bike.coeExpiry },
+  ];
+
+  let status: 'ready' | 'overdue' = 'ready';
+  let nearest: { label: string; days: number } | null = null;
+
+  for (const { label, date } of complianceDates) {
+    const days = daysUntil(date);
+    if (days === null) continue;
     const variant = getComplianceVariant(days);
-    if (variant === 'expired' || variant === 'danger') return 'overdue';
+    if (variant === 'expired' || variant === 'danger') status = 'overdue';
+    if (!nearest || days < nearest.days) nearest = { label, days };
   }
-  return 'ready';
+
+  const stats: BikeStatPill[] = [
+    {
+      label: 'Odometer',
+      value: bike.currentMileage.toLocaleString(),
+      unit: 'km',
+    },
+  ];
+
+  if (nearest) {
+    const variant = getComplianceVariant(nearest.days);
+    const isDanger = variant === 'expired' || variant === 'danger';
+    stats.push({
+      label: nearest.label,
+      value: nearest.days <= 0 ? `${Math.abs(nearest.days)}` : `${nearest.days}`,
+      unit: nearest.days <= 0 ? 'days overdue' : 'days',
+      ...(isDanger && { danger: true }),
+    });
+  }
+
+  return { status, stats };
 }
 
 function parseMakeModel(model: string): { make: string; modelName: string } {
@@ -43,15 +73,13 @@ export default function GarageScreen() {
     router.push('/add-bike');
   }, []);
 
-  // Fleet integrity stats
+  // Fleet integrity stats — counts individual overdue compliance dates across fleet
   const fleetStats = useMemo(() => {
     if (!bikes || bikes.length === 0) return { active: 0, logs: 0, alerts: 0 };
     let alerts = 0;
     for (const bike of bikes) {
-      const dates = [bike.inspectionDue, bike.roadTaxExpiry, bike.insuranceExpiry, bike.coeExpiry];
-      for (const d of dates) {
-        const days = daysUntil(d);
-        const variant = getComplianceVariant(days);
+      for (const d of [bike.inspectionDue, bike.roadTaxExpiry, bike.insuranceExpiry, bike.coeExpiry]) {
+        const variant = getComplianceVariant(daysUntil(d));
         if (variant === 'expired' || variant === 'danger') alerts++;
       }
     }
@@ -85,34 +113,40 @@ export default function GarageScreen() {
       onBikeChange={setActiveBikeId}
       onAddBikePress={handleAddBike}
     >
-      <ScreenHeader
-        title="My Garage"
-        subtitle={`Your Fleet \u2022 ${bikeCount} Motorcycle${bikeCount !== 1 ? 's' : ''}`}
-      />
+      {/* Header */}
+      <View className="mb-10">
+        <Text className="text-[34px] font-sans-xbold text-charcoal leading-[1.05] tracking-tight">
+          My Garage
+        </Text>
+        <Text className="text-sm font-sans-medium text-charcoal/55 mt-1">
+          Your Fleet · {bikeCount} Motorcycle{bikeCount !== 1 ? 's' : ''}
+        </Text>
+      </View>
 
       {/* Bike list */}
       {bikes && bikes.length > 0 && (
-        <View className="gap-6 mb-6">
-          {bikes.map((bike) => {
+        <Section eyebrow="YOUR FLEET" label="Motorcycles">
+          <View className="gap-6">
+            {bikes.map((bike) => {
             // Bikes with a catalog entry have separate make + model fields.
             // Legacy bikes (pre-catalog) store the full "Honda CB400X" in model.
             const { make: parsedMake, modelName: parsedModel } = parseMakeModel(bike.model);
             const make = bike.make ?? parsedMake;
             const model = bike.make ? bike.model : parsedModel;
-            const status = getBikeStatus(bike);
-            const mileage = bike.currentMileage;
+            const { status, stats } = getBikeInfo(bike);
             return (
               <BikeImageCard
                 key={bike.id}
                 make={make}
                 model={model}
                 status={status}
-                mileage={{ value: mileage, unit: 'km' }}
+                stats={stats}
                 onPress={() => router.push({ pathname: '/(tabs)/garage/[id]', params: { id: bike.id } })}
               />
             );
           })}
-        </View>
+          </View>
+        </Section>
       )}
 
       {/* Add motorcycle */}
@@ -142,21 +176,21 @@ export default function GarageScreen() {
 
       {/* Fleet Integrity Summary */}
       {bikes && bikes.length > 0 && (
-        <Section label="Fleet Integrity">
+        <Section eyebrow="METRICS" label="Fleet Integrity">
           <View className="flex-row gap-4">
-            <View className="flex-1 bg-surface-card rounded-2xl p-5 items-center">
+            <View className="flex-1 bg-sand/10 rounded-2xl p-5 items-center">
               <Text className="font-sans-xbold text-2xl text-charcoal">{fleetStats.active}</Text>
               <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mt-1">
                 Active
               </Text>
             </View>
-            <View className="flex-1 bg-surface-card rounded-2xl p-5 items-center">
+            <View className="flex-1 bg-sand/10 rounded-2xl p-5 items-center">
               <Text className="font-sans-xbold text-2xl text-charcoal">{fleetStats.logs > 0 ? fleetStats.logs : '—'}</Text>
               <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mt-1">
                 Logs
               </Text>
             </View>
-            <View className="flex-1 bg-surface-card rounded-2xl p-5 items-center">
+            <View className="flex-1 bg-sand/10 rounded-2xl p-5 items-center">
               <Text className="font-sans-xbold text-2xl text-danger">{fleetStats.alerts}</Text>
               <Text className="font-sans-bold text-xxs text-danger uppercase tracking-widest mt-1">
                 Alerts
