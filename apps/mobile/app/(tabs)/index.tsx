@@ -44,20 +44,11 @@ export default function HomeScreen() {
     () =>
       computeNextService({
         currentMileage: activeBike?.currentMileage ?? 0,
-        // TODO: add mileageAtService to ServiceLog type
-        lastServiceMileage: (lastService as any)?.mileageAt ?? null,
+        lastServiceMileage: lastService?.mileageAt ?? null,
         lastServiceDate: lastService ? new Date(lastService.date) : null,
       }),
     [activeBike, lastService],
   );
-
-  // approximate "today" marker on the pace graph
-  const idealProgress = useMemo(() => {
-    if (!lastService || !activeBike) return 0.6; // fallback for empty state
-    const intervalKm = 6000;
-    const delta = activeBike.currentMileage - ((lastService as any).mileageAt ?? 0);
-    return Math.min(1, Math.max(0, delta / intervalKm));
-  }, [activeBike, lastService]);
 
   const callout = useMemo(() => getActiveSeasonalCallout(), []);
 
@@ -160,7 +151,10 @@ export default function HomeScreen() {
                 </View>
               </View>
             </View>
-            <PaceGraph actualProgress={idealProgress} idealProgress={idealProgress} />
+            <PaceGraph
+              actualProgress={prediction.actualProgress}
+              idealProgress={prediction.idealProgress}
+            />
             <View className="flex-row justify-between mt-2">
               <Text className="text-[9px] font-sans-bold tracking-atelier uppercase text-surface/50">
                 Last service

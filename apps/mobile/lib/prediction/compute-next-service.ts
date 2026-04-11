@@ -1,3 +1,4 @@
+import { clamp01 } from '../math';
 import { type ConfidenceLevel, resolveConfidence } from './resolve-confidence';
 
 interface ComputeInput {
@@ -17,6 +18,10 @@ interface ComputeResult {
   daysUntil: number;
   /** Confidence level based on data quality. */
   confidence: ConfidenceLevel;
+  /** Fraction of the km interval consumed since last service, clamped 0..1. */
+  actualProgress: number;
+  /** Fraction of the day interval elapsed since last service, clamped 0..1. */
+  idealProgress: number;
   /** Whichever trigger is tighter, for headline display. */
   headline: {
     value: string;
@@ -48,19 +53,20 @@ export function computeNextService({
   const kmUntil = Math.max(0, nextAtKm - currentMileage);
 
   // days calculation
-  let daysUntil = intervalDays;
-  if (lastServiceDate) {
-    const elapsedMs = Date.now() - lastServiceDate.getTime();
-    const elapsedDays = Math.floor(elapsedMs / (1000 * 60 * 60 * 24));
-    daysUntil = Math.max(0, intervalDays - elapsedDays);
-  }
+  const elapsedDays = lastServiceDate
+    ? Math.floor((Date.now() - lastServiceDate.getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
+  const daysUntil = lastServiceDate ? Math.max(0, intervalDays - elapsedDays) : intervalDays;
 
   const confidence = resolveConfidence({
-    daysOfRidingData: lastServiceDate
-      ? Math.floor((Date.now() - lastServiceDate.getTime()) / (1000 * 60 * 60 * 24))
-      : 0,
+    daysOfRidingData: elapsedDays,
     priorServicesForCategory: hasServiceHistory ? 1 : 0, // v1 approximation
   });
+
+  const actualProgress = hasServiceHistory
+    ? clamp01((currentMileage - baseMileage) / intervalKm)
+    : 0;
+  const idealProgress = lastServiceDate ? clamp01(elapsedDays / intervalDays) : 0;
 
   // headline: whichever trigger is tighter
   // rough km/day based on manufacturer interval — 6000km / 180 days ≈ 33 km/day
@@ -82,5 +88,5 @@ export function computeNextService({
     };
   }
 
-  return { kmUntil, daysUntil, confidence, headline };
+  return { kmUntil, daysUntil, confidence, actualProgress, idealProgress, headline };
 }
