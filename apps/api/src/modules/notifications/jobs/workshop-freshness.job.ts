@@ -14,7 +14,10 @@ export class WorkshopFreshnessJob {
 
   @Cron('0 0 1 * *', { timeZone: 'Asia/Singapore' })
   async handleCron() {
-    await this.run();
+    await Sentry.withIsolationScope(async () => {
+      Sentry.setTag('job', 'workshop-freshness');
+      await this.run();
+    });
   }
 
   async run(): Promise<{ usersNotified: number; notificationsSent: number }> {

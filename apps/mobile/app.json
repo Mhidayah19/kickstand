@@ -58,7 +58,8 @@
           "organization": "kickstand",
           "project": "kickstand"
         }
-      ]
+      ],
+      "@sentry/react-native"
     ],
     "extra": {
       "router": {},
