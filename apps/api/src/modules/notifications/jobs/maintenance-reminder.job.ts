@@ -21,7 +21,10 @@ export class MaintenanceReminderJob {
 
   @Cron('0 8 * * 1', { timeZone: 'Asia/Singapore' })
   async handleCron() {
-    await this.run();
+    await Sentry.withIsolationScope(async () => {
+      Sentry.setTag('job', 'maintenance-reminder');
+      await this.run();
+    });
   }
 
   async run(): Promise<{ usersNotified: number; notificationsSent: number }> {

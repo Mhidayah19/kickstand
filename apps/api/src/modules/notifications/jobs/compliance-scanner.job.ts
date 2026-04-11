@@ -36,7 +36,10 @@ export class ComplianceScannerJob {
 
   @Cron('0 8 * * *', { timeZone: 'Asia/Singapore' })
   async handleCron() {
-    await this.run();
+    await Sentry.withIsolationScope(async () => {
+      Sentry.setTag('job', 'compliance-scanner');
+      await this.run();
+    });
   }
 
   async run(): Promise<{ usersNotified: number; notificationsSent: number }> {
