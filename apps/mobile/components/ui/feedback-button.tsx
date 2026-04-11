@@ -12,7 +12,7 @@ const FEEDBACK_TYPES = [
   { label: 'General Feedback', tag: 'feedback' },
 ] as const;
 
-const OPTIONS = [...FEEDBACK_TYPES.map((t) => t.label), 'Cancel'] as const;
+const OPTIONS = [...FEEDBACK_TYPES.map((t) => t.label), 'Cancel'];
 
 export function FeedbackButton() {
   const insets = useSafeAreaInsets();
