@@ -31,3 +31,7 @@ scripts/data/bike-catalog-seed.json
 # Mobile env
 apps/mobile/.env
 apps/mobile/.env.local
+
+# Local tooling
+.claude/
+design-reference/card-improvements/
