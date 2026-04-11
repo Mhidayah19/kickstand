@@ -1,9 +1,18 @@
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Sentry from '@sentry/react-native';
+import { isRunningInExpoGo } from 'expo';
 import * as SplashScreen from 'expo-splash-screen';
-import { Stack, router } from 'expo-router';
-import React, { useEffect } from 'react';
+import { Stack, router, useNavigationContainerRef } from 'expo-router';
+import React, { useEffect, useRef } from 'react';
+import {
+  captureAndPush,
+  clearScreenshotBuffer,
+  getCurrentRoute,
+  getNavigationHistory,
+  getScreenshotAttachments,
+} from '../lib/sentry/screen-tracker';
+import { getPendingFeedbackType, setPendingFeedbackType } from '../lib/sentry/feedback-state';
 import { useAppFonts } from '../lib/theme';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../lib/store/auth-store';
@@ -13,6 +22,8 @@ import { PortalHost } from '@rn-primitives/portal';
 import type { UserProfile } from '../lib/types/profile';
 import '../global.css';
 
+const navigationIntegration = Sentry.reactNavigationIntegration();
+
 Sentry.init({
   dsn: process.env.EXPO_PUBLIC_SENTRY_DSN,
   sendDefaultPii: true,
@@ -20,17 +31,47 @@ Sentry.init({
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 1.0,
   integrations: [
+    navigationIntegration,
     Sentry.mobileReplayIntegration({
       maskAllText: true,
       maskAllImages: true,
     }),
-    Sentry.feedbackIntegration(),
+    Sentry.feedbackIntegration({
+      showName: false,
+      showEmail: false,
+      onFormSubmitted: () => {
+        clearScreenshotBuffer();
+        setPendingFeedbackType(null);
+      },
+    }),
   ],
+  environment: __DEV__ ? 'development' : 'production',
+  enableNativeFramesTracking: !isRunningInExpoGo(),
   enabled: !!process.env.EXPO_PUBLIC_SENTRY_DSN,
 });
 
-SplashScreen.preventAutoHideAsync();
+Sentry.addEventProcessor((event, hint) => {
+  if (event.type === 'feedback') {
+    event.contexts = {
+      ...event.contexts,
+      navigation: {
+        current_route: getCurrentRoute(),
+        history: getNavigationHistory(),
+      },
+    };
+    const feedbackType = getPendingFeedbackType();
+    if (feedbackType) {
+      event.tags = { ...event.tags, feedback_type: feedbackType };
+    }
+    const screenshots = getScreenshotAttachments();
+    if (screenshots.length > 0) {
+      hint.attachments = [...(hint.attachments ?? []), ...screenshots];
+    }
+  }
+  return event;
+});
 
+SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,9 +82,39 @@ const queryClient = new QueryClient({
   },
 });
 
+function getRoutePath(state: { routes: { name: string; state?: unknown }[]; index?: number }): string {
+  const route = state.routes[state.index ?? state.routes.length - 1];
+  const name = route?.name === '__root' ? '' : route?.name ?? 'unknown';
+  if (route?.state) {
+    const child = getRoutePath(route.state as typeof state);
+    return name ? `${name}/${child}` : child;
+  }
+  return name;
+}
+
 function RootLayout() {
   const [fontsLoaded, fontError] = useAppFonts();
   const setUser = useAuthStore((s) => s.setUser);
+  const navigationRef = useNavigationContainerRef();
+  const screenshotTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    navigationIntegration.registerNavigationContainer(navigationRef);
+  }, [navigationRef]);
+
+  useEffect(() => {
+    const unsubscribe = navigationRef.addListener('state', (e) => {
+      if (!e.data.state) return;
+      const path = getRoutePath(e.data.state);
+      if (screenshotTimer.current) clearTimeout(screenshotTimer.current);
+      screenshotTimer.current = setTimeout(() => {
+        screenshotTimer.current = null;
+        void captureAndPush(path);
+      }, 300);
+    });
+
+    return unsubscribe;
+  }, [navigationRef]);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
@@ -59,13 +130,15 @@ function RootLayout() {
       if (hydrated) return;
       hydrated = true;
 
+      const initialName = supabaseUser.user_metadata?.name ?? '';
       setUser({
         id: supabaseUser.id,
         email: supabaseUser.email ?? '',
-        name: supabaseUser.user_metadata?.name ?? '',
+        name: initialName,
         activeBikeId: null,
         expoToken: null,
       });
+      Sentry.setUser({ id: supabaseUser.id, email: supabaseUser.email ?? undefined, username: initialName });
 
       apiClient.get<UserProfile>('/users/me').then((profile) => {
         if (cancelled) return;
@@ -76,6 +149,7 @@ function RootLayout() {
           activeBikeId: null,
           expoToken: null,
         });
+        Sentry.setUser({ id: profile.id, email: profile.email, username: profile.name });
       }).catch(() => {});
     }
 
@@ -95,7 +169,6 @@ function RootLayout() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
-        Sentry.setUser({ id: session.user.id, email: session.user.email ?? undefined });
         hydrateUser(session.user);
         if (justRegisteredRef.current) {
           justRegisteredRef.current = false;
