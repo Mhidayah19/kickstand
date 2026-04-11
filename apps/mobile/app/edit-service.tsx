@@ -68,6 +68,7 @@ function EditServiceForm({ log, bikeId, bikeLabel, frequentTypes, onClose }: Edi
           form={form}
           frequentTypes={frequentTypes}
           bikeId={bikeId}
+          isEditing
         />
       </ModalFormScreen>
 

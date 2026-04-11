@@ -18,17 +18,18 @@ interface ServiceLogFormBodyProps {
   form: ReturnType<typeof useServiceLogForm>;
   frequentTypes: FrequentType[];
   bikeId: string;
+  isEditing?: boolean;
 }
 
-export function ServiceLogFormBody({ form, frequentTypes, bikeId }: ServiceLogFormBodyProps) {
-  const [collapsed, setCollapsed] = useState(() => !!form.serviceTypeKey);
+export function ServiceLogFormBody({ form, frequentTypes, bikeId, isEditing = false }: ServiceLogFormBodyProps) {
+  const [collapsed, setCollapsed] = useState(isEditing);
   const collapseTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [viewerIndex, setViewerIndex] = useState(0);
   const [viewerVisible, setViewerVisible] = useState(false);
 
   useEffect(() => () => clearTimeout(collapseTimer.current), []);
 
-  const initiallyCollapsed = !!form.serviceTypeKey;
+  const initiallyCollapsed = isEditing;
   const formOpacity = useRef(new Animated.Value(initiallyCollapsed ? 1 : 0)).current;
   const formTranslateY = useRef(new Animated.Value(initiallyCollapsed ? 0 : 12)).current;
 
