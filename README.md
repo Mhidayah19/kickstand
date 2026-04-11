@@ -3,24 +3,75 @@
 </p>
 
 <p align="center">
-  The intelligent motorcycle ownership companion for Singapore riders.
+  The intelligent motorcycle ownership companion for Singapore riders.<br/>
+  Track compliance, log maintenance, compare workshop prices — all in one place.
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/status-work%20in%20progress-yellow" alt="Status: Work in Progress" />
   <img src="https://img.shields.io/badge/license-MIT-blue" alt="License: MIT" />
   <img src="https://img.shields.io/badge/node-%3E%3D18-brightgreen" alt="Node >= 18" />
+  <img src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-lightgrey" alt="Platform: iOS | Android" />
+  <img src="https://img.shields.io/badge/deployed-AWS%20ECS-orange" alt="Deployed on AWS ECS" />
 </p>
 
 ---
 
-## What is Kickstand?
+## Table of Contents
 
-Kickstand is a mobile-first platform that helps motorcycle owners in Singapore manage compliance deadlines, track maintenance, compare workshop prices, and get AI-powered advice — all through a conversational voice agent that understands your specific bike.
+- [Overview](#overview)
+- [Screenshots](#screenshots)
+- [Why I Built This](#why-i-built-this)
+- [The Problem](#the-problem)
+- [Architecture](#architecture)
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [API Reference](#api-reference)
+- [Background Jobs](#background-jobs)
+- [Data Model](#data-model)
+- [Roadmap](#roadmap)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
+- [Contact](#contact)
 
-This is a portfolio project by **Muhammad Hidayah (Hid)**, demonstrating full-stack mobile + AI agent engineering skills. It evolved from RideLedger (finance-only) to RidePilot SG (Next.js ownership platform) to its current form: a React Native + NestJS monorepo with a Mastra-powered AI agent.
+---
 
-## Why?
+## Overview
+
+Kickstand is a mobile-first platform that helps motorcycle owners in Singapore manage compliance deadlines, track maintenance, compare workshop prices, and get AI-powered advice — through a conversational voice agent that understands your specific bike.
+
+**What makes it different:**
+
+- Compliance tracking built specifically for Singapore regulations (COE, road tax, inspection, insurance)
+- Workshop price comparison across real local shops — not just a directory
+- A Mastra-powered AI agent that knows your bike's service history and can advise you proactively
+- Notification-first design: it reminds you before things expire, not after
+
+> **Note:** This is an active portfolio project by **Muhammad Hidayah (Hid)**, demonstrating full-stack mobile + AI agent engineering. The core platform (auth, bikes, compliance, service logs, workshops, push notifications) is production-deployed. The AI agent is in active development.
+
+---
+
+## Screenshots
+
+> Screenshots will be added once the UI design is finalised.
+
+---
+
+## Why I Built This
+
+As a CB400X rider in Singapore, I found myself juggling spreadsheets, calendar reminders, and phone screenshots just to track when my road tax renewed, when my next oil change was due, and whether the workshop I used last time was still competitive on price. There was no single tool that understood the Singapore context — the COE system, the specific inspection requirements, the local workshop ecosystem.
+
+I started with a finance-only ledger (RideLedger), expanded it to a broader ownership platform (RidePilot SG on Next.js), and eventually rebuilt it as Kickstand — a React Native + NestJS monorepo with proper AI agent foundations. Each iteration taught me something new about product scoping, mobile architecture, and what riders actually need.
+
+This project also serves as a portfolio piece demonstrating full-stack engineering with real infrastructure: deployed to AWS ECS with proper CI/CD, monitored with Sentry, and built with production-grade patterns throughout.
+
+---
+
+## The Problem
 
 Motorcycle ownership in Singapore involves fragmented complexity:
 
@@ -29,6 +80,8 @@ Motorcycle ownership in Singapore involves fragmented complexity:
 - **No intelligent system** that understands your bike's state, service history, and regulatory requirements to proactively advise you
 
 Existing solutions fall short: SGBikemart is buy/sell only, Motorist SG is car-focused, global apps like Rever and Calimoto have zero SG regulatory awareness, and EZ Motor SG lacks price comparison or AI.
+
+---
 
 ## Architecture
 
@@ -80,6 +133,8 @@ Kickstand operates in two core modes:
 +-----------------------------------+
 ```
 
+---
+
 ## Tech Stack
 
 ### Mobile
@@ -129,6 +184,8 @@ Kickstand operates in two core modes:
 |---|---|
 | Gemini | Development (free tier) |
 | Claude | Production (via Mastra provider config) |
+
+---
 
 ## Features
 
@@ -193,15 +250,17 @@ Kickstand operates in two core modes:
 - [ ] Terraform IaC for all AWS infrastructure
 - [ ] Kubernetes manifests for EKS/GKE deployment
 
+---
+
 ## Agent Example
 
 > **User (voice):** "My chain feels loose"
 >
-> **Agent calls:** `get_bike_profile` -> `get_service_history(service_type: "chain")` -> `get_maintenance_schedule` -> `find_workshops_nearby`
+> **Agent calls:** `get_bike_profile` → `get_service_history(service_type: "chain")` → `get_maintenance_schedule` → `find_workshops_nearby`
 >
 > **Agent responds (voice):** "For your CB400X at 15,200km, chain slack should be 25-30mm. Your last chain adjustment was 8 months ago at 12,000km — you're overdue. Three workshops near you do chain adjustment: Ah Boy Motor $25-30, Ban Leong $20-35, and Revology $30-40. Want me to log this when you get it done?"
 
-## Agent Tools
+### Agent Tools
 
 | Tool | Description |
 |---|---|
@@ -214,6 +273,8 @@ Kickstand operates in two core modes:
 | `get_maintenance_schedule` | Recommended intervals for a given bike model |
 | `log_service` | Record a completed service with cost, mileage, and workshop |
 | `update_mileage` | Update current mileage (forward-only) |
+
+---
 
 ## Project Structure
 
@@ -258,6 +319,8 @@ kickstand/
 └── README.md
 ```
 
+---
+
 ## Getting Started
 
 ### Prerequisites
@@ -269,7 +332,7 @@ kickstand/
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/your-username/kickstand.git
+git clone https://github.com/Mhidayah19/kickstand.git
 cd kickstand
 npm install
 ```
@@ -282,7 +345,7 @@ cp apps/api/.env.example apps/api/.env
 
 Fill in your `.env`:
 
-```
+```env
 PORT=3000
 SUPABASE_DATABASE_URL=postgresql://postgres:password@db.xxxxx.supabase.co:5432/postgres
 SUPABASE_JWT_SECRET=your-supabase-jwt-secret
@@ -341,7 +404,9 @@ npm test
 npm run test:cov
 ```
 
-## API Overview
+---
+
+## API Reference
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
@@ -376,6 +441,8 @@ npm run test:cov
 | `POST` | `/agent/chat` | Chat with AI agent |
 | `POST` | `/agent/stream` | Streaming voice agent response |
 
+---
+
 ## Background Jobs
 
 | Job | Schedule | Description |
@@ -383,6 +450,8 @@ npm run test:cov
 | Compliance Deadline Scanner | Daily 8am SGT | Tiered notifications at 30d / 14d / 7d / 1d before expiry |
 | Maintenance Reminder | Weekly Monday 8am | Mileage-based service reminders |
 | Workshop Data Freshness | Monthly | Flags unverified workshop pricing (>6 months stale) |
+
+---
 
 ## Data Model
 
@@ -393,6 +462,8 @@ Key relationships:
 - A bike has many service logs
 - Workshops offer many services with model-specific pricing
 - Notification and conversation logs are tied to users
+
+---
 
 ## Roadmap
 
@@ -435,6 +506,8 @@ Key relationships:
 - COE renewal planning tools
 - License progression (2B → 2A → 2) notifications
 
+---
+
 ## Deployment
 
 | Service | Tier | Purpose |
@@ -449,6 +522,80 @@ Key relationships:
 | GitHub Actions | Free | CI/CD |
 | Sentry | Free | Error monitoring |
 
+---
+
+## Contributing
+
+This is primarily a portfolio project, but feedback and suggestions are welcome.
+
+### Local Development
+
+```bash
+# Install all dependencies
+npm install
+
+# Run API in watch mode
+npm run api
+
+# Run mobile app
+npm run mobile
+
+# Lint everything
+npm run lint
+
+# Run tests
+npm test
+```
+
+### Code Style
+
+- TypeScript strict mode is enforced across both apps
+- ESLint + Prettier are configured — run `npm run lint` before committing
+- API follows NestJS module conventions: controllers delegate, services own business logic
+- Mobile follows Expo Router file-based routing conventions
+
+### Submitting Changes
+
+1. Fork the repo and create a branch from `main`
+2. Make your changes with clear, focused commits
+3. Ensure `npm run lint` and `npm test` pass
+4. Open a pull request with a clear description of what and why
+
+---
+
+## Troubleshooting
+
+**`npm install` fails with peer dependency errors**
+Try `npm install --legacy-peer-deps`. This monorepo uses npm workspaces — make sure you're on npm >= 8.
+
+**`npx drizzle-kit push` fails with connection error**
+Double-check `SUPABASE_DATABASE_URL` in `apps/api/.env`. The URL should use the direct connection string from Supabase, not the pooler URL (which doesn't support DDL operations).
+
+**Mobile app can't connect to local API**
+The Expo dev client runs on your device/simulator — `localhost` won't resolve to your machine. Use your machine's local network IP instead (e.g. `http://192.168.x.x:3000`).
+
+**Push notifications not received in development**
+Expo push notifications require a physical device. The simulator will register a token but won't receive notifications. Test on a real device via Expo Go.
+
+**`npx ts-node scripts/scrape-bike-catalog.ts` times out**
+The scraper requires internet access. If it times out, check your network. You can also manually populate the `bike_catalog` table via the Supabase dashboard if needed.
+
+**JWT errors on API requests**
+Ensure your `SUPABASE_JWT_SECRET` matches the secret in your Supabase project settings under API > JWT Secret. Tokens signed with the wrong secret will always be rejected.
+
+---
+
 ## License
 
 MIT — see [LICENSE](LICENSE) for details.
+
+---
+
+## Contact
+
+Built by **Muhammad Hidayah (Hid)** — Singapore-based software engineer.
+
+- GitHub: [@Mhidayah19](https://github.com/Mhidayah19)
+- Issues: [Open a GitHub issue](https://github.com/Mhidayah19/kickstand/issues)
+
+> Feedback, bug reports, and ideas are welcome via GitHub Issues.
