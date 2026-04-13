@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Kickstand",
-    "slug": "mobile",
+    "slug": "mobile-hid",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,7 +13,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.kickstandhid.mobile"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +23,10 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -64,15 +68,15 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "84d359ab-0736-4e39-9357-43341623a64f"
+        "projectId": "c6534e11-0a54-493b-b4df-7ca7635084fe"
       }
     },
-    "owner": "mhidayah19",
+    "owner": "kickstand-hid",
     "runtimeVersion": {
       "policy": "sdkVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/84d359ab-0736-4e39-9357-43341623a64f"
+      "url": "https://u.expo.dev/c6534e11-0a54-493b-b4df-7ca7635084fe"
     }
   }
 }
