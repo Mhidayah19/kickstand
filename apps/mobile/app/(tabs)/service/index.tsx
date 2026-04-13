@@ -181,21 +181,9 @@ export default function ServiceScreen() {
     >
       {/* Header */}
       <View className="mb-10">
-        <View className="flex-row items-center justify-between">
-          <Text className="text-[34px] font-sans-xbold text-charcoal leading-[1.05] tracking-tight">
-            Service History
-          </Text>
-          <TouchableOpacity
-            className="bg-yellow flex-row items-center gap-1.5 px-3 py-1.5 rounded-xl"
-            onPress={() => setAnalyticsVisible(true)}
-            activeOpacity={0.8}
-          >
-            <Text className="font-sans-xbold text-sm text-charcoal">
-              ${totalSpend.toFixed(2)}
-            </Text>
-            <MaterialCommunityIcons name="trending-up" size={13} color={colors.charcoal} />
-          </TouchableOpacity>
-        </View>
+        <Text className="text-[34px] font-sans-xbold text-charcoal leading-[1.05] tracking-tight">
+          Service History
+        </Text>
       </View>
 
       {/* Search & filter */}
@@ -229,7 +217,21 @@ export default function ServiceScreen() {
       </View>
 
       {/* Timeline */}
-      <Section eyebrow="TIMELINE">
+      <Section
+        eyebrow="TIMELINE"
+        trailing={
+          <TouchableOpacity
+            className="bg-yellow flex-row items-center gap-1 px-2.5 py-1 rounded-lg"
+            onPress={() => setAnalyticsVisible(true)}
+            activeOpacity={0.8}
+          >
+            <Text className="font-sans-xbold text-xs text-charcoal">
+              {formatCost(totalSpend.toString())}
+            </Text>
+            <MaterialCommunityIcons name="trending-up" size={11} color={colors.charcoal} />
+          </TouchableOpacity>
+        }
+      >
         {filteredLogs.length === 0 ? (
           <View className="items-center justify-center py-16 gap-4">
             <Text className="font-sans-medium text-sm text-sand text-center">
@@ -251,33 +253,29 @@ export default function ServiceScreen() {
             {groupedLogs.map(({ dateKey, entries }) => (
               <View key={dateKey}>
                 {/* Date marker */}
-                <View className="flex-row items-center gap-3 mb-2.5 px-1">
+                <View className="mb-2.5 px-1">
                   <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest">
                     {formatShortDate(dateKey)}
                   </Text>
-                  <View className="flex-1 h-px bg-surface-low" />
                 </View>
                 {/* Entries share one card per date */}
-                <View className="bg-surface-card rounded-2xl overflow-hidden">
+                <View className="bg-surface-card rounded-2xl overflow-hidden gap-1">
                   {entries.map((log, i) => {
                     const meta = serviceTypeToMeta(log.serviceType);
-                    const subtitle = [
-                      log.mileageAt ? `${log.mileageAt.toLocaleString()} km` : null,
-                    ].filter(Boolean).join(' · ') || undefined;
+                    const subtitle = log.mileageAt
+                      ? `${log.mileageAt.toLocaleString()} km`
+                      : undefined;
                     return (
-                      <View key={log.id}>
-                        {i > 0 && <View className="mx-5 border-t border-surface-low" />}
                         <TimelineEntry
+                          key={log.id}
                           icon={meta.icon}
                           iconBg={meta.iconBg}
                           iconColor={meta.iconColor}
                           title={meta.label}
                           subtitle={subtitle}
                           cost={formatCost(log.cost)}
-                          parts={log.parts ?? undefined}
                           onPress={() => router.push(`/service/${log.id}`)}
                         />
-                      </View>
                     );
                   })}
                 </View>

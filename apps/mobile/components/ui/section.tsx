@@ -6,12 +6,14 @@ interface SectionProps {
   label?: string;
   action?: string;
   onAction?: () => void;
+  /** Custom trailing element rendered opposite the eyebrow/label. Takes precedence over action. */
+  trailing?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }
 
-export function Section({ eyebrow, label, action, onAction, children, className = '' }: SectionProps) {
-  const hasHeader = eyebrow || label || action;
+export function Section({ eyebrow, label, action, onAction, trailing, children, className = '' }: SectionProps) {
+  const hasHeader = eyebrow || label || action || trailing;
 
   return (
     <View className={`mb-10 ${className}`}>
@@ -29,13 +31,13 @@ export function Section({ eyebrow, label, action, onAction, children, className 
               </Text>
             )}
           </View>
-          {action && (
+          {trailing ?? (action && (
             <Pressable onPress={onAction} className="active:opacity-60">
               <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55">
                 {action}
               </Text>
             </Pressable>
-          )}
+          ))}
         </View>
       )}
       {children}
