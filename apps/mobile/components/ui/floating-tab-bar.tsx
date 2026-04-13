@@ -9,9 +9,14 @@ import { useRouter, useSegments } from 'expo-router';
 
 type IconName = React.ComponentProps<typeof MaterialCommunityIcons>['name'];
 
-const FAB_INDEX = 2;
 const HIT_SLOP = 8;
-const FAB_STYLE = { transform: [{ scale: 1.15 }] };
+const FAB_SIZE = 56;
+const FAB_SHADOW = {
+  shadowColor: colors.yellow,
+  shadowOpacity: 0.25,
+  shadowRadius: 10,
+  shadowOffset: { width: 0, height: 4 },
+};
 
 const TABS: { routeName: string; icon: IconName; label: string }[] = [
   { routeName: 'index', icon: 'home', label: 'Home' },
@@ -68,27 +73,27 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
   };
 
   return (
-    <View className="absolute bottom-6 left-0 right-0 items-center">
-      <BlurView
-        intensity={80}
-        tint="dark"
-        className="w-[90%] max-w-lg rounded-3xl overflow-hidden"
-      >
-        <View className="flex-row items-center px-3 py-3">
-          {TABS.slice(0, FAB_INDEX).map(renderTab)}
+    <View className="absolute bottom-6 left-0 right-0 px-4">
+      <View className="flex-row items-center">
+        <BlurView
+          intensity={80}
+          tint="dark"
+          className="flex-1 rounded-3xl overflow-hidden"
+        >
+          <View className="flex-row items-center px-3 py-3">
+            {TABS.map(renderTab)}
+          </View>
+        </BlurView>
 
-          <Pressable
-            onPress={handleAddService}
-            className="bg-yellow rounded-full p-3 active:opacity-80 mx-2"
-            style={FAB_STYLE}
-            hitSlop={HIT_SLOP}
-          >
-            <MaterialCommunityIcons name="plus" size={28} color={colors.charcoal} />
-          </Pressable>
-
-          {TABS.slice(FAB_INDEX).map(renderTab)}
-        </View>
-      </BlurView>
+        <Pressable
+          onPress={handleAddService}
+          className="bg-yellow rounded-full items-center justify-center ml-2 active:opacity-80"
+          style={[{ width: FAB_SIZE, height: FAB_SIZE }, FAB_SHADOW]}
+          hitSlop={HIT_SLOP}
+        >
+          <MaterialCommunityIcons name="plus" size={28} color={colors.charcoal} />
+        </Pressable>
+      </View>
     </View>
   );
 }
