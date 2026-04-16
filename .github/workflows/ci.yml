@@ -98,12 +98,11 @@ jobs:
       - name: Build Docker image
         run: docker build -f apps/api/Dockerfile -t kickstand-api .
 
-  mobile-typecheck:
-    name: "Mobile: Typecheck"
+  mobile-lint-and-typecheck:
+    name: "Mobile: Lint & Typecheck"
     needs: changes
     if: needs.changes.outputs.mobile == 'true'
     runs-on: ubuntu-latest
-    # TODO: Add mobile lint and test jobs when tests are written
     steps:
       - uses: actions/checkout@v5
 
@@ -114,5 +113,33 @@ jobs:
 
       - run: npm ci
 
+      - name: Lint
+        run: npm run lint --workspace=apps/mobile
+
       - name: Typecheck
         run: cd apps/mobile && npx tsc --noEmit
+
+  mobile-test:
+    name: "Mobile: Test"
+    needs: changes
+    if: needs.changes.outputs.mobile == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Run tests with coverage
+        run: npm run test:cov --workspace=apps/mobile
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: apps/mobile/coverage/lcov.info
+          fail_ci_if_error: true
