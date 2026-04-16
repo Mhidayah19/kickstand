@@ -112,6 +112,7 @@ export function DateField({ label, value = '', onChange, error, className }: Dat
               mode="date"
               display="spinner"
               onChange={handleChange}
+              themeVariant="light"
               style={{ width: '100%' }}
             />
           </View>
