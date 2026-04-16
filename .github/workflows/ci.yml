@@ -80,13 +80,12 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:cov --workspace=apps/api
 
-      - name: Upload coverage report
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
         with:
-          name: api-coverage
-          path: apps/api/coverage/
-          retention-days: 14
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: apps/api/coverage/lcov.info
+          fail_ci_if_error: true
 
   api-docker-build:
     name: "API: Docker Build"
