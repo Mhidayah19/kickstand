@@ -41,7 +41,7 @@ export default function LoginScreen() {
           <DevAuthToggle>
             <Text className="text-3xl font-sans-bold text-charcoal">Kickstand</Text>
           </DevAuthToggle>
-          <Text className="text-sm font-sans-medium text-sand mt-xs">Your bike's AI companion</Text>
+          <Text className="text-sm font-sans-medium text-sand mt-xs">{"Your bike's AI companion"}</Text>
         </View>
 
         {/* Error banner */}

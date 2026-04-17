@@ -169,7 +169,7 @@ export function ServiceLogFormBody({ form, frequentTypes, bikeId, isEditing = fa
           {form.lineItems.length === 0 && (
             <View className="px-4 py-6 items-center">
               <Text className="text-[12px] font-sans-medium text-charcoal/55">
-                No line items yet. Tap "Add item" to split the receipt.
+                {'No line items yet. Tap "Add item" to split the receipt.'}
               </Text>
             </View>
           )}

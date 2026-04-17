@@ -692,7 +692,7 @@ export default function AddMotorcycleScreen() {
               {sections.compliance === 'expanded' && (
                 <FadeIn>
                   <Text className="text-sm font-sans-medium text-sand mb-lg">
-                    Enter 2 dates and we'll calculate the rest.
+                    {"Enter 2 dates and we'll calculate the rest."}
                   </Text>
                   <DateField label="Registration Date" value={data.registrationDate} onChange={(v) => handleChange('registrationDate', v)} className="mb-lg" />
                   <DateField label="Insurance Expiry" value={data.insuranceExpiry} onChange={(v) => handleChange('insuranceExpiry', v)} className="mb-lg" />

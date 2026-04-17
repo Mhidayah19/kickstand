@@ -1,204 +1,301 @@
-import { router } from 'expo-router';
-import React, { useMemo, useCallback } from 'react';
-import { Text, View, TouchableOpacity } from 'react-native';
+import { router, useFocusEffect } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { BikeImageCard, type BikeStatPill } from '../../../components/bike/bike-image-card';
-import { EmptyState } from '../../../components/ui/empty-state';
 import { colors } from '../../../lib/colors';
-import { SafeScreen } from '../../../components/ui/safe-screen';
+import { daysUntil } from '../../../lib/theme';
+import { LinearGradient } from 'expo-linear-gradient';
+import React, { useMemo, useState, useRef, useCallback } from 'react';
+import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '../../../components/ui/dropdown-menu';
+import { EmptyState } from '../../../components/ui/empty-state';
+import { ListCard } from '../../../components/ui/list-card';
 import { Section } from '../../../components/ui/section';
 import { Skeleton } from '../../../components/ui/skeleton';
-import { useBikes } from '../../../lib/api/use-bikes';
+import { TopAppBar } from '../../../components/ui/top-app-bar';
+import { useDeleteBike, useBike, useBikes } from '../../../lib/api/use-bikes';
+import { useAttention } from '../../../lib/api/use-attention';
+import { useServiceLogs } from '../../../lib/api/use-service-logs';
 import { useBikeStore } from '../../../lib/store/bike-store';
-import { daysUntil, getComplianceVariant } from '../../../lib/theme';
-import type { Bike } from '../../../lib/types/bike';
-
-function getBikeInfo(bike: Bike): { status: 'ready' | 'overdue'; stats: BikeStatPill[] } {
-  const complianceDates: { label: string; date: string | null }[] = [
-    { label: 'Road tax', date: bike.roadTaxExpiry },
-    { label: 'Insurance', date: bike.insuranceExpiry },
-    { label: 'Inspection', date: bike.inspectionDue },
-    { label: 'COE', date: bike.coeExpiry },
-  ];
-
-  let status: 'ready' | 'overdue' = 'ready';
-  let nearest: { label: string; days: number } | null = null;
-
-  for (const { label, date } of complianceDates) {
-    const days = daysUntil(date);
-    if (days === null) continue;
-    const variant = getComplianceVariant(days);
-    if (variant === 'expired' || variant === 'danger') status = 'overdue';
-    if (!nearest || days < nearest.days) nearest = { label, days };
-  }
-
-  const stats: BikeStatPill[] = [
-    {
-      label: 'Odometer',
-      value: bike.currentMileage.toLocaleString(),
-      unit: 'km',
-    },
-  ];
-
-  if (nearest) {
-    const variant = getComplianceVariant(nearest.days);
-    const isDanger = variant === 'expired' || variant === 'danger';
-    stats.push({
-      label: nearest.label,
-      value: nearest.days <= 0 ? `${Math.abs(nearest.days)}` : `${nearest.days}`,
-      unit: nearest.days <= 0 ? 'days overdue' : 'days',
-      ...(isDanger && { danger: true }),
-    });
-  }
-
-  return { status, stats };
-}
-
-function parseMakeModel(model: string): { make: string; modelName: string } {
-  const parts = model.trim().split(/\s+/);
-  if (parts.length > 1) {
-    return { make: parts[0], modelName: parts.slice(1).join(' ') };
-  }
-  return { make: 'Motorcycle', modelName: model };
-}
+import { serviceTypeToMeta } from '../../../lib/service-type-meta';
+import { formatComplianceDate, formatLogDate } from '../../../lib/format';
+import { CLASS_LABELS, SpecItem } from '../../../components/bike/spec-item';
 
 export default function GarageScreen() {
-  const { data: bikes = [], isLoading } = useBikes();
   const { activeBikeId, setActiveBikeId } = useBikeStore();
-  const activeBike = bikes?.find((b) => b.id === activeBikeId);
+  const { data: bikes = [], isLoading: bikesLoading } = useBikes();
+  const { data: bike, isLoading: bikeLoading } = useBike(activeBikeId);
+  const { data: logsData } = useServiceLogs(activeBikeId, 3);
+  const { data: attention } = useAttention(activeBikeId);
+  const deleteBike = useDeleteBike(activeBikeId ?? '');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
 
-  const bikeCount = bikes?.length ?? 0;
+  useFocusEffect(useCallback(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, []));
 
-  const handleAddBike = useCallback(() => {
-    router.push('/add-bike');
-  }, []);
+  const logs = logsData?.data ?? [];
+  const bikeList = useMemo(
+    () => bikes.map((b) => ({ id: b.id, model: b.model, year: b.year })),
+    [bikes]
+  );
+  const activeBikeMeta = useMemo(
+    () => bike ? { id: bike.id, model: bike.model, year: bike.year } : undefined,
+    [bike]
+  );
+  const badgeCount = attention?.summary.needsAttention ?? 0;
+  const contentInsets = useMemo(
+    () => ({ top: insets.top, bottom: insets.bottom, left: 4, right: 4 }),
+    [insets.top, insets.bottom]
+  );
 
-  // Fleet integrity stats — counts individual overdue compliance dates across fleet
-  const fleetStats = useMemo(() => {
-    if (!bikes || bikes.length === 0) return { active: 0, logs: 0, alerts: 0 };
-    let alerts = 0;
-    for (const bike of bikes) {
-      for (const d of [bike.inspectionDue, bike.roadTaxExpiry, bike.insuranceExpiry, bike.coeExpiry]) {
-        const variant = getComplianceVariant(daysUntil(d));
-        if (variant === 'expired' || variant === 'danger') alerts++;
-      }
-    }
-    return { active: bikes.length, logs: 0, alerts };
-  }, [bikes]);
+  const handleDelete = async () => {
+    await deleteBike.mutateAsync();
+    setShowDeleteDialog(false);
+    const remaining = bikes.filter((b) => b.id !== activeBikeId);
+    if (remaining.length > 0) setActiveBikeId(remaining[0].id);
+  };
 
-  // Loading state
+  const isLoading = bikesLoading || (!!activeBikeId && bikeLoading);
+
   if (isLoading) {
     return (
-      <SafeScreen
-        scrollable
-        bikes={bikes?.map((b) => ({ id: b.id, model: b.model, year: b.year })) ?? []}
-        activeBike={activeBike && { id: activeBike.id, model: activeBike.model, year: activeBike.year }}
-        onBikeChange={setActiveBikeId}
-        onAddBikePress={handleAddBike}
-      >
-        <Skeleton height={20} className="rounded-md mb-2 w-24" />
-        <Skeleton height={36} className="rounded-md mb-2 w-40" />
-        <Skeleton height={16} className="rounded-md mb-8 w-48" />
-        <Skeleton height={320} className="rounded-3xl mb-6" />
-        <Skeleton height={320} className="rounded-3xl mb-6" />
-      </SafeScreen>
+      <SafeAreaView className="flex-1 bg-surface">
+        <TopAppBar
+          activeBike={activeBikeMeta}
+          bikes={bikeList}
+          onBikeChange={setActiveBikeId}
+          onNotificationPress={() => router.push('/notifications' as any)}
+          onAddBikePress={() => router.push('/add-bike')}
+          unreadNotifications={0}
+        />
+        <ScrollView
+          contentContainerStyle={{ paddingTop: 80, paddingBottom: 128 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <Skeleton height={280} className="mx-4 rounded-3xl mb-6" />
+          <View className="px-6">
+            <Skeleton height={24} className="rounded-md mb-2 w-24" />
+            <Skeleton height={40} className="rounded-md mb-2 w-48" />
+            <Skeleton height={16} className="rounded-md mb-8 w-20" />
+            <Skeleton height={160} className="rounded-3xl mb-4" />
+            <Skeleton height={200} className="rounded-3xl" />
+          </View>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
-  return (
-    <SafeScreen
-      scrollable
-      bikes={bikes?.map((b) => ({ id: b.id, model: b.model, year: b.year })) ?? []}
-      activeBike={activeBike && { id: activeBike.id, model: activeBike.model, year: activeBike.year }}
-      onBikeChange={setActiveBikeId}
-      onAddBikePress={handleAddBike}
-    >
-      {/* Header */}
-      <View className="mb-10">
-        <Text className="text-[34px] font-sans-xbold text-charcoal leading-[1.05] tracking-tight">
-          My Garage
-        </Text>
-        <Text className="text-sm font-sans-medium text-charcoal/55 mt-1">
-          Your Fleet · {bikeCount} Motorcycle{bikeCount !== 1 ? 's' : ''}
-        </Text>
-      </View>
-
-      {/* Bike list */}
-      {bikes && bikes.length > 0 && (
-        <Section eyebrow="YOUR FLEET" label="Motorcycles">
-          <View className="gap-6">
-            {bikes.map((bike) => {
-            // Bikes with a catalog entry have separate make + model fields.
-            // Legacy bikes (pre-catalog) store the full "Honda CB400X" in model.
-            const { make: parsedMake, modelName: parsedModel } = parseMakeModel(bike.model);
-            const make = bike.make ?? parsedMake;
-            const model = bike.make ? bike.model : parsedModel;
-            const { status, stats } = getBikeInfo(bike);
-            return (
-              <BikeImageCard
-                key={bike.id}
-                make={make}
-                model={model}
-                status={status}
-                stats={stats}
-                onPress={() => router.push({ pathname: '/(tabs)/garage/[id]', params: { id: bike.id } })}
-              />
-            );
-          })}
-          </View>
-        </Section>
-      )}
-
-      {/* Add motorcycle */}
-      <View className="mb-8">
-        {bikes && bikes.length > 0 ? (
-          <TouchableOpacity
-            className="border-2 border-dashed border-sand/40 rounded-2xl px-md py-md flex-row items-center gap-sm active:border-yellow"
-            onPress={() => router.push('/add-bike')}
-            activeOpacity={0.8}
-            accessibilityRole="button"
-            accessibilityLabel="Add another motorcycle"
-          >
-            <View className="w-8 h-8 rounded-full bg-sand/10 items-center justify-center">
-              <MaterialCommunityIcons name="plus" size={20} color={colors.sand} />
-            </View>
-            <Text className="font-sans-bold text-sm text-sand">Add another motorcycle</Text>
-          </TouchableOpacity>
-        ) : (
+  if (!activeBikeId || !bike) {
+    return (
+      <SafeAreaView className="flex-1 bg-surface">
+        <TopAppBar
+          activeBike={undefined}
+          bikes={bikeList}
+          onBikeChange={setActiveBikeId}
+          onNotificationPress={() => router.push('/notifications' as any)}
+          onAddBikePress={() => router.push('/add-bike')}
+          unreadNotifications={0}
+        />
+        <View className="flex-1 px-6" style={{ paddingTop: 80 }}>
           <EmptyState
-            title="Expand Your Fleet"
+            title="Your Garage is Empty"
+            description="Add your first motorcycle to start tracking maintenance and compliance."
             actionLabel="Add a Motorcycle"
-            description="Add a motorcycle to your garage"
             onAction={() => router.push('/add-bike')}
           />
-        )}
-      </View>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
-      {/* Fleet Integrity Summary */}
-      {bikes && bikes.length > 0 && (
-        <Section eyebrow="METRICS" label="Fleet Integrity">
-          <View className="flex-row gap-4">
-            <View className="flex-1 bg-sand/10 rounded-2xl p-5 items-center">
-              <Text className="font-sans-xbold text-2xl text-charcoal">{fleetStats.active}</Text>
-              <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mt-1">
-                Active
-              </Text>
+  const complianceItems = [
+    { icon: 'calendar-month-outline', label: 'COE Expiry', date: bike.coeExpiry },
+    { icon: 'file-document-outline', label: 'Road Tax Expiry', date: bike.roadTaxExpiry },
+    { icon: 'shield-outline', label: 'Insurance Expiry', date: bike.insuranceExpiry },
+    { icon: 'clipboard-check-outline', label: 'Inspection Due', date: bike.inspectionDue },
+  ].filter((item): item is typeof item & { date: string } => !!item.date);
+
+  return (
+    <SafeAreaView className="flex-1 bg-surface">
+      <TopAppBar
+        activeBike={activeBikeMeta}
+        bikes={bikeList}
+        onBikeChange={setActiveBikeId}
+        onNotificationPress={() => router.push('/notifications' as any)}
+        onAddBikePress={() => router.push('/add-bike')}
+        unreadNotifications={badgeCount}
+      />
+
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={{ paddingTop: 80, paddingBottom: 128 }}
+        showsVerticalScrollIndicator={false}
+      >
+        <View className="mx-4 rounded-3xl overflow-hidden" style={{ height: 280 }}>
+          {bike.imageUrl ? (
+            <Image
+              source={{ uri: bike.imageUrl }}
+              style={{ width: '100%', height: '100%' }}
+              resizeMode="cover"
+            />
+          ) : (
+            <View className="flex-1 bg-surface-low items-center justify-center">
+              <MaterialCommunityIcons name="motorbike" size={80} color={colors.outline} />
             </View>
-            <View className="flex-1 bg-sand/10 rounded-2xl p-5 items-center">
-              <Text className="font-sans-xbold text-2xl text-charcoal">{fleetStats.logs > 0 ? fleetStats.logs : '—'}</Text>
-              <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mt-1">
-                Logs
-              </Text>
-            </View>
-            <View className="flex-1 bg-sand/10 rounded-2xl p-5 items-center">
-              <Text className="font-sans-xbold text-2xl text-danger">{fleetStats.alerts}</Text>
-              <Text className="font-sans-bold text-xxs text-danger uppercase tracking-widest mt-1">
-                Alerts
-              </Text>
-            </View>
+          )}
+          <LinearGradient
+            colors={['transparent', 'rgba(249,249,249,0.85)']}
+            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 120 }}
+          />
+          <View className="absolute top-3 right-3 z-10">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Pressable
+                  hitSlop={8}
+                  className="w-10 h-10 rounded-full bg-surface-card/80 items-center justify-center active:opacity-70"
+                >
+                  <MaterialCommunityIcons name="dots-vertical" size={22} color={colors.charcoal} />
+                </Pressable>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent insets={contentInsets} sideOffset={4} align="end">
+                <DropdownMenuItem onPress={() => router.push(`/(tabs)/garage/${activeBikeId}/edit`)}>
+                  <MaterialCommunityIcons name="pencil-outline" size={20} color={colors.charcoal} />
+                  <Text className="text-sm font-sans-bold text-charcoal">Edit Bike</Text>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" onPress={() => setShowDeleteDialog(true)}>
+                  <MaterialCommunityIcons name="trash-can-outline" size={20} color={colors.danger} />
+                  <Text className="text-sm font-sans-bold text-danger">Delete Bike</Text>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </View>
-        </Section>
-      )}
-    </SafeScreen>
+        </View>
+
+        <View className="px-6 mt-6">
+          {bike.make && (
+            <Text className="font-sans-bold text-xxs uppercase tracking-widest text-sand mb-1">
+              {bike.make}
+            </Text>
+          )}
+          <Text className="text-4xl font-sans-xbold text-charcoal">{bike.model}</Text>
+        </View>
+
+        <View className="px-6 mt-4 flex-row gap-8">
+          <View>
+            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest">Year</Text>
+            <Text className="font-sans-xbold text-xl text-charcoal">{bike.year}</Text>
+          </View>
+          <View>
+            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest">Mileage</Text>
+            <Text className="font-sans-xbold text-xl text-charcoal">
+              {bike.currentMileage.toLocaleString()} km
+            </Text>
+          </View>
+        </View>
+
+        <View className="px-6 mt-8">
+          <Section label="Bike Details">
+            <View className="bg-surface-low rounded-3xl p-6">
+              <View className="flex-row flex-wrap gap-y-6">
+                <View className="w-1/2">
+                  <SpecItem label="Plate Number" value={bike.plateNumber} />
+                </View>
+                <View className="w-1/2">
+                  <SpecItem label="Class" value={CLASS_LABELS[bike.class] ?? bike.class} />
+                </View>
+                {bike.engineCc && (
+                  <View className="w-1/2">
+                    <SpecItem label="Engine CC" value={`${bike.engineCc}cc`} />
+                  </View>
+                )}
+                {bike.bikeType && (
+                  <View className="w-1/2">
+                    <SpecItem label="Bike Type" value={bike.bikeType} />
+                  </View>
+                )}
+              </View>
+            </View>
+          </Section>
+        </View>
+
+        {complianceItems.length > 0 && (
+          <View className="px-6">
+            <Section label="Compliance & Renewals">
+              <View className="bg-surface-low rounded-3xl p-2 gap-2">
+                {complianceItems.map((item) => (
+                  <View key={item.label} className="bg-surface-card rounded-2xl p-5 flex-row items-center justify-between">
+                    <View className="flex-row items-center gap-4">
+                      <MaterialCommunityIcons name={item.icon as any} size={22} color={colors.sand} />
+                      <Text className="font-sans-bold text-sm text-charcoal">{item.label}</Text>
+                    </View>
+                    <Text className={`text-sm font-sans-bold ${(daysUntil(item.date) ?? 1) <= 0 ? 'text-danger' : 'text-charcoal'}`}>
+                      {formatComplianceDate(item.date)}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </Section>
+          </View>
+        )}
+
+        <View className="px-6 mt-2">
+          <Section
+            label="Service History"
+            action="View All"
+            onAction={() => router.push('/(tabs)/service')}
+          >
+            {logs.length > 0 ? (
+              <View className="gap-3">
+                {logs.map((log) => {
+                  const meta = serviceTypeToMeta(log.serviceType);
+                  return (
+                    <ListCard
+                      key={log.id}
+                      icon={meta.icon}
+                      iconBg={meta.iconBg}
+                      iconColor={meta.iconColor}
+                      title={meta.label}
+                      subtitle={`${formatLogDate(log.date)} • ${log.mileageAt.toLocaleString()} km`}
+                    />
+                  );
+                })}
+              </View>
+            ) : (
+              <Pressable
+                onPress={() => router.push('/add-service')}
+                className="bg-surface-low rounded-2xl p-6 items-center"
+              >
+                <Text className="font-sans-medium text-sm text-sand text-center mb-2">
+                  No service logs yet
+                </Text>
+                <Text className="font-sans-bold text-xs text-charcoal uppercase tracking-widest">
+                  Log First Service →
+                </Text>
+              </Pressable>
+            )}
+          </Section>
+        </View>
+      </ScrollView>
+
+      <ConfirmationDialog
+        visible={showDeleteDialog}
+        title={`Delete ${bike.model}?`}
+        body="This will also delete all service history for this bike. This cannot be undone."
+        confirmLabel="Delete"
+        confirmVariant="danger"
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteDialog(false)}
+      />
+    </SafeAreaView>
   );
 }
