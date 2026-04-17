@@ -3,8 +3,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../../lib/colors';
 import { daysUntil } from '../../../lib/theme';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef, useCallback } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
 import {
@@ -36,6 +37,11 @@ export default function GarageScreen() {
   const deleteBike = useDeleteBike(activeBikeId ?? '');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+
+  useFocusEffect(useCallback(() => {
+    scrollRef.current?.scrollTo({ y: 0, animated: false });
+  }, []));
 
   const logs = logsData?.data ?? [];
   const bikeList = useMemo(
@@ -131,6 +137,7 @@ export default function GarageScreen() {
       />
 
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={{ paddingTop: 80, paddingBottom: 128 }}
         showsVerticalScrollIndicator={false}
       >
