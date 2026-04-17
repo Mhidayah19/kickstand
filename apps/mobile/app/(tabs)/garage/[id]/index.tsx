@@ -229,7 +229,7 @@ export default function BikeDetailScreen() {
               <Pressable
                 onPress={() => {
                   setActiveBikeId(id);
-                  router.push('/add-service');
+                  router.push('/log-method');
                 }}
                 className="bg-surface-low rounded-2xl p-6 items-center"
               >

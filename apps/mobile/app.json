@@ -55,6 +55,12 @@
           "cameraPermission": "Kickstand needs camera access to photograph receipts."
         }
       ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Kickstand needs camera access to scan workshop receipts."
+        }
+      ],
       "@react-native-community/datetimepicker",
       [
         "@sentry/react-native/expo",

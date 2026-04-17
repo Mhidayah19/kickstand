@@ -51,7 +51,7 @@ export function FloatingTabBar({ state, navigation }: BottomTabBarProps) {
 
   const handleAddService = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push('/add-service');
+    router.push('/log-method');
   };
 
   const renderTab = ({ routeName, icon, label }: typeof TABS[number]) => {

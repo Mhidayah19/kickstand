@@ -7,4 +7,14 @@ export const envConfig = () => ({
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
   },
   scanApiKey: process.env.SCAN_API_KEY,
+  openai: {
+    apiKey: process.env.OPENAI_API_KEY ?? '',
+    model: process.env.OPENAI_MODEL ?? 'gpt-4o-mini',
+    globalRpm: parseInt(process.env.OPENAI_GLOBAL_RPM ?? '10', 10),
+    perUserDailyCap: parseInt(
+      process.env.OPENAI_PER_USER_DAILY_CAP ?? '50',
+      10,
+    ),
+    confidenceFloor: parseFloat(process.env.OPENAI_CONFIDENCE_FLOOR ?? '0.5'),
+  },
 });

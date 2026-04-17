@@ -201,9 +201,12 @@ function RootLayout() {
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="add-bike" options={{ presentation: 'modal', gestureEnabled: false }} />
+          <Stack.Screen name="log-method" options={{ presentation: 'modal', gestureEnabled: true }} />
           <Stack.Screen name="add-service" options={{ presentation: 'modal', gestureEnabled: false }} />
           <Stack.Screen name="edit-service" options={{ presentation: 'modal', gestureEnabled: false }} />
           <Stack.Screen name="quick-log" options={{ presentation: 'modal', headerShown: false }} />
+          <Stack.Screen name="scan-receipt" options={{ presentation: 'modal', headerShown: false }} />
+          <Stack.Screen name="ocr-analyzing" options={{ presentation: 'modal', headerShown: false, gestureEnabled: false }} />
           <Stack.Screen name="prediction" options={{ headerShown: false }} />
           <Stack.Screen name="category/[slug]" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />

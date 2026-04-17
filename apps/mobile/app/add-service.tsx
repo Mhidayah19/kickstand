@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ServiceLogFormBody } from '../components/service/service-log-form-body';
@@ -11,6 +11,7 @@ import { useServiceLogForm } from '../lib/hooks/use-service-log-form';
 import { formatBikeLabel } from '../lib/format-bike-label';
 import { getFrequentServiceTypes } from '../lib/service-type-helpers';
 import { SERVICE_TYPE_KEYS, type ServiceTypeKey } from '../lib/constants/service-types';
+import { useOcrStore } from '../lib/ocr/ocr-store';
 
 export default function AddServiceScreen() {
   const router = useRouter();
@@ -22,6 +23,17 @@ export default function AddServiceScreen() {
   const { data: bike } = useBike(activeBikeId);
   const { data: allLogs } = useAllServiceLogs();
   const form = useServiceLogForm(activeBikeId, bike?.currentMileage, undefined, initialServiceType);
+  const pendingOcr = useOcrStore((s) => s.pending);
+  const clearOcr = useOcrStore((s) => s.clear);
+
+  useEffect(() => {
+    if (pendingOcr) {
+      form.prefillFromOcr(pendingOcr);
+      clearOcr();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingOcr]);
+
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   const frequentTypes = useMemo(
@@ -63,7 +75,7 @@ export default function AddServiceScreen() {
     label: form.isPending ? 'Saving...' : 'Save Log',
     icon: 'check-circle',
     onPress: handleSave,
-    disabled: form.isPending || !form.canSave,
+    disabled: form.isPending,
   } : undefined, [form.serviceTypeKey, form.isPending, handleSave]);
 
   return (
@@ -78,6 +90,11 @@ export default function AddServiceScreen() {
           form={form}
           frequentTypes={frequentTypes}
           bikeId={activeBikeId ?? ''}
+          workshopName={form.workshopName}
+          workshopId={form.workshopId}
+          onWorkshopPress={() => {
+            Alert.alert('Workshop picker coming soon', 'You can still save the log as-is.');
+          }}
         />
       </ModalFormScreen>
 

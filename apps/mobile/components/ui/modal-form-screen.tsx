@@ -4,6 +4,7 @@ import {
   KeyboardAvoidingView, Platform, TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BlurView } from 'expo-blur';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
 import { PrimaryButton } from './primary-button';
@@ -83,7 +84,11 @@ export const ModalFormScreen = forwardRef<ScrollView, ModalFormScreenProps>(
           </ScrollView>
 
           {cta && (
-            <View className="absolute bottom-0 left-0 right-0 px-lg pb-xl pt-md bg-surface">
+            <BlurView
+              intensity={70}
+              tint="light"
+              className="absolute bottom-0 left-0 right-0 px-lg pb-xl pt-md"
+            >
               <PrimaryButton
                 variant="accent"
                 label={cta.label}
@@ -91,7 +96,7 @@ export const ModalFormScreen = forwardRef<ScrollView, ModalFormScreenProps>(
                 icon={cta.icon}
                 disabled={cta.disabled}
               />
-            </View>
+            </BlurView>
           )}
 
         </KeyboardAvoidingView>
