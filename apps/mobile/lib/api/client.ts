@@ -47,6 +47,7 @@ async function request<T>(
 ): Promise<T> {
   const url = `${BASE_URL}${path}`;
   const authHeader = await getAuthHeader();
+  console.log(`[apiClient] ${options.method ?? 'GET'} ${url}`, Object.keys(authHeader).length ? '(authed)' : '(no auth)');
   const response = await fetch(url, buildFetchOptions(options, authHeader));
 
   if (response.status === 401) {

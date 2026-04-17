@@ -12,13 +12,7 @@ import {
   type ServiceLogFormValues,
 } from '../validation/service-log-schema';
 import type { ServiceLog } from '../types/service-log';
-
-interface LineItem {
-  id: string;
-  category: string;
-  amount: number;
-  note?: string;
-}
+import type { OcrResponse } from '../ocr/types';
 
 function todayISO(): string {
   return new Date().toISOString().split('T')[0];
@@ -85,31 +79,13 @@ export function useServiceLogForm(
     () => makeInitialParts(existingLog),
   );
 
-  const [lineItems, setLineItems] = useState<LineItem[]>([]);
-  const [remainderIsLabour, setRemainderIsLabour] = useState(true);
-
-  const totalAllocated = lineItems.reduce((sum, li) => sum + li.amount, 0);
-  // parse cost from form value (strip commas, dollar signs)
-  const totalAmountNum = parseFloat((form.watch('cost') ?? '').replace(/[^0-9.]/g, '')) || 0;
-  const remainder = totalAmountNum - totalAllocated;
-  const canSave = remainderIsLabour ? remainder >= 0 : Math.abs(remainder) < 0.01;
-
-  const addLineItem = () => {
-    setLineItems((curr) => [...curr, { id: Math.random().toString(36).slice(2), category: '', amount: 0 }]);
-  };
-
-  const updateLineItem = (id: string, patch: Partial<LineItem>) => {
-    setLineItems((curr) => curr.map((li) => (li.id === id ? { ...li, ...patch } : li)));
-  };
-
-  const removeLineItem = (id: string) => {
-    setLineItems((curr) => curr.filter((li) => li.id !== id));
-  };
-
   const initialReceiptUrls = useRef(existingLog?.receiptUrls ?? []);
   const [receiptUrls, setReceiptUrls] = useState<string[]>(
     () => existingLog?.receiptUrls ?? [],
   );
+
+  const [workshopId, setWorkshopId] = useState<string | null>(null);
+  const [workshopName, setWorkshopName] = useState<string | null>(null);
 
   const addReceiptUrls = useCallback((urls: string[]) => {
     setReceiptUrls((prev) => [...prev, ...urls].slice(0, MAX_RECEIPTS));
@@ -118,6 +94,20 @@ export function useServiceLogForm(
   const removeReceiptUrl = useCallback((index: number) => {
     setReceiptUrls((prev) => prev.filter((_, i) => i !== index));
   }, []);
+
+  const prefillFromOcr = useCallback((payload: OcrResponse) => {
+    const { fields, workshopId: wid, receiptUrl } = payload;
+    if (fields.date) form.setValue('date', fields.date, { shouldDirty: true, shouldValidate: true });
+    if (fields.cost) form.setValue('cost', fields.cost, { shouldDirty: true, shouldValidate: true });
+    if (fields.serviceType) form.setValue('serviceTypeKey', fields.serviceType, { shouldDirty: true });
+    if (fields.parts?.length > 0) {
+      setParts(fields.parts.map((value, id) => ({ id, value })));
+      nextPartId.current = fields.parts.length;
+    }
+    if (receiptUrl) addReceiptUrls([receiptUrl]);
+    setWorkshopId(wid);
+    setWorkshopName(fields.workshopName);
+  }, [form, addReceiptUrls]);
 
   const [serviceTypeKey, mileage, date] = form.watch([
     'serviceTypeKey',
@@ -138,6 +128,7 @@ export function useServiceLogForm(
       description: label,
       parts: filledParts.length > 0 ? filledParts : undefined,
       receiptUrls: receiptUrls.length > 0 ? receiptUrls : undefined,
+      workshopId: workshopId ?? undefined,
     };
 
     if (existingLog) {
@@ -194,15 +185,8 @@ export function useServiceLogForm(
     handleReset,
     isDirty,
     isPending: createLog.isPending || updateLog.isPending,
-    lineItems,
-    addLineItem,
-    updateLineItem,
-    removeLineItem,
-    totalAllocated,
-    totalAmount: totalAmountNum,
-    remainder,
-    remainderIsLabour,
-    setRemainderIsLabour,
-    canSave,
+    prefillFromOcr,
+    workshopId,
+    workshopName,
   };
 }

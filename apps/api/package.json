@@ -23,6 +23,7 @@
     "seed:maintenance-schedules": "ts-node src/seeds/seed-maintenance-schedules.ts"
   },
   "dependencies": {
+    "@google/genai": "^1.50.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.1",
@@ -41,6 +42,7 @@
     "helmet": "^8.1.0",
     "jose": "^6.2.2",
     "nestjs-pino": "^4.6.1",
+    "openai": "^6.34.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pino-http": "^11.0.0",

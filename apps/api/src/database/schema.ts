@@ -219,3 +219,52 @@ export const agentConversations = pgTable(
     }),
   ],
 );
+
+export const ocrCache = pgTable(
+  'ocr_cache',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    imageHash: text('image_hash').notNull(),
+    fields: jsonb('fields').notNull(),
+    receiptUrl: text('receipt_url').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    unique('ocr_cache_user_hash_unique').on(table.userId, table.imageHash),
+    pgPolicy('ocr_cache_user_isolation', {
+      for: 'all',
+      to: authenticatedRole,
+      using: sql`${authUid} = ${table.userId}`,
+      withCheck: sql`${authUid} = ${table.userId}`,
+    }),
+  ],
+);
+
+export const aiUsageLogs = pgTable(
+  'ai_usage_logs',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    model: text('model').notNull(),
+    tokensIn: integer('tokens_in').notNull(),
+    tokensOut: integer('tokens_out').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    pgPolicy('ai_usage_logs_user_isolation', {
+      for: 'all',
+      to: authenticatedRole,
+      using: sql`${authUid} = ${table.userId}`,
+      withCheck: sql`${authUid} = ${table.userId}`,
+    }),
+  ],
+);

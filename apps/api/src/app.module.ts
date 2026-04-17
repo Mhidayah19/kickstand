@@ -19,6 +19,7 @@ import { ServiceLogsModule } from './modules/service-logs/service-logs.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { BikeCatalogModule } from './modules/bike-catalog/bike-catalog.module';
 import { AttentionModule } from './modules/attention/attention.module';
+import { OcrModule } from './modules/ocr/ocr.module';
 
 const isProd = process.env.NODE_ENV === 'production';
 
@@ -73,6 +74,7 @@ const isProd = process.env.NODE_ENV === 'production';
     ScheduleModule.forRoot(),
     NotificationsModule,
     AttentionModule,
+    OcrModule,
   ],
   controllers: [HealthController],
   providers: [
