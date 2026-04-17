@@ -21,37 +21,8 @@ import { useDeleteBike, useBike } from '../../../../lib/api/use-bikes';
 import { useServiceLogs } from '../../../../lib/api/use-service-logs';
 import { useBikeStore } from '../../../../lib/store/bike-store';
 import { serviceTypeToMeta } from '../../../../lib/service-type-meta';
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-const CLASS_LABELS: Record<string, string> = {
-  '2B': 'Class 2B',
-  '2A': 'Class 2A',
-  '2': 'Class 2',
-};
-
-function formatComplianceDate(dateStr: string | null): string | null {
-  if (!dateStr) return null;
-  const d = new Date(dateStr);
-  return `${d.getDate()} ${MONTHS[d.getMonth()].toUpperCase()} ${d.getFullYear()}`;
-}
-
-function SpecItem({ label, value }: { label: string; value: string }) {
-  return (
-    <View>
-      <Text className="text-xxs font-sans-bold text-sand uppercase tracking-widest mb-1">
-        {label}
-      </Text>
-      <Text className="text-base font-sans-xbold text-charcoal">{value}</Text>
-    </View>
-  );
-}
-
-function formatLogDate(dateStr: string): string {
-  const [, monthStr, day] = dateStr.split('-');
-  return `${parseInt(day)} ${MONTHS[parseInt(monthStr) - 1]}`;
-}
+import { formatComplianceDate, formatLogDate } from '../../../../lib/format';
+import { CLASS_LABELS, SpecItem } from '../../../../components/bike/spec-item';
 
 export default function BikeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -255,18 +226,19 @@ export default function BikeDetailScreen() {
                 })}
               </View>
             ) : (
-              <Pressable onPress={() => {
-                setActiveBikeId(id);
-                router.push('/add-service');
-              }}>
-                <View className="bg-surface-low rounded-2xl p-6 items-center">
-                  <Text className="font-sans-medium text-sm text-sand text-center mb-2">
-                    No service logs yet
-                  </Text>
-                  <Text className="font-sans-bold text-xs text-charcoal uppercase tracking-widest">
-                    Log First Service →
-                  </Text>
-                </View>
+              <Pressable
+                onPress={() => {
+                  setActiveBikeId(id);
+                  router.push('/add-service');
+                }}
+                className="bg-surface-low rounded-2xl p-6 items-center"
+              >
+                <Text className="font-sans-medium text-sm text-sand text-center mb-2">
+                  No service logs yet
+                </Text>
+                <Text className="font-sans-bold text-xs text-charcoal uppercase tracking-widest">
+                  Log First Service →
+                </Text>
               </Pressable>
             )}
           </Section>

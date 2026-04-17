@@ -20,7 +20,7 @@ const FAB_SHADOW = {
 
 const TABS: { routeName: string; icon: IconName; label: string }[] = [
   { routeName: 'index', icon: 'home', label: 'Home' },
-  { routeName: 'garage', icon: 'motorbike', label: 'Garage' },
+  { routeName: 'garage', icon: 'motorbike', label: 'Bike' },
   { routeName: 'service', icon: 'clipboard-text-outline', label: 'Service' },
   { routeName: 'settings', icon: 'account-circle', label: 'Profile' },
 ];
