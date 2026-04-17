@@ -1,11 +1,10 @@
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../../lib/colors';
 import { daysUntil } from '../../../lib/theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useMemo, useState, useRef, useCallback } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
-import { useFocusEffect } from 'expo-router';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
 import {
