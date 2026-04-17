@@ -87,8 +87,7 @@ export default function NotificationItemScreen() {
     if (item.category === 'maintenance') {
       router.push({ pathname: '/log-method', params: { serviceType: item.key } });
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      router.push(`/(tabs)/garage/${activeBikeId}/edit` as any);
+      router.push(`/(tabs)/garage/${activeBikeId}/edit`);
     }
   }, [item, activeBikeId, router]);
 

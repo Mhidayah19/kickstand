@@ -60,7 +60,9 @@ describe('OpenAIClient', () => {
   it('passes image as base64 data URL', async () => {
     mockCreate.mockResolvedValueOnce({
       choices: [
-        { message: { content: JSON.stringify({ parts: [], confidence: 0.9 }) } },
+        {
+          message: { content: JSON.stringify({ parts: [], confidence: 0.9 }) },
+        },
       ],
       usage: { prompt_tokens: 1, completion_tokens: 1 },
     });
@@ -68,9 +70,14 @@ describe('OpenAIClient', () => {
     const client = new OpenAIClient('fake-key', 'gpt-4o-mini');
     await client.extractReceiptFields(Buffer.from('xyz'), 'image/png');
 
-    const call = mockCreate.mock.calls[0][0] as {
-      messages: { content: { type: string; image_url?: { url: string } }[] }[];
-    };
+    const calls = mockCreate.mock.calls as unknown as [
+      {
+        messages: {
+          content: { type: string; image_url?: { url: string } }[];
+        }[];
+      },
+    ][];
+    const call = calls[0][0];
     const imagePart = call.messages[0].content.find(
       (p) => p.type === 'image_url',
     );

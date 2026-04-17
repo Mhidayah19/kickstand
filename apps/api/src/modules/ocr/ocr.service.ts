@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { and, eq, gte, sql } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.module';
@@ -22,19 +28,22 @@ export class OcrService {
   ) {
     const apiKey = this.config.get<string>('openai.apiKey');
     const model = this.config.get<string>('openai.model');
-    this.logger.log(`OpenAI config — model: ${model}, apiKey: ${apiKey ? `${apiKey.slice(0, 6)}…` : 'MISSING'}`);
+    this.logger.log(
+      `OpenAI config — model: ${model}, apiKey: ${apiKey ? `${apiKey.slice(0, 6)}…` : 'MISSING'}`,
+    );
   }
 
   async extract(userId: string, receiptUrl: string): Promise<OcrResponse> {
     this.logger.log(`OCR request — userId: ${userId}, url: ${receiptUrl}`);
 
-    if (!this.limiter.checkGlobal()) {
+    if (!this.limiter.canAcceptGlobal()) {
       this.logger.warn('OCR blocked — global RPM exceeded');
       throw new HttpException(
         'OCR busy — please retry in a moment',
         HttpStatus.TOO_MANY_REQUESTS,
       );
     }
+    this.limiter.consumeGlobalSlot();
 
     this.logger.log('Fetching receipt image…');
     const res = await fetch(receiptUrl);
@@ -52,7 +61,9 @@ export class OcrService {
     }
     const bytes = Buffer.from(await res.arrayBuffer());
     const imageHash = sha256OfBytes(bytes);
-    this.logger.log(`Image fetched — ${bytes.length} bytes, mimeType: ${mimeType}, hash: ${imageHash.slice(0, 12)}…`);
+    this.logger.log(
+      `Image fetched — ${bytes.length} bytes, mimeType: ${mimeType}, hash: ${imageHash.slice(0, 12)}…`,
+    );
 
     const cached = await this.db
       .select()
@@ -80,14 +91,11 @@ export class OcrService {
       .select({ count: sql<number>`count(*)::int` })
       .from(aiUsageLogs)
       .where(
-        and(
-          eq(aiUsageLogs.userId, userId),
-          gte(aiUsageLogs.createdAt, since),
-        ),
+        and(eq(aiUsageLogs.userId, userId), gte(aiUsageLogs.createdAt, since)),
       );
     const dailyCount = Number(countRow[0]?.count ?? 0);
     this.logger.log(`User daily usage: ${dailyCount}`);
-    if (!this.limiter.checkUserDaily(dailyCount)) {
+    if (!this.limiter.canAcceptUserDaily(dailyCount)) {
       this.logger.warn(`OCR blocked — user ${userId} hit daily cap`);
       throw new HttpException(
         'Daily OCR limit reached — try again tomorrow',
@@ -100,7 +108,9 @@ export class OcrService {
       bytes,
       mimeType,
     );
-    this.logger.log(`OpenAI responded — confidence: ${fields.confidence}, tokensIn: ${usage.tokensIn}, tokensOut: ${usage.tokensOut}`);
+    this.logger.log(
+      `OpenAI responded — confidence: ${fields.confidence}, tokensIn: ${usage.tokensIn}, tokensOut: ${usage.tokensOut}`,
+    );
     const floor = this.config.get<number>('openai.confidenceFloor') ?? 0.5;
 
     await this.db.insert(aiUsageLogs).values({
@@ -111,7 +121,9 @@ export class OcrService {
     });
 
     if ((fields.confidence ?? 0) < floor) {
-      this.logger.warn(`Low confidence (${fields.confidence} < ${floor}) — rejecting`);
+      this.logger.warn(
+        `Low confidence (${fields.confidence} < ${floor}) — rejecting`,
+      );
       throw new HttpException(
         'low_confidence',
         HttpStatus.UNPROCESSABLE_ENTITY,
@@ -126,7 +138,9 @@ export class OcrService {
     });
 
     const workshopId = await this.resolveWorkshop(fields.workshopName);
-    this.logger.log(`OCR complete — workshopId: ${workshopId ?? 'none'}, cacheHit: false`);
+    this.logger.log(
+      `OCR complete — workshopId: ${workshopId ?? 'none'}, cacheHit: false`,
+    );
 
     return { fields, workshopId, receiptUrl, cacheHit: false };
   }

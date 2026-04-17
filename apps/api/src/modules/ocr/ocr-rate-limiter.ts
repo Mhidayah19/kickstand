@@ -11,16 +11,19 @@ export class OcrRateLimiter {
 
   constructor(private readonly cfg: OcrRateLimiterConfig) {}
 
-  checkGlobal(): boolean {
+  canAcceptGlobal(): boolean {
     const now = Date.now();
-    this.timestamps = this.timestamps.filter((t) => now - t < 60_000);
-    if (this.timestamps.length >= this.cfg.globalRpm) return false;
-    this.timestamps.push(now);
-    return true;
+    const active = this.timestamps.filter((t) => now - t < 60_000);
+    return active.length < this.cfg.globalRpm;
   }
 
-  /** Caller provides the count of user requests in the last 24h from the DB. */
-  checkUserDaily(recentCount: number): boolean {
+  consumeGlobalSlot(): void {
+    const now = Date.now();
+    this.timestamps = this.timestamps.filter((t) => now - t < 60_000);
+    this.timestamps.push(now);
+  }
+
+  canAcceptUserDaily(recentCount: number): boolean {
     return recentCount < this.cfg.perUserDailyCap;
   }
 }

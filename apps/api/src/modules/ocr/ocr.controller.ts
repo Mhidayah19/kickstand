@@ -12,7 +12,9 @@ export class OcrController {
 
   @Post()
   run(@CurrentUser() user: AuthUser, @Body() dto: OcrRequestDto) {
-    this.logger.log(`POST /service-logs/ocr — userId: ${user?.id}, receiptUrl: ${dto?.receiptUrl}`);
+    this.logger.log(
+      `POST /service-logs/ocr — userId: ${user?.id}, receiptUrl: ${dto?.receiptUrl}`,
+    );
     return this.ocr.extract(user.id, dto.receiptUrl);
   }
 }

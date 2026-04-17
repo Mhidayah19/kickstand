@@ -11,7 +11,11 @@ const mockDb = {
 };
 
 const mockOpenAI = { extractReceiptFields: jest.fn() };
-const mockLimiter = { checkGlobal: jest.fn(), checkUserDaily: jest.fn() };
+const mockLimiter = {
+  canAcceptGlobal: jest.fn(),
+  consumeGlobalSlot: jest.fn(),
+  canAcceptUserDaily: jest.fn(),
+};
 const mockFetch = jest.fn();
 global.fetch = mockFetch as unknown as typeof fetch;
 
@@ -56,8 +60,8 @@ describe('OcrService', () => {
       arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
       headers: new Map([['content-type', 'image/jpeg']]),
     } as any);
-    mockLimiter.checkGlobal.mockReturnValue(true);
-    mockLimiter.checkUserDaily.mockReturnValue(true);
+    mockLimiter.canAcceptGlobal.mockReturnValue(true);
+    mockLimiter.canAcceptUserDaily.mockReturnValue(true);
   });
 
   it('returns cached fields on hash hit without calling OpenAI', async () => {
@@ -103,7 +107,7 @@ describe('OcrService', () => {
   });
 
   it('throws 429 when global RPM exceeded', async () => {
-    mockLimiter.checkGlobal.mockReturnValue(false);
+    mockLimiter.canAcceptGlobal.mockReturnValue(false);
     await expect(
       service.extract('user-1', 'https://x/abc'),
     ).rejects.toMatchObject({ status: 429 });
@@ -117,7 +121,7 @@ describe('OcrService', () => {
       .mockReturnValueOnce({
         from: () => ({ where: () => Promise.resolve([{ count: 999 }]) }),
       });
-    mockLimiter.checkUserDaily.mockReturnValue(false);
+    mockLimiter.canAcceptUserDaily.mockReturnValue(false);
 
     await expect(
       service.extract('user-1', 'https://x/abc'),
