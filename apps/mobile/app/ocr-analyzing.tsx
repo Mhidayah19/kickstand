@@ -23,7 +23,7 @@ export default function OcrAnalyzingScreen() {
         if (cancelled) return;
         console.log('[OCR] success:', payload);
         setPending(payload);
-        router.replace('/add-service');
+        router.back();
       },
       onError: (err) => {
         if (cancelled) return;
@@ -58,7 +58,7 @@ export default function OcrAnalyzingScreen() {
         visible={error !== null}
         message={error ?? ''}
         onRetry={() => router.replace('/scan-receipt')}
-        onManual={() => router.replace('/add-service')}
+        onManual={() => router.back()}
       />
     </View>
   );

@@ -253,7 +253,7 @@ export default function ServiceScreen() {
               : 'Log your first service to start tracking your maintenance history.'
           }
           actionLabel="Log a service"
-          onAction={() => router.push('/log-method')}
+          onAction={() => router.push('/add-service')}
         />
       </SafeScreen>
     );

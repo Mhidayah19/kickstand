@@ -85,7 +85,7 @@ export default function NotificationItemScreen() {
   const handleCta = useCallback(() => {
     if (!item || !activeBikeId) return;
     if (item.category === 'maintenance') {
-      router.push({ pathname: '/log-method', params: { serviceType: item.key } });
+      router.push({ pathname: '/add-service', params: { serviceType: item.key } });
     } else {
       router.push(`/(tabs)/garage/${activeBikeId}/edit`);
     }
