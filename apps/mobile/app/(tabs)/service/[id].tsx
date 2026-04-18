@@ -205,6 +205,28 @@ export default function ServiceDetailScreen() {
             </View>
           </View>
 
+          {!!log.workshop && (
+            <>
+              <View className="h-px bg-surface-low mx-4" />
+              <View className="p-4">
+                <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">
+                  Workshop
+                </Text>
+                <Text className="font-sans-bold text-sm text-charcoal" numberOfLines={1}>
+                  {log.workshop.name}
+                </Text>
+                {!!log.workshop.address && (
+                  <Text
+                    className="font-sans-medium text-xs text-charcoal/55 mt-0.5"
+                    numberOfLines={2}
+                  >
+                    {log.workshop.address}
+                  </Text>
+                )}
+              </View>
+            </>
+          )}
+
           <View className="h-px bg-surface-low mx-4" />
 
           <View className="p-4">

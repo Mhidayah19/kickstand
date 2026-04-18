@@ -5,6 +5,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { WorkshopsService } from './workshops.service';
 import { DRIZZLE } from '../../database/database.module';
+import { PlacesClient } from './places/places.client';
 
 describe('WorkshopsService', () => {
   let service: WorkshopsService;
@@ -18,11 +19,20 @@ describe('WorkshopsService', () => {
   mockDb.orderBy = jest.fn(() => mockDb);
   mockDb.execute = jest.fn();
 
+  const mockPlacesClient: any = {
+    autocomplete: jest.fn(),
+    getDetails: jest.fn(),
+  };
+
   beforeEach(async () => {
     jest.clearAllMocks();
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [WorkshopsService, { provide: DRIZZLE, useValue: mockDb }],
+      providers: [
+        WorkshopsService,
+        { provide: DRIZZLE, useValue: mockDb },
+        { provide: PlacesClient, useValue: mockPlacesClient },
+      ],
     }).compile();
 
     service = module.get<WorkshopsService>(WorkshopsService);
@@ -145,6 +155,131 @@ describe('WorkshopsService', () => {
       const result = WorkshopsService.flagVerificationStatus(entry);
 
       expect(result.verified).toBe(true);
+    });
+  });
+
+  describe('searchPlaces', () => {
+    it('delegates to PlacesClient.autocomplete and passes params through', async () => {
+      const suggestions = [
+        { placeId: 'p-1', name: 'Ah Seng Motor', address: '12 Geylang' },
+      ];
+      mockPlacesClient.autocomplete.mockResolvedValue(suggestions);
+
+      const result = await service.searchPlaces({
+        query: 'ah seng',
+        lat: 1.3521,
+        lng: 103.8198,
+        sessionToken: 'tok-1',
+      });
+
+      expect(result).toEqual(suggestions);
+      expect(mockPlacesClient.autocomplete).toHaveBeenCalledWith({
+        query: 'ah seng',
+        lat: 1.3521,
+        lng: 103.8198,
+        sessionToken: 'tok-1',
+      });
+    });
+  });
+
+  describe('upsertFromPlace', () => {
+    it('returns the existing workshop when google_place_id already in DB', async () => {
+      const existing = {
+        id: 'w-1',
+        googlePlaceId: 'p-1',
+        name: 'Ah Seng Motor',
+      };
+      mockDb.where.mockResolvedValueOnce([existing]);
+
+      const result = await service.upsertFromPlace({
+        placeId: 'p-1',
+        sessionToken: 'tok-1',
+      });
+
+      expect(result).toEqual(existing);
+      expect(mockPlacesClient.getDetails).not.toHaveBeenCalled();
+    });
+
+    it('fetches details and inserts when not yet in DB', async () => {
+      const details = {
+        placeId: 'p-2',
+        name: 'Mah Pte Ltd',
+        address: 'Ubi Ave 1',
+        lat: 1.33,
+        lng: 103.89,
+        phone: '+65 1111',
+        openingHours: 'Mon-Fri 09:00-18:00',
+        rating: 4.1,
+      };
+      const inserted = { id: 'w-2', googlePlaceId: 'p-2', ...details };
+
+      mockDb.where.mockResolvedValueOnce([]);
+      mockPlacesClient.getDetails.mockResolvedValue(details);
+      mockDb.insert = jest.fn(() => mockDb);
+      mockDb.values = jest.fn(() => mockDb);
+      mockDb.returning = jest.fn().mockResolvedValue([inserted]);
+
+      const result = await service.upsertFromPlace({
+        placeId: 'p-2',
+        sessionToken: 'tok-2',
+      });
+
+      expect(result).toEqual(inserted);
+      expect(mockPlacesClient.getDetails).toHaveBeenCalledWith('p-2', 'tok-2');
+      expect(mockDb.insert).toHaveBeenCalled();
+    });
+  });
+
+  describe('createManual', () => {
+    it('returns existing workshop when case-insensitive name + address match', async () => {
+      const existing = {
+        id: 'w-5',
+        name: 'Ah Seng Motor',
+        address: 'Blk 12 Geylang Lor 13',
+        googlePlaceId: null,
+      };
+      mockDb.where.mockResolvedValueOnce([existing]);
+
+      const result = await service.createManual({
+        name: 'ah seng motor',
+        address: 'Blk 12 Geylang Lor 13',
+      });
+
+      expect(result).toEqual(existing);
+    });
+
+    it('inserts a new workshop with null google_place_id when no match', async () => {
+      const inserted = {
+        id: 'w-6',
+        name: 'Brand New Shop',
+        address: null,
+        googlePlaceId: null,
+      };
+      mockDb.where.mockResolvedValueOnce([]);
+      mockDb.insert = jest.fn(() => mockDb);
+      mockDb.values = jest.fn(() => mockDb);
+      mockDb.returning = jest.fn().mockResolvedValue([inserted]);
+
+      const result = await service.createManual({ name: 'Brand New Shop' });
+
+      expect(result).toEqual(inserted);
+      expect(mockDb.insert).toHaveBeenCalled();
+    });
+  });
+
+  describe('findMine', () => {
+    it("returns workshops from the authenticated user's service logs", async () => {
+      const userId = 'user-1';
+      const workshops = [
+        { id: 'w-1', name: 'Ah Seng Motor', address: '12 Geylang' },
+        { id: 'w-2', name: 'Revology', address: '21 Kaki Bukit' },
+      ];
+      mockDb.execute.mockResolvedValue(workshops);
+
+      const result = await service.findMine(userId);
+
+      expect(result).toEqual(workshops);
+      expect(mockDb.execute).toHaveBeenCalled();
     });
   });
 });

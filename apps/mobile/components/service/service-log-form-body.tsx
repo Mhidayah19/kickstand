@@ -9,6 +9,7 @@ import { PartsUsed } from './parts-used';
 import { ReceiptStrip } from './ReceiptStrip';
 import { ReceiptViewer } from './ReceiptViewer';
 import { WorkshopNoMatchHint } from './workshop-no-match-hint';
+import { WorkshopField } from './workshop-field';
 import { useImageUpload } from '../../lib/hooks/use-image-upload';
 import type { useServiceLogForm } from '../../lib/hooks/use-service-log-form';
 import type { FrequentType } from '../../lib/service-type-helpers';
@@ -18,12 +19,17 @@ interface ServiceLogFormBodyProps {
   frequentTypes: FrequentType[];
   bikeId: string;
   isEditing?: boolean;
-  workshopName?: string | null;
-  workshopId?: string | null;
   onWorkshopPress?: () => void;
 }
 
-export function ServiceLogFormBody({ form, frequentTypes, bikeId, isEditing = false, workshopName, workshopId, onWorkshopPress }: ServiceLogFormBodyProps) {
+export function ServiceLogFormBody({
+  form,
+  frequentTypes,
+  bikeId,
+  isEditing = false,
+  onWorkshopPress,
+}: ServiceLogFormBodyProps) {
+  const { workshopName, workshopId, workshopAddress, clearWorkshop } = form;
   const [collapsed, setCollapsed] = useState(isEditing);
   const collapseTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [viewerIndex, setViewerIndex] = useState(0);
@@ -122,6 +128,23 @@ export function ServiceLogFormBody({ form, frequentTypes, bikeId, isEditing = fa
                 inputClassName="text-xl"
               />
             </FormField>
+
+            {onWorkshopPress ? (
+              <View className="mt-lg">
+                <WorkshopField
+                  workshopName={workshopName}
+                  workshopAddress={workshopAddress}
+                  onPress={onWorkshopPress}
+                  onClear={clearWorkshop}
+                />
+                {workshopName && !workshopId ? (
+                  <WorkshopNoMatchHint
+                    workshopName={workshopName}
+                    onPress={onWorkshopPress}
+                  />
+                ) : null}
+              </View>
+            ) : null}
           </View>
 
           <PartsUsed
@@ -141,13 +164,6 @@ export function ServiceLogFormBody({ form, frequentTypes, bikeId, isEditing = fa
               uploadingCount={uploadingCount}
             />
           </Section>
-
-          {workshopName && !workshopId && onWorkshopPress ? (
-            <WorkshopNoMatchHint
-              workshopName={workshopName}
-              onPress={onWorkshopPress}
-            />
-          ) : null}
         </Animated.View>
       )}
 

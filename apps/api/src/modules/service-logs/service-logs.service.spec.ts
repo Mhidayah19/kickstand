@@ -23,6 +23,8 @@ describe('ServiceLogsService', () => {
   mockDb.limit = jest.fn(() => mockDb);
   mockDb.offset = jest.fn();
   mockDb.innerJoin = jest.fn(() => mockDb);
+  mockDb.leftJoin = jest.fn(() => mockDb);
+  mockDb.transaction = jest.fn((fn: (tx: unknown) => unknown) => fn(mockDb));
   mockDb.update = jest.fn(() => mockDb);
   mockDb.set = jest.fn(() => mockDb);
 
@@ -160,13 +162,19 @@ describe('ServiceLogsService', () => {
   });
 
   describe('findOne', () => {
-    it('should verify ownership then return the log', async () => {
+    it('should return the log with joined workshop when present', async () => {
       mockBikesService.findOneByUser.mockResolvedValue({
         id: 'bike-1',
         userId: 'user-1',
       });
-      const log = { id: 'log-1', bikeId: 'bike-1', serviceType: 'oil_change' };
-      mockDb.where.mockResolvedValueOnce([log]);
+      mockDb.where.mockResolvedValueOnce([
+        {
+          id: 'log-1',
+          bikeId: 'bike-1',
+          serviceType: 'oil_change',
+          workshop: { id: 'ws-1', name: 'Mah Pte Ltd', address: '1 Road' },
+        },
+      ]);
 
       const result = await service.findOne('log-1', 'bike-1', 'user-1');
 
@@ -174,7 +182,29 @@ describe('ServiceLogsService', () => {
         'bike-1',
         'user-1',
       );
-      expect(result).toEqual(log);
+      expect(result.workshop).toEqual({
+        id: 'ws-1',
+        name: 'Mah Pte Ltd',
+        address: '1 Road',
+      });
+    });
+
+    it('should normalize workshop to null when log has no workshop', async () => {
+      mockBikesService.findOneByUser.mockResolvedValue({
+        id: 'bike-1',
+        userId: 'user-1',
+      });
+      mockDb.where.mockResolvedValueOnce([
+        {
+          id: 'log-1',
+          bikeId: 'bike-1',
+          serviceType: 'oil_change',
+          workshop: { id: null, name: null, address: null },
+        },
+      ]);
+
+      const result = await service.findOne('log-1', 'bike-1', 'user-1');
+      expect(result.workshop).toBeNull();
     });
 
     it('should throw NotFoundException if log not found', async () => {
@@ -191,21 +221,33 @@ describe('ServiceLogsService', () => {
   });
 
   describe('update', () => {
-    it('should verify ownership, check existence, then update', async () => {
+    it('should verify ownership, update, then return the joined log', async () => {
       mockBikesService.findOneByUser.mockResolvedValue({
         id: 'bike-1',
         userId: 'user-1',
       });
       const existing = { id: 'log-1', bikeId: 'bike-1', cost: '45.00' };
-      const updated = { ...existing, cost: '55.00' };
-      mockDb.where.mockResolvedValueOnce([existing]); // existence check
-      mockDb.returning.mockResolvedValue([updated]); // update result
+      const joined = {
+        id: 'log-1',
+        bikeId: 'bike-1',
+        cost: '55.00',
+        workshop: { id: 'ws-1', name: 'Moto Shop', address: 'Ave 1' },
+      };
+      mockDb.where
+        .mockResolvedValueOnce([existing]) // existence
+        .mockResolvedValueOnce(undefined) // update.where (ignored)
+        .mockResolvedValueOnce([joined]); // joined fetch
 
       const result = await service.update('log-1', 'bike-1', 'user-1', {
         cost: '55.00',
       });
 
-      expect(result).toEqual(updated);
+      expect(result.cost).toBe('55.00');
+      expect(result.workshop).toEqual({
+        id: 'ws-1',
+        name: 'Moto Shop',
+        address: 'Ave 1',
+      });
       expect(mockBikesService.findOneByUser).toHaveBeenCalledWith(
         'bike-1',
         'user-1',
@@ -219,8 +261,15 @@ describe('ServiceLogsService', () => {
         id: 'bike-1',
         userId: 'user-1',
       });
-      mockDb.where.mockResolvedValueOnce([{ id: 'log-1', bikeId: 'bike-1' }]);
-      mockDb.returning.mockResolvedValue([{ id: 'log-1' }]);
+      mockDb.where
+        .mockResolvedValueOnce([{ id: 'log-1', bikeId: 'bike-1' }])
+        .mockResolvedValueOnce(undefined)
+        .mockResolvedValueOnce([
+          {
+            id: 'log-1',
+            workshop: { id: null, name: null, address: null },
+          },
+        ]);
 
       await service.update('log-1', 'bike-1', 'user-1', {
         cost: '55.00',

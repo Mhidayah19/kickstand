@@ -105,6 +105,7 @@ export const maintenanceSchedules = pgTable('maintenance_schedules', {
 
 export const workshops = pgTable('workshops', {
   id: uuid('id').primaryKey().defaultRandom(),
+  googlePlaceId: text('google_place_id').unique(),
   name: text('name').notNull(),
   address: text('address').notNull(),
   lat: decimal('lat', { precision: 10, scale: 7 }).notNull(),

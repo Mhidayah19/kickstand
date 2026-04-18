@@ -1,13 +1,21 @@
 // src/modules/workshops/workshops.service.ts
 import { Injectable, Inject, NotFoundException } from '@nestjs/common';
-import { eq, and, sql, isNull, or } from 'drizzle-orm';
+import { eq, and, sql, isNull, or, ilike } from 'drizzle-orm';
 import { DRIZZLE } from '../../database/database.module';
 import type { DrizzleDB } from '../../database/database.types';
 import * as schema from '../../database/schema';
+import { PlacesClient } from './places/places.client';
+import type {
+  AutocompleteParams,
+  PlacesAutocompleteSuggestion,
+} from './places/places.types';
 
 @Injectable()
 export class WorkshopsService {
-  constructor(@Inject(DRIZZLE) private readonly db: DrizzleDB) {}
+  constructor(
+    @Inject(DRIZZLE) private readonly db: DrizzleDB,
+    private readonly places: PlacesClient,
+  ) {}
 
   private haversineSQL(lat: number, lng: number) {
     return sql<number>`(
@@ -98,6 +106,86 @@ export class WorkshopsService {
       ...r,
       ...WorkshopsService.flagVerificationStatus(r),
     }));
+  }
+
+  async searchPlaces(
+    params: AutocompleteParams,
+  ): Promise<PlacesAutocompleteSuggestion[]> {
+    return this.places.autocomplete(params);
+  }
+
+  async upsertFromPlace(params: { placeId: string; sessionToken: string }) {
+    const [existing] = await this.db
+      .select()
+      .from(schema.workshops)
+      .where(eq(schema.workshops.googlePlaceId, params.placeId));
+
+    if (existing) return existing;
+
+    const details = await this.places.getDetails(
+      params.placeId,
+      params.sessionToken,
+    );
+
+    const [inserted] = await this.db
+      .insert(schema.workshops)
+      .values({
+        googlePlaceId: details.placeId,
+        name: details.name,
+        address: details.address,
+        lat: String(details.lat),
+        lng: String(details.lng),
+        phone: details.phone,
+        openingHours: details.openingHours,
+        rating: details.rating != null ? String(details.rating) : null,
+      })
+      .returning();
+
+    return inserted;
+  }
+
+  async createManual(params: { name: string; address?: string }) {
+    const normalizedName = params.name.trim();
+    const normalizedAddress = params.address?.trim() ?? '';
+
+    const conditions = [ilike(schema.workshops.name, normalizedName)];
+    if (normalizedAddress) {
+      conditions.push(ilike(schema.workshops.address, normalizedAddress));
+    } else {
+      conditions.push(isNull(schema.workshops.googlePlaceId));
+    }
+
+    const [existing] = await this.db
+      .select()
+      .from(schema.workshops)
+      .where(and(...conditions));
+
+    if (existing) return existing;
+
+    const [inserted] = await this.db
+      .insert(schema.workshops)
+      .values({
+        name: normalizedName,
+        address: normalizedAddress || '',
+        lat: '0',
+        lng: '0',
+        googlePlaceId: null,
+      })
+      .returning();
+
+    return inserted;
+  }
+
+  async findMine(userId: string) {
+    return this.db.execute(sql`
+      SELECT DISTINCT w.id, w.name, w.address, w.lat, w.lng, w.phone, w.rating,
+             w.opening_hours AS "openingHours", w.google_place_id AS "googlePlaceId"
+      FROM workshops w
+      INNER JOIN service_logs sl ON sl.workshop_id = w.id
+      INNER JOIN bikes b ON b.id = sl.bike_id
+      WHERE b.user_id = ${userId}
+      ORDER BY w.name ASC
+    `);
   }
 
   static flagVerificationStatus(entry: {
