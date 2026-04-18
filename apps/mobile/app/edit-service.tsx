@@ -69,6 +69,7 @@ function EditServiceForm({ log, bikeId, bikeLabel, frequentTypes, onClose }: Edi
           frequentTypes={frequentTypes}
           bikeId={bikeId}
           isEditing
+          onWorkshopPress={() => router.push('/workshop-search')}
         />
       </ModalFormScreen>
 

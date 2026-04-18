@@ -42,11 +42,23 @@
         {
           "name": "SENTRY_DSN",
           "valueFrom": "arn:aws:secretsmanager:ap-southeast-1:211125766251:secret:kickstand/api/prod-f1qc5f:SENTRY_DSN::"
+        },
+        {
+          "name": "OPENAI_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-southeast-1:211125766251:secret:kickstand/api/prod-f1qc5f:OPENAI_API_KEY::"
+        },
+        {
+          "name": "GOOGLE_PLACES_API_KEY",
+          "valueFrom": "arn:aws:secretsmanager:ap-southeast-1:211125766251:secret:kickstand/api/prod-f1qc5f:GOOGLE_PLACES_API_KEY::"
         }
       ],
       "environment": [
         { "name": "NODE_ENV", "value": "production" },
-        { "name": "PORT", "value": "3000" }
+        { "name": "PORT", "value": "3000" },
+        { "name": "OPENAI_MODEL", "value": "gpt-4o-mini" },
+        { "name": "OPENAI_GLOBAL_RPM", "value": "10" },
+        { "name": "OPENAI_PER_USER_DAILY_CAP", "value": "50" },
+        { "name": "OPENAI_CONFIDENCE_FLOOR", "value": "0.5" }
       ],
       "logConfiguration": {
         "logDriver": "awslogs",

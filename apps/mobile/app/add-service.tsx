@@ -90,11 +90,7 @@ export default function AddServiceScreen() {
           form={form}
           frequentTypes={frequentTypes}
           bikeId={activeBikeId ?? ''}
-          workshopName={form.workshopName}
-          workshopId={form.workshopId}
-          onWorkshopPress={() => {
-            Alert.alert('Workshop picker coming soon', 'You can still save the log as-is.');
-          }}
+          onWorkshopPress={() => router.push('/workshop-search')}
         />
       </ModalFormScreen>
 

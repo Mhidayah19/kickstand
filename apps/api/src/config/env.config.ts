@@ -17,4 +17,7 @@ export const envConfig = () => ({
     ),
     confidenceFloor: parseFloat(process.env.OPENAI_CONFIDENCE_FLOOR ?? '0.5'),
   },
+  googlePlaces: {
+    apiKey: process.env.GOOGLE_PLACES_API_KEY ?? '',
+  },
 });

@@ -13,6 +13,8 @@ import {
 } from '../validation/service-log-schema';
 import type { ServiceLog } from '../types/service-log';
 import type { OcrResponse } from '../ocr/types';
+import { useWorkshopPickerStore } from '../store/workshop-picker-store';
+import type { WorkshopSelection } from '../types/workshop';
 
 function todayISO(): string {
   return new Date().toISOString().split('T')[0];
@@ -84,8 +86,37 @@ export function useServiceLogForm(
     () => existingLog?.receiptUrls ?? [],
   );
 
-  const [workshopId, setWorkshopId] = useState<string | null>(null);
-  const [workshopName, setWorkshopName] = useState<string | null>(null);
+  const initialWorkshop = existingLog?.workshop ?? null;
+  const [workshopId, setWorkshopId] = useState<string | null>(
+    initialWorkshop?.id ?? existingLog?.workshopId ?? null,
+  );
+  const [workshopName, setWorkshopName] = useState<string | null>(
+    initialWorkshop?.name ?? null,
+  );
+  const [workshopAddress, setWorkshopAddress] = useState<string | null>(
+    initialWorkshop?.address ?? null,
+  );
+
+  const setWorkshop = useCallback((selection: WorkshopSelection) => {
+    setWorkshopId(selection.id);
+    setWorkshopName(selection.name);
+    setWorkshopAddress(selection.address);
+  }, []);
+
+  const clearWorkshop = useCallback(() => {
+    setWorkshopId(null);
+    setWorkshopName(null);
+    setWorkshopAddress(null);
+  }, []);
+
+  const pendingSelection = useWorkshopPickerStore((s) => s.pending);
+  const consumePickerSelection = useWorkshopPickerStore((s) => s.consume);
+  useEffect(() => {
+    if (pendingSelection) {
+      const selection = consumePickerSelection();
+      if (selection) setWorkshop(selection);
+    }
+  }, [pendingSelection, consumePickerSelection, setWorkshop]);
 
   const addReceiptUrls = useCallback((urls: string[]) => {
     setReceiptUrls((prev) => [...prev, ...urls].slice(0, MAX_RECEIPTS));
@@ -140,14 +171,16 @@ export function useServiceLogForm(
   const handleSave = form.handleSubmit(submitHandler);
 
   const initialParts = useRef(existingLog?.parts ?? []);
+  const initialWorkshopId = useRef(initialWorkshop?.id ?? existingLog?.workshopId ?? null);
 
   const isDirty = useMemo(
     () =>
       form.formState.isDirty ||
       JSON.stringify(receiptUrls) !== JSON.stringify(initialReceiptUrls.current) ||
       JSON.stringify(parts.map((p) => p.value.trim()).filter(Boolean)) !==
-        JSON.stringify(initialParts.current),
-    [form.formState.isDirty, receiptUrls, parts],
+        JSON.stringify(initialParts.current) ||
+      workshopId !== initialWorkshopId.current,
+    [form.formState.isDirty, receiptUrls, parts, workshopId],
   );
 
   const handleReset = () => {
@@ -156,6 +189,9 @@ export function useServiceLogForm(
     nextPartId.current = existingLog?.parts?.length ?? 1;
     setParts(makeInitialParts(existingLog));
     setReceiptUrls(existingLog?.receiptUrls ?? []);
+    setWorkshopId(initialWorkshop?.id ?? existingLog?.workshopId ?? null);
+    setWorkshopName(initialWorkshop?.name ?? null);
+    setWorkshopAddress(initialWorkshop?.address ?? null);
   };
 
   return {
@@ -188,5 +224,8 @@ export function useServiceLogForm(
     prefillFromOcr,
     workshopId,
     workshopName,
+    workshopAddress,
+    setWorkshop,
+    clearWorkshop,
   };
 }

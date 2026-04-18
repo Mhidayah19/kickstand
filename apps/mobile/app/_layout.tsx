@@ -207,6 +207,8 @@ function RootLayout() {
           <Stack.Screen name="quick-log" options={{ presentation: 'modal', headerShown: false }} />
           <Stack.Screen name="scan-receipt" options={{ presentation: 'modal', headerShown: false }} />
           <Stack.Screen name="ocr-analyzing" options={{ presentation: 'modal', headerShown: false, gestureEnabled: false }} />
+          <Stack.Screen name="workshop-search" options={{ presentation: 'modal', headerShown: false }} />
+          <Stack.Screen name="workshop-manual" options={{ presentation: 'modal', headerShown: false }} />
           <Stack.Screen name="prediction" options={{ headerShown: false }} />
           <Stack.Screen name="category/[slug]" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
