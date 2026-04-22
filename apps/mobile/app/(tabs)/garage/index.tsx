@@ -118,10 +118,10 @@ export default function GarageScreen() {
   }
 
   const complianceItems = [
-    { icon: 'calendar-month-outline', label: 'COE Expiry', date: bike.coeExpiry },
-    { icon: 'file-document-outline', label: 'Road Tax Expiry', date: bike.roadTaxExpiry },
-    { icon: 'shield-outline', label: 'Insurance Expiry', date: bike.insuranceExpiry },
-    { icon: 'clipboard-check-outline', label: 'Inspection Due', date: bike.inspectionDue },
+    { icon: 'calendar-month-outline', label: 'COE', date: bike.coeExpiry },
+    { icon: 'file-document-outline', label: 'Road Tax', date: bike.roadTaxExpiry },
+    { icon: 'shield-outline', label: 'Insurance', date: bike.insuranceExpiry },
+    { icon: 'clipboard-check-outline', label: 'Inspection', date: bike.inspectionDue },
   ].filter((item): item is typeof item & { date: string } => !!item.date);
 
   return (
@@ -231,18 +231,31 @@ export default function GarageScreen() {
         {complianceItems.length > 0 && (
           <View className="px-6">
             <Section label="Compliance & Renewals">
-              <View className="bg-surface-low rounded-3xl p-2 gap-2">
-                {complianceItems.map((item) => (
-                  <View key={item.label} className="bg-surface-card rounded-2xl p-5 flex-row items-center justify-between">
-                    <View className="flex-row items-center gap-4">
-                      <MaterialCommunityIcons name={item.icon as any} size={22} color={colors.sand} />
-                      <Text className="font-sans-bold text-sm text-charcoal">{item.label}</Text>
+              <View className="flex-row flex-wrap gap-3">
+                {complianceItems.map((item) => {
+                  const days = daysUntil(item.date);
+                  const urgent = days !== null && days <= 30;
+                  return (
+                    <View
+                      key={item.label}
+                      style={{ width: '48%' }}
+                      className={`rounded-2xl p-4 ${urgent ? 'bg-danger/5 border-2 border-danger' : 'bg-surface-card'}`}
+                    >
+                      <View className="flex-row items-center gap-2 mb-2">
+                        <View className={`w-2 h-2 rounded-full ${urgent ? 'bg-danger' : 'bg-sand'}`} />
+                        <Text className="font-sans-bold text-xxs uppercase tracking-widest text-charcoal">
+                          {item.label}
+                        </Text>
+                      </View>
+                      <Text className="font-sans-medium text-xs text-sand mb-1">
+                        {formatComplianceDate(item.date)}
+                      </Text>
+                      <Text className={`font-sans-bold text-sm ${urgent ? 'text-danger' : 'text-charcoal'}`}>
+                        {days === null ? '—' : days <= 0 ? 'Overdue' : `${days} days`}
+                      </Text>
                     </View>
-                    <Text className={`text-sm font-sans-bold ${(daysUntil(item.date) ?? 1) <= 0 ? 'text-danger' : 'text-charcoal'}`}>
-                      {formatComplianceDate(item.date)}
-                    </Text>
-                  </View>
-                ))}
+                  );
+                })}
               </View>
             </Section>
           </View>
