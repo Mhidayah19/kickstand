@@ -272,7 +272,7 @@ export default function GarageScreen() {
               </View>
             ) : (
               <Pressable
-                onPress={() => router.push('/log-method')}
+                onPress={() => router.push('/add-service')}
                 className="bg-surface-low rounded-2xl p-6 items-center"
               >
                 <Text className="font-sans-medium text-sm text-sand text-center mb-2">

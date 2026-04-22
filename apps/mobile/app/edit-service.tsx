@@ -21,19 +21,18 @@ interface EditServiceFormProps {
 }
 
 function EditServiceForm({ log, bikeId, bikeLabel, frequentTypes, onClose }: EditServiceFormProps) {
-  const router = useRouter();
   const form = useServiceLogForm(bikeId, undefined, log);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   const handleSave = useCallback(async () => {
     try {
       await form.handleSave();
-      router.back();
+      onClose();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to save changes.';
       Alert.alert('Error', message);
     }
-  }, [form.handleSave, router]);
+  }, [form.handleSave, onClose]);
 
   const handleClose = useCallback(() => {
     if (form.isDirty) {
@@ -69,7 +68,6 @@ function EditServiceForm({ log, bikeId, bikeLabel, frequentTypes, onClose }: Edi
           frequentTypes={frequentTypes}
           bikeId={bikeId}
           isEditing
-          onWorkshopPress={() => router.push('/workshop-search')}
         />
       </ModalFormScreen>
 

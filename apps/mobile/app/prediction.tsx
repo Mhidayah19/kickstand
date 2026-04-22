@@ -169,7 +169,7 @@ export default function PredictionScreen() {
       </View>
 
       <Pressable
-        onPress={() => router.push('/log-method')}
+        onPress={() => router.push('/add-service')}
         className="w-full bg-charcoal rounded-full py-4 items-center active:opacity-85 mb-8"
       >
         <Text className="text-[13px] font-sans-bold tracking-wide text-surface">Log this service</Text>

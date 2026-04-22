@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, View } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ServiceLogFormBody } from '../components/service/service-log-form-body';
+import { ScanReceiptCard } from '../components/service/scan-receipt-card';
 import { ModalFormScreen } from '../components/ui/modal-form-screen';
 import { ConfirmationDialog } from '../components/ui/confirmation-dialog';
 import { useBike } from '../lib/api/use-bikes';
@@ -71,6 +72,10 @@ export default function AddServiceScreen() {
     router.back();
   }, [form.handleReset, router]);
 
+  const handleScan = useCallback(() => {
+    router.push('/scan-receipt');
+  }, [router]);
+
   const cta = useMemo(() => form.serviceTypeKey ? {
     label: form.isPending ? 'Saving...' : 'Save Log',
     icon: 'check-circle',
@@ -86,11 +91,16 @@ export default function AddServiceScreen() {
         subtitle={bikeLabel}
         cta={cta}
       >
+        <View className="mb-lg">
+          <ScanReceiptCard
+            onPress={handleScan}
+            variant={form.isDirty ? 'compact' : 'full'}
+          />
+        </View>
         <ServiceLogFormBody
           form={form}
           frequentTypes={frequentTypes}
           bikeId={activeBikeId ?? ''}
-          onWorkshopPress={() => router.push('/workshop-search')}
         />
       </ModalFormScreen>
 

@@ -9,7 +9,7 @@ import { PartsUsed } from './parts-used';
 import { ReceiptStrip } from './ReceiptStrip';
 import { ReceiptViewer } from './ReceiptViewer';
 import { WorkshopNoMatchHint } from './workshop-no-match-hint';
-import { WorkshopField } from './workshop-field';
+import { WorkshopComboField } from './workshop-combo-field';
 import { useImageUpload } from '../../lib/hooks/use-image-upload';
 import type { useServiceLogForm } from '../../lib/hooks/use-service-log-form';
 import type { FrequentType } from '../../lib/service-type-helpers';
@@ -19,7 +19,6 @@ interface ServiceLogFormBodyProps {
   frequentTypes: FrequentType[];
   bikeId: string;
   isEditing?: boolean;
-  onWorkshopPress?: () => void;
 }
 
 export function ServiceLogFormBody({
@@ -27,13 +26,13 @@ export function ServiceLogFormBody({
   frequentTypes,
   bikeId,
   isEditing = false,
-  onWorkshopPress,
 }: ServiceLogFormBodyProps) {
   const { workshopName, workshopId, workshopAddress, clearWorkshop } = form;
   const [collapsed, setCollapsed] = useState(isEditing);
   const collapseTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
   const [viewerIndex, setViewerIndex] = useState(0);
   const [viewerVisible, setViewerVisible] = useState(false);
+  const [workshopExpanded, setWorkshopExpanded] = useState(false);
 
   useEffect(() => () => clearTimeout(collapseTimer.current), []);
 
@@ -129,22 +128,22 @@ export function ServiceLogFormBody({
               />
             </FormField>
 
-            {onWorkshopPress ? (
-              <View className="mt-lg">
-                <WorkshopField
+            <View className="mt-lg">
+              <WorkshopComboField
+                workshopName={workshopName}
+                workshopAddress={workshopAddress}
+                expanded={workshopExpanded}
+                onExpand={() => setWorkshopExpanded(true)}
+                onCollapse={() => setWorkshopExpanded(false)}
+                onClear={clearWorkshop}
+              />
+              {workshopName && !workshopId ? (
+                <WorkshopNoMatchHint
                   workshopName={workshopName}
-                  workshopAddress={workshopAddress}
-                  onPress={onWorkshopPress}
-                  onClear={clearWorkshop}
+                  onPress={() => setWorkshopExpanded(true)}
                 />
-                {workshopName && !workshopId ? (
-                  <WorkshopNoMatchHint
-                    workshopName={workshopName}
-                    onPress={onWorkshopPress}
-                  />
-                ) : null}
-              </View>
-            ) : null}
+              ) : null}
+            </View>
           </View>
 
           <PartsUsed

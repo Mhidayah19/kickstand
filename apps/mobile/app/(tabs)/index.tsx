@@ -55,7 +55,7 @@ export default function HomeScreen() {
   const handleAddBike = useCallback(() => router.push('/add-bike'), []);
   // TODO: create /prediction route in batch 5
   const handlePrediction = useCallback(() => router.push('/prediction' as any), []);
-  const handleServiceEntry = useCallback(() => router.push('/log-method'), []);
+  const handleServiceEntry = useCallback(() => router.push('/add-service'), []);
 
   // ────────────── Loading state ──────────────
   if (isLoading) {
