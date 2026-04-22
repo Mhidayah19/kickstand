@@ -2,7 +2,6 @@ import { router, useFocusEffect } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../../lib/colors';
 import { daysUntil } from '../../../lib/theme';
-import { LinearGradient } from 'expo-linear-gradient';
 import React, { useMemo, useState, useRef, useCallback } from 'react';
 import { Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,8 +14,6 @@ import {
   DropdownMenuTrigger,
 } from '../../../components/ui/dropdown-menu';
 import { EmptyState } from '../../../components/ui/empty-state';
-import { ListCard } from '../../../components/ui/list-card';
-import { Section } from '../../../components/ui/section';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { TopAppBar } from '../../../components/ui/top-app-bar';
 import { useDeleteBike, useBike, useBikes } from '../../../lib/api/use-bikes';
@@ -25,7 +22,54 @@ import { useServiceLogs } from '../../../lib/api/use-service-logs';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { serviceTypeToMeta } from '../../../lib/service-type-meta';
 import { formatComplianceDate, formatLogDate } from '../../../lib/format';
-import { CLASS_LABELS, SpecItem } from '../../../components/bike/spec-item';
+import { serviceTypeIcon } from '../../../lib/service-icon';
+import {
+  TopBar,
+  BikeSwitcher,
+  Eyebrow,
+  Badge,
+  SectionHead,
+  Row,
+} from '../../../components/ui/atelier';
+
+// ---------------------------------------------------------------------------
+// Local helpers
+// ---------------------------------------------------------------------------
+
+function SpecItem({ label, value }: { label: string; value: string }) {
+  return (
+    <View className="flex-1">
+      <Text className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted mb-1.5">{label}</Text>
+      <Text className="font-sans-semibold text-[16px] tracking-[-0.01em] text-ink">{value}</Text>
+    </View>
+  );
+}
+
+function CompTile({
+  label, valueText, dateText, urgent = false,
+}: { label: string; valueText: string; dateText: string; urgent?: boolean }) {
+  return (
+    <View
+      className={`p-[14px] rounded-[14px] border ${urgent ? 'border-danger' : 'border-hairline-2'}`}
+      style={urgent ? { backgroundColor: 'rgba(220,38,38,0.08)' } : undefined}
+    >
+      <Text className="font-mono text-[9px] tracking-[0.14em] uppercase text-muted mb-2">
+        {label}
+      </Text>
+      <Text
+        className={`font-sans-semibold text-[20px] tracking-[-0.02em] ${urgent ? 'text-danger' : 'text-ink'}`}
+        style={{ fontVariant: ['tabular-nums'] }}
+      >
+        {valueText}
+      </Text>
+      <Text className="font-mono text-[10px] text-muted mt-0.5">
+        {dateText}
+      </Text>
+    </View>
+  );
+}
+
+// ---------------------------------------------------------------------------
 
 export default function GarageScreen() {
   const { activeBikeId, setActiveBikeId } = useBikeStore();
@@ -35,6 +79,7 @@ export default function GarageScreen() {
   const { data: attention } = useAttention(activeBikeId);
   const deleteBike = useDeleteBike(activeBikeId ?? '');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [bikeSwitcherOpen, setBikeSwitcherOpen] = useState(false);
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
 
@@ -66,6 +111,7 @@ export default function GarageScreen() {
 
   const isLoading = bikesLoading || (!!activeBikeId && bikeLoading);
 
+  // ── Loading state (Option A — keep existing TopAppBar) ──────────────────
   if (isLoading) {
     return (
       <SafeAreaView className="flex-1 bg-surface">
@@ -94,6 +140,7 @@ export default function GarageScreen() {
     );
   }
 
+  // ── Empty state (Option A — keep existing TopAppBar) ────────────────────
   if (!activeBikeId || !bike) {
     return (
       <SafeAreaView className="flex-1 bg-surface">
@@ -117,186 +164,146 @@ export default function GarageScreen() {
     );
   }
 
+  // ── Derive compliance data ───────────────────────────────────────────────
   const complianceItems = [
-    { icon: 'calendar-month-outline', label: 'COE', date: bike.coeExpiry },
-    { icon: 'file-document-outline', label: 'Road Tax', date: bike.roadTaxExpiry },
-    { icon: 'shield-outline', label: 'Insurance', date: bike.insuranceExpiry },
-    { icon: 'clipboard-check-outline', label: 'Inspection', date: bike.inspectionDue },
+    { label: 'COE', date: bike.coeExpiry },
+    { label: 'Road Tax', date: bike.roadTaxExpiry },
+    { label: 'Insurance', date: bike.insuranceExpiry },
+    { label: 'Inspection', date: bike.inspectionDue },
   ].filter((item): item is typeof item & { date: string } => !!item.date);
 
+  const compliance = complianceItems.map((item) => {
+    const days = daysUntil(item.date);
+    const urgent = days !== null && days <= 30;
+    const valueText = days === null ? '—' : days <= 0 ? 'Overdue' : `${days}d`;
+    return {
+      key: item.label,
+      label: item.label.toUpperCase(),
+      valueText,
+      dateText: `EXP ${(formatComplianceDate(item.date) ?? '').toUpperCase()}`,
+      urgent,
+    };
+  });
+  const complianceUrgentCount = compliance.filter((c) => c.urgent).length;
+
+  // ── Main render ──────────────────────────────────────────────────────────
   return (
-    <SafeAreaView className="flex-1 bg-surface">
-      <TopAppBar
-        activeBike={activeBikeMeta}
-        bikes={bikeList}
-        onBikeChange={setActiveBikeId}
-        onNotificationPress={() => router.push('/notifications' as any)}
-        onAddBikePress={() => router.push('/add-bike')}
-        unreadNotifications={badgeCount}
+    <View className="flex-1 bg-bg">
+      {/* TopBar (atelier) */}
+      <TopBar
+        bike={`${bike.model}${bike.year ? ` · ${bike.year}` : ''}`}
+        unread={badgeCount}
+        onBikePress={() => setBikeSwitcherOpen(true)}
+        onBellPress={() => router.push('/notifications' as any)}
+      />
+
+      <BikeSwitcher
+        visible={bikeSwitcherOpen}
+        onClose={() => setBikeSwitcherOpen(false)}
+        bikes={bikes}
+        activeBikeId={activeBikeId}
+        onSelect={setActiveBikeId}
+        onAddBike={() => router.push('/add-bike')}
       />
 
       <ScrollView
         ref={scrollRef}
-        contentContainerStyle={{ paddingTop: 80, paddingBottom: 128 }}
+        contentContainerStyle={{ paddingBottom: 140 }}
         showsVerticalScrollIndicator={false}
       >
-        <View className="mx-4 rounded-3xl overflow-hidden" style={{ height: 280 }}>
+        {/* ── 2. Hero card ── */}
+        <View className="mx-4 mt-4 rounded-[28px] bg-bg-2 overflow-hidden" style={{ minHeight: 180 }}>
           {bike.imageUrl ? (
             <Image
               source={{ uri: bike.imageUrl }}
-              style={{ width: '100%', height: '100%' }}
+              className="absolute inset-0"
+              style={{ opacity: 0.7 }}
               resizeMode="cover"
             />
-          ) : (
-            <View className="flex-1 bg-surface-low items-center justify-center">
-              <MaterialCommunityIcons name="motorbike" size={80} color={colors.outline} />
-            </View>
-          )}
-          <LinearGradient
-            colors={['transparent', 'rgba(249,249,249,0.85)']}
-            style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 120 }}
-          />
-          <View className="absolute top-3 right-3 z-10">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Pressable
-                  hitSlop={8}
-                  className="w-10 h-10 rounded-full bg-surface-card/80 items-center justify-center active:opacity-70"
-                >
-                  <MaterialCommunityIcons name="dots-vertical" size={22} color={colors.charcoal} />
-                </Pressable>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent insets={contentInsets} sideOffset={4} align="end">
-                <DropdownMenuItem onPress={() => router.push(`/(tabs)/garage/${activeBikeId}/edit`)}>
-                  <MaterialCommunityIcons name="pencil-outline" size={20} color={colors.charcoal} />
-                  <Text className="text-sm font-sans-bold text-charcoal">Edit Bike</Text>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onPress={() => setShowDeleteDialog(true)}>
-                  <MaterialCommunityIcons name="trash-can-outline" size={20} color={colors.danger} />
-                  <Text className="text-sm font-sans-bold text-danger">Delete Bike</Text>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </View>
-        </View>
-
-        <View className="px-6 mt-6">
-          {bike.make && (
-            <Text className="font-sans-bold text-xxs uppercase tracking-widest text-sand mb-1">
-              {bike.make}
-            </Text>
-          )}
-          <Text className="text-4xl font-sans-xbold text-charcoal">{bike.model}</Text>
-        </View>
-
-        <View className="px-6 mt-4 flex-row gap-8">
-          <View>
-            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest">Year</Text>
-            <Text className="font-sans-xbold text-xl text-charcoal">{bike.year}</Text>
-          </View>
-          <View>
-            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest">Mileage</Text>
-            <Text className="font-sans-xbold text-xl text-charcoal">
-              {bike.currentMileage.toLocaleString()} km
-            </Text>
-          </View>
-        </View>
-
-        <View className="px-6 mt-8">
-          <Section label="Bike Details">
-            <View className="bg-surface-low rounded-3xl p-6">
-              <View className="flex-row flex-wrap gap-y-6">
-                <View className="w-1/2">
-                  <SpecItem label="Plate Number" value={bike.plateNumber} />
-                </View>
-                <View className="w-1/2">
-                  <SpecItem label="Class" value={CLASS_LABELS[bike.class] ?? bike.class} />
-                </View>
-                {bike.engineCc && (
-                  <View className="w-1/2">
-                    <SpecItem label="Engine CC" value={`${bike.engineCc}cc`} />
-                  </View>
-                )}
-                {bike.bikeType && (
-                  <View className="w-1/2">
-                    <SpecItem label="Bike Type" value={bike.bikeType} />
-                  </View>
-                )}
+          ) : null}
+          <View className="p-5 pb-5">
+            <View className="flex-row justify-between items-start">
+              <View className="flex-1">
+                <Eyebrow>Active bike</Eyebrow>
+                <Text className="font-display text-[32px] leading-[1.05] text-ink mt-1.5">
+                  {bike.model}
+                </Text>
+                <Text className="font-mono text-[11px] tracking-[0.14em] text-muted mt-1">
+                  {bike.year} · {bike.currentMileage.toLocaleString()} KM
+                </Text>
               </View>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Pressable
+                    hitSlop={8}
+                    className="w-9 h-9 items-center justify-center rounded-[10px] border border-hairline-2"
+                  >
+                    <MaterialCommunityIcons name="dots-vertical" size={18} color="#1A1A1A" />
+                  </Pressable>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent insets={contentInsets} sideOffset={4} align="end">
+                  <DropdownMenuItem onPress={() => router.push(`/(tabs)/garage/${activeBikeId}/edit` as any)}>
+                    <MaterialCommunityIcons name="pencil-outline" size={20} color={colors.charcoal} />
+                    <Text className="text-sm font-sans-bold text-charcoal">Edit Bike</Text>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem variant="destructive" onPress={() => setShowDeleteDialog(true)}>
+                    <MaterialCommunityIcons name="trash-can-outline" size={20} color={colors.danger} />
+                    <Text className="text-sm font-sans-bold text-danger">Delete Bike</Text>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </View>
-          </Section>
+          </View>
         </View>
 
-        {complianceItems.length > 0 && (
-          <View className="px-6">
-            <Section label="Compliance & Renewals">
-              <View className="flex-row flex-wrap gap-3">
-                {complianceItems.map((item) => {
-                  const days = daysUntil(item.date);
-                  const urgent = days !== null && days <= 30;
-                  return (
-                    <View
-                      key={item.label}
-                      style={{ width: '48%' }}
-                      className={`rounded-2xl p-4 ${urgent ? 'bg-danger/5 border-2 border-danger' : 'bg-surface-card'}`}
-                    >
-                      <View className="flex-row items-center gap-2 mb-2">
-                        <View className={`w-2 h-2 rounded-full ${urgent ? 'bg-danger' : 'bg-sand'}`} />
-                        <Text className="font-sans-bold text-xxs uppercase tracking-widest text-charcoal">
-                          {item.label}
-                        </Text>
-                      </View>
-                      <Text className="font-sans-medium text-xs text-sand mb-1">
-                        {formatComplianceDate(item.date)}
-                      </Text>
-                      <Text className={`font-sans-bold text-sm ${urgent ? 'text-danger' : 'text-charcoal'}`}>
-                        {days === null ? '—' : days <= 0 ? 'Overdue' : `${days} days`}
-                      </Text>
-                    </View>
-                  );
-                })}
-              </View>
-            </Section>
+        {/* ── 3. 4-item spec strip ── */}
+        <View className="flex-row px-5 py-5 border-b border-hairline">
+          <SpecItem label="Plate" value={bike.plateNumber ?? '—'} />
+          <SpecItem label="Class" value={`Class ${bike.class ?? '—'}`} />
+          <SpecItem label="Engine" value={bike.engineCc ? `${bike.engineCc}cc` : '—'} />
+          <SpecItem label="Type" value={bike.bikeType ?? '—'} />
+        </View>
+
+        {/* ── 4. Compliance 2×2 ── */}
+        {compliance.length > 0 && (
+          <View className="px-5 pt-7 pb-2">
+            <View className="flex-row items-baseline justify-between mb-[14px]">
+              <Text className="font-sans-semibold text-[13px] tracking-[-0.01em] text-ink">Compliance</Text>
+              {complianceUrgentCount > 0 ? (
+                <Badge tone="danger">{complianceUrgentCount} URGENT</Badge>
+              ) : null}
+            </View>
+            <View className="flex-row flex-wrap" style={{ gap: 8 }}>
+              {compliance.map((c) => (
+                <View key={c.key} style={{ width: '48%' }}>
+                  <CompTile label={c.label} valueText={c.valueText} dateText={c.dateText} urgent={c.urgent} />
+                </View>
+              ))}
+            </View>
           </View>
         )}
 
-        <View className="px-6 mt-2">
-          <Section
-            label="Service History"
-            action="View All"
-            onAction={() => router.push('/(tabs)/service')}
-          >
-            {logs.length > 0 ? (
-              <View className="gap-3">
-                {logs.map((log) => {
-                  const meta = serviceTypeToMeta(log.serviceType);
-                  return (
-                    <ListCard
-                      key={log.id}
-                      icon={meta.icon}
-                      iconBg={meta.iconBg}
-                      iconColor={meta.iconColor}
-                      title={meta.label}
-                      subtitle={`${formatLogDate(log.date)} • ${log.mileageAt.toLocaleString()} km`}
-                    />
-                  );
-                })}
-              </View>
-            ) : (
-              <Pressable
-                onPress={() => router.push('/add-service')}
-                className="bg-surface-low rounded-2xl p-6 items-center"
-              >
-                <Text className="font-sans-medium text-sm text-sand text-center mb-2">
-                  No service logs yet
-                </Text>
-                <Text className="font-sans-bold text-xs text-charcoal uppercase tracking-widest">
-                  Log First Service →
-                </Text>
-              </Pressable>
-            )}
-          </Section>
+        {/* ── 5. Service history ── */}
+        <View className="px-5 pt-7 pb-24">
+          <SectionHead
+            title="Service history"
+            action="ALL"
+            onActionPress={() => router.push('/(tabs)/service')}
+          />
+          {logs.slice(0, 3).map((log) => {
+            const meta = serviceTypeToMeta(log.serviceType);
+            return (
+              <Row
+                key={log.id}
+                icon={serviceTypeIcon(log.serviceType)}
+                title={meta.label}
+                sub={`${formatLogDate(log.date)} · ${log.mileageAt.toLocaleString()} KM`}
+                trail={log.cost ? `S$${parseFloat(log.cost).toFixed(0)}` : undefined}
+                onPress={() => router.push(`/edit-service?id=${log.id}` as any)}
+              />
+            );
+          })}
         </View>
       </ScrollView>
 
@@ -309,6 +316,6 @@ export default function GarageScreen() {
         onConfirm={handleDelete}
         onCancel={() => setShowDeleteDialog(false)}
       />
-    </SafeAreaView>
+    </View>
   );
 }
