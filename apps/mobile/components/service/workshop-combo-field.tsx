@@ -7,13 +7,13 @@ import {
   View,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Crypto from 'expo-crypto';
 import { useWorkshopSearch } from '../../lib/api/use-workshop-search';
 import { useMyWorkshops } from '../../lib/api/use-my-workshops';
 import { useUpsertWorkshop } from '../../lib/api/use-upsert-workshop';
 import { useWorkshopPickerStore } from '../../lib/store/workshop-picker-store';
 import { colors } from '../../lib/colors';
+import { Eyebrow, FieldCard, Icon } from '../ui/atelier';
 import type { Workshop, WorkshopSuggestion } from '../../lib/types/workshop';
 
 interface WorkshopComboFieldProps {
@@ -33,23 +33,22 @@ export function WorkshopComboField({
   onCollapse,
   onClear,
 }: WorkshopComboFieldProps) {
-  return (
-    <View className="mb-lg">
-      <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-2">
-        Workshop
-      </Text>
-
-      {expanded ? (
+  if (expanded) {
+    return (
+      <View>
+        <Eyebrow className="mb-2">Workshop</Eyebrow>
         <ExpandedSearch onClose={onCollapse} />
-      ) : (
-        <CollapsedField
-          workshopName={workshopName}
-          workshopAddress={workshopAddress}
-          onPress={onExpand}
-          onClear={onClear}
-        />
-      )}
-    </View>
+      </View>
+    );
+  }
+
+  return (
+    <CollapsedField
+      workshopName={workshopName}
+      workshopAddress={workshopAddress}
+      onPress={onExpand}
+      onClear={onClear}
+    />
   );
 }
 
@@ -75,52 +74,47 @@ function CollapsedField({
       accessibilityLabel={
         isEmpty ? 'Add workshop' : `Change workshop: ${workshopName}`
       }
-      className="bg-surface-low rounded-2xl px-4 py-4 flex-row items-center active:opacity-90"
     >
-      <View className="flex-1 pr-3">
-        {isEmpty ? (
-          <Text className="text-[15px] font-sans-medium text-charcoal/55">
-            Add workshop
-          </Text>
-        ) : (
-          <>
-            <Text
-              className="text-[15px] font-sans-bold text-charcoal"
-              numberOfLines={1}
-            >
-              {workshopName}
-            </Text>
-            {!!workshopAddress && (
-              <Text
-                className="text-[12px] font-sans-medium text-charcoal/55 mt-0.5"
-                numberOfLines={1}
-              >
-                {workshopAddress}
+      <FieldCard label="Workshop">
+        <View className="flex-row items-start">
+          <View className="flex-1 pr-3">
+            {isEmpty ? (
+              <Text className="font-sans-semibold text-[16px] text-muted">
+                Add workshop
               </Text>
+            ) : (
+              <>
+                <Text
+                  className="font-sans-semibold text-[16px] text-ink"
+                  numberOfLines={1}
+                >
+                  {workshopName}
+                </Text>
+                {!!workshopAddress && (
+                  <Text
+                    className="font-sans-medium text-[12px] text-muted mt-0.5"
+                    numberOfLines={1}
+                  >
+                    {workshopAddress}
+                  </Text>
+                )}
+              </>
             )}
-          </>
-        )}
-      </View>
+          </View>
 
-      {!isEmpty && (
-        <Pressable
-          onPress={(e) => {
-            e.stopPropagation();
-            onClear();
-          }}
-          hitSlop={8}
-          accessibilityRole="button"
-          accessibilityLabel="Clear workshop"
-          className="w-7 h-7 rounded-full items-center justify-center active:opacity-70 mr-1"
-        >
-          <MaterialCommunityIcons name="close" size={14} color={colors.charcoal} />
-        </Pressable>
-      )}
-      <MaterialCommunityIcons
-        name="chevron-right"
-        size={18}
-        color={colors.charcoal}
-      />
+          {!isEmpty && (
+            <Pressable
+              onPress={onClear}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Clear workshop"
+              className="w-6 h-6 items-center justify-center active:opacity-70"
+            >
+              <Icon name="close" size={14} stroke="#7A756C" />
+            </Pressable>
+          )}
+        </View>
+      </FieldCard>
     </Pressable>
   );
 }
@@ -180,15 +174,15 @@ function ExpandedSearch({ onClose }: { onClose: () => void }) {
   return (
     <View>
       <View className="flex-row items-center gap-2">
-        <View className="flex-1 bg-surface-low rounded-2xl flex-row items-center px-3 py-2.5">
-          <MaterialCommunityIcons name="magnify" size={18} color={colors.charcoal} />
+        <View className="flex-1 border border-hairline-2 rounded-[14px] flex-row items-center px-4 py-[11px]">
+          <Icon name="search" size={16} stroke="#7A756C" />
           <TextInput
             autoFocus
             value={query}
             onChangeText={setQuery}
             placeholder="Search workshops…"
-            placeholderTextColor={`${colors.charcoal}88`}
-            className="flex-1 ml-2 text-[15px] font-sans-medium text-charcoal"
+            placeholderTextColor="rgba(26,26,26,0.35)"
+            className="flex-1 ml-2 text-[16px] font-sans-semibold text-ink"
             returnKeyType="search"
           />
           {search.isFetching ? (
@@ -200,7 +194,7 @@ function ExpandedSearch({ onClose }: { onClose: () => void }) {
               accessibilityRole="button"
               accessibilityLabel="Clear search"
             >
-              <MaterialCommunityIcons name="close" size={16} color={colors.charcoal} />
+              <Icon name="close" size={14} stroke="#7A756C" />
             </Pressable>
           ) : null}
         </View>
@@ -209,9 +203,9 @@ function ExpandedSearch({ onClose }: { onClose: () => void }) {
           hitSlop={8}
           accessibilityRole="button"
           accessibilityLabel="Cancel"
-          className="px-1 py-2"
+          className="px-2 py-2"
         >
-          <Text className="text-[13px] font-sans-bold text-charcoal">
+          <Text className="font-mono text-[10px] tracking-[0.18em] uppercase text-ink">
             Cancel
           </Text>
         </Pressable>
@@ -236,9 +230,15 @@ function ExpandedSearch({ onClose }: { onClose: () => void }) {
         <Pressable
           onPress={handleAddManually}
           accessibilityRole="button"
-          className="rounded-2xl bg-sand/20 py-3 items-center mt-3 active:opacity-90"
+          className="mt-3 px-4 py-[13px] rounded-[14px] items-center justify-center flex-row gap-2 active:opacity-90"
+          style={{
+            borderWidth: 1.5,
+            borderColor: 'rgba(26,26,26,0.16)',
+            borderStyle: 'dashed',
+          }}
         >
-          <Text className="text-[13px] font-sans-bold text-charcoal">
+          <Icon name="plus" size={14} stroke="#7A756C" />
+          <Text className="font-mono text-[10px] tracking-[0.18em] uppercase text-muted">
             Can&apos;t find it? Add manually
           </Text>
         </Pressable>
@@ -266,7 +266,7 @@ function SearchResults({ items, loading, hasResults, onSelect }: SearchResultsPr
     return null;
   }
   return (
-    <View className="mt-3 bg-surface-card rounded-2xl overflow-hidden">
+    <View className="mt-3 border border-hairline-2 rounded-[14px] overflow-hidden">
       {items.map((item, i) => (
         <ResultRow
           key={item.placeId}
@@ -296,17 +296,15 @@ function YourWorkshops({ items, loading, onSelect }: YourWorkshopsProps) {
   }
   if (items.length === 0) {
     return (
-      <Text className="text-[12px] font-sans-medium text-charcoal/55 py-5 text-center">
+      <Text className="font-sans-medium text-[13px] text-muted py-5 text-center">
         Type at least 2 characters to search.
       </Text>
     );
   }
   return (
     <View className="mt-3">
-      <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-2">
-        Your workshops
-      </Text>
-      <View className="bg-surface-card rounded-2xl overflow-hidden">
+      <Eyebrow className="mb-2">Your workshops</Eyebrow>
+      <View className="border border-hairline-2 rounded-[14px] overflow-hidden">
         {items.map((item, i) => (
           <ResultRow
             key={item.id}
@@ -328,25 +326,27 @@ interface ResultRowProps {
   onPress: () => void;
 }
 
-function ResultRow({ name, address, onPress }: ResultRowProps) {
+function ResultRow({ name, address, isLast, onPress }: ResultRowProps) {
   return (
     <Pressable
       onPress={onPress}
-      className="flex-row items-center px-4 py-3 active:opacity-80 active:bg-sand/10"
+      className={`flex-row items-center px-4 py-3 active:opacity-80 active:bg-bg-2 ${
+        isLast ? '' : 'border-b border-hairline'
+      }`}
     >
-      <View className="w-9 h-9 rounded-xl bg-sand/20 items-center justify-center mr-3">
-        <MaterialCommunityIcons name="wrench" size={16} color={colors.charcoal} />
+      <View className="w-9 h-9 rounded-xl bg-bg-2 items-center justify-center mr-3">
+        <Icon name="wrench" size={16} stroke="#1A1A1A" />
       </View>
       <View className="flex-1">
         <Text
-          className="text-[15px] font-sans-bold text-charcoal"
+          className="font-sans-semibold text-[15px] text-ink"
           numberOfLines={1}
         >
           {name}
         </Text>
         {!!address && (
           <Text
-            className="text-[12px] font-sans-medium text-charcoal/55 mt-0.5"
+            className="font-sans-medium text-[12px] text-muted mt-0.5"
             numberOfLines={1}
           >
             {address}

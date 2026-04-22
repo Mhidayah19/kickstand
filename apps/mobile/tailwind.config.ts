@@ -6,23 +6,40 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        charcoal: '#1E1E1E',
-        sand: '#C7B299',
-        yellow: '#F2D06B',
-        surface: '#F9F9F9',
-        'surface-low': '#F3F3F3',
-        'surface-card': '#FFFFFF',
-        outline: '#D0C5BA',
-        danger: '#DC2626',
+        // New redesign tokens
+        ink:          '#1A1A1A',
+        'ink-2':      '#2E2B27',
+        bg:           '#F4F2EC',
+        'bg-2':       '#EBE8DF',
+        muted:        '#7A756C',
+        hairline:     'rgba(26,26,26,0.09)',
+        'hairline-2': 'rgba(26,26,26,0.16)',
+
+        // Existing brand (unchanged)
+        yellow:           '#F2D06B',
+        danger:           '#DC2626',
         'danger-surface': '#FFDAD6',
-        success: '#22C55E',
+        success:          '#22C55E',
+
+        // Temporary aliases — remove at the end of Phase 4
+        charcoal:        '#1A1A1A',
+        sand:            '#C7B299',
+        surface:         '#F4F2EC',
+        'surface-low':   '#EBE8DF',
+        'surface-card':  '#FFFFFF',
+        outline:         'rgba(26,26,26,0.16)',
       },
       fontFamily: {
+        // Existing
         sans: ['PlusJakartaSans-Regular'],
         'sans-medium': ['PlusJakartaSans-Medium'],
         'sans-semibold': ['PlusJakartaSans-SemiBold'],
         'sans-bold': ['PlusJakartaSans-Bold'],
         'sans-xbold': ['PlusJakartaSans-ExtraBold'],
+        // New
+        display: ['InstrumentSerif_400Regular'],
+        mono: ['JetBrainsMono_500Medium'],
+        'mono-semibold': ['JetBrainsMono_600SemiBold'],
       },
       fontSize: {
         xxs: ['10px', { lineHeight: '14px' }],

@@ -16,3 +16,20 @@ export const colors = {
   success: '#22C55E',
   white: '#FFFFFF',
 } as const;
+
+// Tailwind doesn't accept `color-mix()` or `oklch()` in RN.
+// Use these for translucent fills where the prototype used color-mix().
+
+const YELLOW = { r: 242, g: 208, b: 107 };
+const INK    = { r: 26, g: 26, b: 26 };
+const DANGER = { r: 220, g: 38, b: 38 };
+const BG     = { r: 244, g: 242, b: 236 };
+
+function rgba(c: { r: number; g: number; b: number }, alpha: number): string {
+  return `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
+}
+
+export const yellowTint = (alpha: number) => rgba(YELLOW, alpha);
+export const inkTint    = (alpha: number) => rgba(INK, alpha);
+export const dangerTint = (alpha: number) => rgba(DANGER, alpha);
+export const bgTint     = (alpha: number) => rgba(BG, alpha);

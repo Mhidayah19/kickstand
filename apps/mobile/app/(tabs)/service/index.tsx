@@ -1,21 +1,20 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import { View, Text, TouchableOpacity, LayoutAnimation, Platform, UIManager, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, Pressable, Platform, UIManager } from 'react-native';
 import { useRouter } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Svg, { Path, Defs, LinearGradient, Stop, Circle } from 'react-native-svg';
 import { SafeScreen } from '../../../components/ui/safe-screen';
-import { Section } from '../../../components/ui/section';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { EmptyState } from '../../../components/ui/empty-state';
-import { TimelineEntry } from '../../../components/ui/timeline-entry';
 import { ServiceSearchBar } from '../../../components/service/service-search-bar';
 import { AnalyticsSheet } from '../../../components/service/analytics-sheet';
 import { FilterSheet } from '../../../components/service/filter-sheet';
+import { TopBar, StatCell, Icon, BikeSwitcher } from '../../../components/ui/atelier';
 import { useServiceLogs } from '../../../lib/api/use-service-logs';
 import { useBike, useBikes } from '../../../lib/api/use-bikes';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { serviceTypeToMeta } from '../../../lib/service-type-meta';
 import { computeCostPerKm } from '../../../lib/utils/service-analytics';
-import { colors } from '../../../lib/colors';
+import { serviceTypeIcon } from '../../../lib/service-icon';
 import {
   SERVICE_TYPE_LABELS,
   SERVICE_FILTER_GROUPS,
@@ -25,16 +24,6 @@ import type { ServiceLog } from '../../../lib/types/service-log';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
-}
-
-function formatShortDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
-}
-
-function formatCost(cost: string | number): string {
-  const num = typeof cost === 'number' ? cost : parseFloat(cost);
-  return isNaN(num) ? 'S$0' : `S$${num.toFixed(0)}`;
 }
 
 type TimePeriod = '1M' | '6M' | '1Y' | 'All';
@@ -59,34 +48,6 @@ function getTimePeriodRange(period: TimePeriod): { from: string; to: string } | 
   return { from: from.toISOString().split('T')[0], to };
 }
 
-function StatCard({ value, label, dim = false }: { value: string; label: string; dim?: boolean }) {
-  return (
-    <View className="flex-1 bg-sand/10 rounded-2xl px-4 py-3">
-      <Text
-        className={`font-sans-xbold text-lg ${dim ? 'text-charcoal/25' : 'text-charcoal'}`}
-        style={styles.tabularNums}
-      >
-        {value}
-      </Text>
-      <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mt-0.5">
-        {label}
-      </Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  tabularNums: { fontVariant: ['tabular-nums'] },
-  heroSpend: { fontSize: 60, fontVariant: ['tabular-nums'] },
-  timelineCard: {
-    shadowColor: colors.charcoal,
-    shadowOpacity: 0.04,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 8,
-    elevation: 1,
-  },
-});
-
 export default function ServiceScreen() {
   const router = useRouter();
   const { activeBikeId, setActiveBikeId } = useBikeStore();
@@ -101,6 +62,7 @@ export default function ServiceScreen() {
   const [analyticsVisible, setAnalyticsVisible] = useState(false);
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
   const [searchExpanded, setSearchExpanded] = useState(false);
+  const [bikeSwitcherOpen, setBikeSwitcherOpen] = useState(false);
 
   const logs = logsResponse?.data ?? [];
 
@@ -118,7 +80,6 @@ export default function ServiceScreen() {
   }, []);
 
   const toggleSearch = useCallback(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     if (searchExpanded) {
       setSearchQuery('');
       setSearchExpanded(false);
@@ -170,13 +131,6 @@ export default function ServiceScreen() {
     [dateFilteredLogs, periodSpend],
   );
 
-  const periodLabel = useMemo(() => {
-    if (timePeriod === 'All') return `${logs.length} service${logs.length !== 1 ? 's' : ''} all time`;
-    const count = dateFilteredLogs.length;
-    const labels: Record<string, string> = { '1M': 'past month', '6M': 'past 6 months', '1Y': 'past year' };
-    return `${count} service${count !== 1 ? 's' : ''} ${labels[timePeriod]}`;
-  }, [timePeriod, logs.length, dateFilteredLogs.length]);
-
   const groupedLogs = useMemo(() => {
     const map = new Map<string, ServiceLog[]>();
     for (const log of filteredLogs) {
@@ -187,8 +141,36 @@ export default function ServiceScreen() {
     return Array.from(map.entries()).map(([dateKey, entries]) => ({ dateKey, entries }));
   }, [filteredLogs]);
 
-  const hasActiveFilters = selectedFilter !== 'All';
-  const activeFilterCount = selectedFilter !== 'All' ? 1 : 0;
+  // Monthly cost series (up to 12 buckets), based on dateFilteredLogs.
+  const monthlyCosts = useMemo(() => {
+    if (dateFilteredLogs.length === 0) return [] as number[];
+    const buckets = new Map<string, number>();
+    for (const log of dateFilteredLogs) {
+      const key = log.date.slice(0, 7);
+      buckets.set(key, (buckets.get(key) ?? 0) + (parseFloat(log.cost) || 0));
+    }
+    const sorted = Array.from(buckets.entries()).sort(([a], [b]) => a.localeCompare(b));
+    return sorted.slice(-12).map(([, v]) => v);
+  }, [dateFilteredLogs]);
+
+  const sparkPoints = useMemo(() => {
+    if (monthlyCosts.length < 2) return [] as { x: number; y: number }[];
+    const maxY = Math.max(...monthlyCosts, 1);
+    return monthlyCosts.map((v, i) => ({
+      x: (i / (monthlyCosts.length - 1)) * 320,
+      y: 92 - (v / maxY) * 84,
+    }));
+  }, [monthlyCosts]);
+
+  const sparkLinePath = useMemo(
+    () => sparkPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' '),
+    [sparkPoints],
+  );
+
+  const sparkFillPath = useMemo(
+    () => (sparkPoints.length > 1 ? `${sparkLinePath} L 320 96 L 0 96 Z` : ''),
+    [sparkPoints, sparkLinePath],
+  );
 
   const handleAddBike = useCallback(() => {
     router.push('/add-bike');
@@ -260,173 +242,263 @@ export default function ServiceScreen() {
   }
 
   return (
-    <SafeScreen
-      scrollable
-      bikes={bikeList}
-      activeBike={activeBikeSlim}
-      onBikeChange={setActiveBikeId}
-      onAddBikePress={handleAddBike}
-    >
-      <View className="mb-6">
-        <Text className="text-[20px] font-sans-xbold text-charcoal tracking-tight mb-3">
-          Service History
-        </Text>
-        <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-1">
-          TOTAL SPEND
-        </Text>
-        <Text
-          className="font-sans-xbold text-charcoal leading-none"
-          style={styles.heroSpend}
-        >
-          {formatCost(periodSpend)}
-        </Text>
-        <Text className="font-sans-medium text-sm text-sand mt-1">
-          {periodLabel}
-        </Text>
-      </View>
+    <View className="flex-1 bg-bg">
+      <TopBar
+        bike={`${bike?.model ?? 'Garage'}${bike?.year ? ` · ${bike.year}` : ''}`}
+        unread={0}
+        onBikePress={() => setBikeSwitcherOpen(true)}
+        onBellPress={() => router.push('/notifications' as any)}
+      />
 
-      <View className="bg-surface-low rounded-2xl flex-row p-1 mb-5">
-        {TIME_PERIODS.map((period) => (
-          <TouchableOpacity
-            key={period}
-            onPress={() => handleTimePeriodChange(period)}
-            className={`flex-1 items-center justify-center rounded-xl py-2.5 ${
-              timePeriod === period ? 'bg-charcoal' : ''
-            }`}
-            activeOpacity={0.7}
-          >
+      <BikeSwitcher
+        visible={bikeSwitcherOpen}
+        onClose={() => setBikeSwitcherOpen(false)}
+        bikes={bikes ?? []}
+        activeBikeId={activeBikeId}
+        onSelect={setActiveBikeId}
+        onAddBike={() => router.push('/add-bike')}
+      />
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 140 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Hero spend */}
+        <View className="px-5 pt-6">
+          <Text className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted mb-2.5">
+            Service History · Total Spend
+          </Text>
+          <View className="flex-row items-baseline gap-2.5 mb-2">
+            <Text className="font-display text-[18px] text-muted">S$</Text>
             <Text
-              className={`font-sans-bold text-sm ${
-                timePeriod === period ? 'text-white' : 'text-charcoal/70'
+              className="font-display text-[72px] text-ink flex-shrink"
+              style={{ fontVariant: ['tabular-nums'], lineHeight: 76 }}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.6}
+            >
+              {Math.round(periodSpend).toLocaleString()}
+            </Text>
+          </View>
+          <View className="flex-row items-center gap-3">
+            <Text className="font-mono text-[11px] tracking-[0.04em] text-muted">
+              {serviceCount} SERVICE{serviceCount !== 1 ? 'S' : ''}
+            </Text>
+            <Text className="font-mono text-[11px] text-muted">·</Text>
+            <Text className="font-mono text-[11px] tracking-[0.04em] text-ink">
+              PAST {timePeriod === 'All' ? 'ALL TIME' : timePeriod}
+            </Text>
+          </View>
+        </View>
+
+        {/* Sparkline */}
+        {sparkPoints.length > 1 ? (
+          <View className="px-5 pt-4 pb-2">
+            <Svg viewBox="0 0 320 96" width="100%" height={96}>
+              <Defs>
+                <LinearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0%" stopColor="#F2D06B" stopOpacity={0.3} />
+                  <Stop offset="100%" stopColor="#F2D06B" stopOpacity={0} />
+                </LinearGradient>
+              </Defs>
+              <Path d={sparkFillPath} fill="url(#spark-fill)" />
+              <Path d={sparkLinePath} stroke="#F2D06B" strokeWidth={1.5} fill="none" />
+              {sparkPoints.map((p, i) => (
+                <Circle
+                  key={i}
+                  cx={p.x}
+                  cy={p.y}
+                  r={i === sparkPoints.length - 1 ? 3 : 1.5}
+                  fill={i === sparkPoints.length - 1 ? '#F2D06B' : '#1A1A1A'}
+                  opacity={i === sparkPoints.length - 1 ? 1 : 0.4}
+                />
+              ))}
+            </Svg>
+          </View>
+        ) : null}
+
+        {/* Segmented time period control */}
+        <View className="flex-row bg-hairline rounded-xl p-[3px] mx-5 mt-2">
+          {TIME_PERIODS.map((p) => (
+            <Pressable
+              key={p}
+              className={`flex-1 py-2.5 rounded-[10px] items-center ${timePeriod === p ? 'bg-surface-card' : ''}`}
+              onPress={() => handleTimePeriodChange(p)}
+              style={timePeriod === p ? { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 2, elevation: 1 } : undefined}
+            >
+              <Text className={`font-mono text-[11px] tracking-[0.08em] uppercase ${timePeriod === p ? 'text-ink' : 'text-muted'}`}>
+                {p}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        {/* Stats row */}
+        <View className="flex-row mt-2 border-t border-b border-hairline" style={{ columnGap: 1, backgroundColor: 'rgba(26,26,26,0.09)' }}>
+          <StatCell value={String(serviceCount)} label="Services" />
+          <StatCell value={avgCost > 0 ? `S$${Math.round(avgCost)}` : '—'} label="Avg cost" />
+          <StatCell value={costPerKm !== null ? `S$${Math.round(costPerKm)}` : 'N/A'} label="Per 1K KM" />
+        </View>
+
+        {/* Filter chips */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 20, gap: 6, paddingTop: 16 }}
+        >
+          {(Object.keys(SERVICE_FILTER_GROUPS) as FilterGroupKey[]).map((f) => (
+            <Pressable
+              key={f}
+              onPress={() => setSelectedFilter(f)}
+              className={`px-3 py-2 rounded-full border ${
+                selectedFilter === f ? 'bg-ink border-ink' : 'bg-transparent border-hairline-2'
               }`}
             >
-              {period}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
+              <Text
+                className={`font-mono text-[10px] tracking-[0.12em] uppercase ${
+                  selectedFilter === f ? 'text-bg' : 'text-ink-2'
+                }`}
+              >
+                {f}
+              </Text>
+            </Pressable>
+          ))}
+        </ScrollView>
 
-      <View className="flex-row gap-3 mb-8">
-        <StatCard value={String(serviceCount)} label="SERVICES" />
-        <StatCard value={avgCost > 0 ? formatCost(avgCost) : '—'} label="AVG COST" />
-        <StatCard value={costPerKm !== null ? formatCost(costPerKm) : 'N/A'} label="PER 1K KM" dim={costPerKm === null} />
-      </View>
-
-      <Section
-        eyebrow="TIMELINE"
-        trailing={
-          <View className="flex-row items-center gap-3">
-            <TouchableOpacity
-              onPress={toggleSearch}
-              activeOpacity={0.7}
-              hitSlop={8}
-            >
-              <MaterialCommunityIcons
-                name={searchExpanded ? 'close' : 'magnify'}
-                size={18}
-                color={colors.charcoal + '8C'}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              className="flex-row items-center"
-              onPress={() => setFilterSheetVisible(true)}
-              activeOpacity={0.7}
-              hitSlop={8}
-            >
-              <MaterialCommunityIcons
-                name="tune-variant"
-                size={18}
-                color={colors.charcoal + '8C'}
-              />
-              {hasActiveFilters && (
-                <View className="bg-yellow rounded-full w-4 h-4 items-center justify-center ml-1">
-                  <Text className="font-sans-xbold text-charcoal" style={{ fontSize: 9 }}>
-                    {activeFilterCount}
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setAnalyticsVisible(true)}
-              activeOpacity={0.7}
-              hitSlop={8}
-            >
-              <MaterialCommunityIcons
-                name="chart-bar"
-                size={18}
-                color={colors.charcoal + '8C'}
-              />
-            </TouchableOpacity>
+        {/* Timeline header */}
+        <View className="px-5 pt-5 flex-row justify-between items-center">
+          <Text className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">Timeline</Text>
+          <View className="flex-row gap-2.5">
+            <Pressable onPress={toggleSearch} hitSlop={8}>
+              <Icon name={searchExpanded ? 'close' : 'search'} size={16} stroke="#7A756C" />
+            </Pressable>
+            <Pressable onPress={() => setFilterSheetVisible(true)} hitSlop={8}>
+              <Icon name="filter" size={16} stroke="#7A756C" />
+            </Pressable>
+            <Pressable onPress={() => setAnalyticsVisible(true)} hitSlop={8}>
+              <Icon name="gauge" size={16} stroke="#7A756C" />
+            </Pressable>
           </View>
-        }
-      >
-        {searchExpanded && (
-          <View className="mb-4">
+        </View>
+
+        {/* Search bar (when expanded) */}
+        {searchExpanded ? (
+          <View className="mx-5 mt-3">
             <ServiceSearchBar
               key={activeBikeId ?? 'none'}
               value={searchQuery}
               onChange={setSearchQuery}
             />
           </View>
-        )}
+        ) : null}
 
-        {filteredLogs.length === 0 ? (
-          <View className="items-center justify-center py-16 gap-4">
-            <Text className="font-sans-medium text-sm text-sand text-center">
-              No services match your filters
-            </Text>
-            <TouchableOpacity
-              onPress={() => {
-                setSelectedFilter('All');
-                setDateRange(null);
-                setTimePeriod('All');
-                setSearchQuery('');
-                setSearchExpanded(false);
-              }}
-              activeOpacity={0.7}
-            >
-              <Text className="font-sans-bold text-sm text-charcoal">Clear filters</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View className="gap-5">
-            {groupedLogs.map(({ dateKey, entries }) => (
-              <View key={dateKey}>
-                {/* Date marker */}
-                <View className="mb-2.5 px-1">
-                  <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest">
-                    {formatShortDate(dateKey)}
-                  </Text>
-                </View>
-                {/* Entries share one card per date */}
-                <View
-                  className="bg-sand/10 rounded-2xl overflow-hidden gap-1"
-                  style={styles.timelineCard}
-                >
-                  {entries.map((log) => {
-                    const meta = serviceTypeToMeta(log.serviceType);
-                    const subtitle = log.mileageAt
-                      ? `${log.mileageAt.toLocaleString()} km`
-                      : undefined;
-                    return (
-                      <TimelineEntry
-                        key={log.id}
-                        icon={meta.icon}
-                        iconBg={meta.iconBg}
-                        iconColor={meta.iconColor}
-                        title={meta.label}
-                        subtitle={subtitle}
-                        cost={formatCost(log.cost)}
-                        onPress={() => router.push(`/service/${log.id}`)}
-                      />
-                    );
-                  })}
-                </View>
-              </View>
-            ))}
-          </View>
-        )}
-      </Section>
+        {/* Timeline groups */}
+        <View className="px-5 pt-2 pb-24">
+          {filteredLogs.length === 0 ? (
+            <View className="items-center justify-center py-16 gap-4">
+              <Text className="font-sans-medium text-[14px] text-muted text-center">
+                No services match your filters
+              </Text>
+              <Pressable
+                onPress={() => {
+                  setSelectedFilter('All');
+                  setDateRange(null);
+                  setTimePeriod('All');
+                  setSearchQuery('');
+                  setSearchExpanded(false);
+                }}
+                hitSlop={8}
+              >
+                <Text className="font-sans-semibold text-[13px] text-ink">Clear filters</Text>
+              </Pressable>
+            </View>
+          ) : (
+            <View className="relative">
+              <View
+                pointerEvents="none"
+                className="bg-hairline-2"
+                style={{ position: 'absolute', top: 22, bottom: 10, left: 72, width: 1 }}
+              />
+              {groupedLogs.map((g, gi) => {
+                const d = new Date(g.dateKey);
+                const dateDay = String(d.getDate()).padStart(2, '0');
+                const dateMonth = d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+                const groupTotal = g.entries.reduce((s, e) => s + (parseFloat(e.cost) || 0), 0);
+                const isMulti = g.entries.length > 1;
+                const isLast = gi === groupedLogs.length - 1;
+                return (
+                  <View
+                    key={g.dateKey}
+                    className="flex-row gap-3"
+                    style={{ marginBottom: isLast ? 0 : 20 }}
+                  >
+                    <View className="items-center w-14 flex-shrink-0 pt-1">
+                      <Text className="font-display text-[26px] leading-[1.1] text-ink text-center">
+                        {dateDay}
+                      </Text>
+                      <Text className="font-mono text-[9px] tracking-[0.16em] uppercase text-muted mt-1.5 text-center">
+                        {dateMonth}
+                      </Text>
+                      {isMulti ? (
+                        <View className="mt-2 px-1.5 py-[3px] rounded-full bg-hairline">
+                          <Text
+                            className="font-mono text-[9px] text-ink"
+                            style={{ fontVariant: ['tabular-nums'] }}
+                          >
+                            S${Math.round(groupTotal)}
+                          </Text>
+                        </View>
+                      ) : null}
+                    </View>
+                    <View className="flex-1 gap-2 pt-1 min-w-0">
+                      {g.entries.map((e, ei) => {
+                        const meta = serviceTypeToMeta(e.serviceType);
+                        const subParts: string[] = [];
+                        if (e.mileageAt) subParts.push(`${e.mileageAt.toLocaleString()} KM`);
+                        if (e.description) subParts.push(e.description);
+                        const isFirstEver = gi === 0 && ei === 0;
+                        const isGroupStart = ei === 0;
+                        return (
+                          <View key={e.id} className="flex-row items-start gap-2.5">
+                            <View
+                              className={`w-2.5 h-2.5 rounded-full mt-[14px] border-2 ${
+                                isFirstEver
+                                  ? 'bg-yellow border-yellow'
+                                  : isGroupStart
+                                    ? 'bg-ink border-ink'
+                                    : 'bg-bg border-ink-2'
+                              }`}
+                              style={{ zIndex: 1 }}
+                            />
+                            <Pressable
+                              onPress={() => router.push(`/service/${e.id}` as any)}
+                              className="flex-1 bg-bg-2 rounded-[14px] px-3.5 py-2.5 flex-row items-center gap-2.5 min-w-0"
+                            >
+                              <Icon name={serviceTypeIcon(e.serviceType)} size={18} stroke="#1A1A1A" />
+                              <View className="flex-1 min-w-0">
+                                <Text className="font-sans-semibold text-[13px] tracking-[-0.01em] text-ink" numberOfLines={1}>
+                                  {meta.label}
+                                </Text>
+                                {subParts.length > 0 ? (
+                                  <Text className="font-mono text-[10px] text-muted mt-0.5 tracking-[0.04em]" numberOfLines={1}>
+                                    {subParts.join(' · ')}
+                                  </Text>
+                                ) : null}
+                              </View>
+                              <Text className="font-mono text-[12px] text-ink" style={{ fontVariant: ['tabular-nums'] }}>
+                                S${Math.round(parseFloat(e.cost) || 0)}
+                              </Text>
+                            </Pressable>
+                          </View>
+                        );
+                      })}
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          )}
+        </View>
+      </ScrollView>
 
       <AnalyticsSheet
         visible={analyticsVisible}
@@ -451,6 +523,6 @@ export default function ServiceScreen() {
           setFilterSheetVisible(false);
         }}
       />
-    </SafeScreen>
+    </View>
   );
 }

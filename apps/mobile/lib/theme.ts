@@ -1,4 +1,11 @@
 import { useFonts } from 'expo-font';
+import {
+  InstrumentSerif_400Regular,
+} from '@expo-google-fonts/instrument-serif';
+import {
+  JetBrainsMono_500Medium,
+  JetBrainsMono_600SemiBold,
+} from '@expo-google-fonts/jetbrains-mono';
 
 export function useAppFonts() {
   return useFonts({
@@ -7,6 +14,9 @@ export function useAppFonts() {
     'PlusJakartaSans-SemiBold': require('../assets/fonts/PlusJakartaSans-SemiBold.ttf'),
     'PlusJakartaSans-Bold': require('../assets/fonts/PlusJakartaSans-Bold.ttf'),
     'PlusJakartaSans-ExtraBold': require('../assets/fonts/PlusJakartaSans-ExtraBold.ttf'),
+    InstrumentSerif_400Regular,
+    JetBrainsMono_500Medium,
+    JetBrainsMono_600SemiBold,
   });
 }
 
