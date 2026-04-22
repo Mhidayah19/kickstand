@@ -14,7 +14,7 @@ function tabIdFromSegment(segment: string | undefined): TabId {
 }
 
 export default function TabLayout() {
-  const segments = useSegments();
+  const segments = useSegments() as string[];
   const current = tabIdFromSegment(segments[1]);
 
   const go = (id: TabId) => {
