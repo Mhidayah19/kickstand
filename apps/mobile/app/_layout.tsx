@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as Sentry from '@sentry/react-native';
 import { isRunningInExpoGo } from 'expo';
 import * as SplashScreen from 'expo-splash-screen';
-import { Stack, router, useNavigationContainerRef } from 'expo-router';
+import { Stack, router, useNavigationContainerRef, useSegments } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import {
   captureAndPush,
@@ -97,6 +97,9 @@ function RootLayout() {
   const setUser = useAuthStore((s) => s.setUser);
   const navigationRef = useNavigationContainerRef();
   const screenshotTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const segments = useSegments();
+  const inTabsRef = useRef(false);
+  inTabsRef.current = segments[0] === '(tabs)';
 
   useEffect(() => {
     navigationIntegration.registerNavigationContainer(navigationRef);
@@ -178,7 +181,9 @@ function RootLayout() {
       } else if (event === 'SIGNED_OUT') {
         Sentry.setUser(null);
         setUser(null);
-        router.replace('/(onboarding)');
+        if (inTabsRef.current) {
+          router.replace('/(onboarding)');
+        }
       }
     });
 
