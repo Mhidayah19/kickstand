@@ -94,8 +94,8 @@ function formatDisplayDate(dateStr: string): string {
 function SectionLabel({ children, trailing }: { children: string; trailing?: string }) {
   return (
     <View className="flex-row items-center justify-between mb-md">
-      <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1">{children}</Text>
-      {trailing && <Text className="text-xs font-sans-medium text-sand">{trailing}</Text>}
+      <Text className="font-sans-bold text-xxs text-muted uppercase tracking-wide-1">{children}</Text>
+      {trailing && <Text className="text-xs font-sans-medium text-muted">{trailing}</Text>}
     </View>
   );
 }
@@ -123,14 +123,14 @@ function StepBrand({
   return (
     <View>
       {/* Popular brands */}
-      <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-sm">
+      <Text className="text-xs font-sans-bold text-muted uppercase tracking-widest mb-sm">
         Popular
       </Text>
 
       {isLoading ? (
         <View className="py-xl items-center">
-          <ActivityIndicator size="small" color={colors.sand} />
-          <Text className="text-sm font-sans-medium text-sand mt-sm">Loading brands...</Text>
+          <ActivityIndicator size="small" color={colors.muted} />
+          <Text className="text-sm font-sans-medium text-muted mt-sm">Loading brands...</Text>
         </View>
       ) : (
         <View className="flex-row flex-wrap gap-sm mb-md">
@@ -139,8 +139,8 @@ function StepBrand({
               key={brand}
               className={`rounded-2xl px-lg py-md items-center justify-center border-2 ${
                 selected === brand && !isOthers
-                  ? 'bg-charcoal border-charcoal'
-                  : 'bg-surface-low border-transparent'
+                  ? 'bg-ink border-ink'
+                  : 'bg-bg-2 border-transparent'
               }`}
               style={{ minWidth: 90 }}
               onPress={() => onSelect(brand)}
@@ -151,7 +151,7 @@ function StepBrand({
             >
               <Text
                 className={`font-sans-bold text-sm ${
-                  selected === brand && !isOthers ? 'text-white' : 'text-charcoal'
+                  selected === brand && !isOthers ? 'text-white' : 'text-ink'
                 }`}
               >
                 {brand}
@@ -163,7 +163,7 @@ function StepBrand({
           {!isSearching && (
             <TouchableOpacity
               className={`rounded-2xl px-lg py-md items-center justify-center border-2 ${
-                isOthers ? 'bg-charcoal border-charcoal' : 'bg-surface-low border-transparent'
+                isOthers ? 'bg-ink border-ink' : 'bg-bg-2 border-transparent'
               }`}
               style={{ minWidth: 90 }}
               onPress={onSelectOthers}
@@ -172,7 +172,7 @@ function StepBrand({
               accessibilityState={{ selected: isOthers }}
               accessibilityLabel="Others"
             >
-              <Text className={`font-sans-bold text-sm ${isOthers ? 'text-white' : 'text-charcoal'}`}>
+              <Text className={`font-sans-bold text-sm ${isOthers ? 'text-white' : 'text-ink'}`}>
                 Others
               </Text>
             </TouchableOpacity>
@@ -180,7 +180,7 @@ function StepBrand({
 
           {/* 0 results state */}
           {isSearching && displayBrands.length === 0 && (
-            <Text className="text-sm font-sans-medium text-sand px-xs">
+            <Text className="text-sm font-sans-medium text-muted px-xs">
               No brands found. Clear the search to add your brand manually.
             </Text>
           )}
@@ -189,7 +189,7 @@ function StepBrand({
 
       {/* Separator label */}
       <View className="items-center mb-md mt-xs">
-        <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest">
+        <Text className="text-xs font-sans-bold text-muted uppercase tracking-widest">
           or search all brands
         </Text>
       </View>
@@ -461,7 +461,7 @@ export default function AddMotorcycleScreen() {
 
               {sections.class === 'expanded' && (
                 <FadeIn>
-                  <Text className="text-sm font-sans-medium text-sand mb-md">
+                  <Text className="text-sm font-sans-medium text-muted mb-md">
                     What class is your license?
                   </Text>
                   <View className="flex-row gap-md">
@@ -469,17 +469,17 @@ export default function AddMotorcycleScreen() {
                       <TouchableOpacity
                         key={cls}
                         className={`flex-1 rounded-xl py-lg items-center gap-xs ${
-                          data.class === cls ? 'bg-charcoal' : 'bg-surface-low'
+                          data.class === cls ? 'bg-ink' : 'bg-bg-2'
                         }`}
                         onPress={() => handleSelectClass(cls)}
                         activeOpacity={0.8}
                         accessibilityRole="button"
                         accessibilityLabel={`Class ${cls}`}
                       >
-                        <Text className={`font-sans-xbold text-lg ${data.class === cls ? 'text-white' : 'text-charcoal'}`}>
+                        <Text className={`font-sans-xbold text-lg ${data.class === cls ? 'text-white' : 'text-ink'}`}>
                           {cls}
                         </Text>
-                        <Text className={`text-xs font-sans-bold uppercase tracking-widest ${data.class === cls ? 'text-white opacity-70' : 'text-sand'}`}>
+                        <Text className={`text-xs font-sans-bold uppercase tracking-widest ${data.class === cls ? 'text-white opacity-70' : 'text-muted'}`}>
                           {CLASS_LABELS[cls]}
                         </Text>
                       </TouchableOpacity>
@@ -534,13 +534,13 @@ export default function AddMotorcycleScreen() {
                         autoCapitalize="words"
                         className="mb-lg"
                       />
-                      <Text className="text-xs font-sans-medium text-sand mb-md">
+                      <Text className="text-xs font-sans-medium text-muted mb-md">
                         Tip: Specific models help us surface the right service intervals.
                       </Text>
                       <PrimaryButton
                         variant="accent"
                         label="Continue"
-                        icon="arrow-right"
+                        icon="arrowRight"
                         onPress={() => {
                           if (data.model.trim().length < 2) {
                             setFormError('Please enter a model name (at least 2 characters)');
@@ -555,15 +555,15 @@ export default function AddMotorcycleScreen() {
                     <View>
                       {modelsLoading ? (
                         <View className="py-xl items-center">
-                          <ActivityIndicator size="small" color={colors.sand} />
+                          <ActivityIndicator size="small" color={colors.muted} />
                         </View>
                       ) : filteredModels.length === 0 ? (
-                        <View className="bg-surface-low rounded-2xl p-xl items-center">
-                          <MaterialCommunityIcons name="magnify-close" size={28} color={colors.sand} />
-                          <Text className="font-sans-bold text-charcoal text-sm mt-sm">
+                        <View className="bg-bg-2 rounded-2xl p-xl items-center">
+                          <MaterialCommunityIcons name="magnify-close" size={28} color={colors.muted} />
+                          <Text className="font-sans-bold text-ink text-sm mt-sm">
                             No Class {data.class} models found
                           </Text>
-                          <Text className="text-xs font-sans-medium text-sand mt-xs">
+                          <Text className="text-xs font-sans-medium text-muted mt-xs">
                             Try a different class
                           </Text>
                         </View>
@@ -574,7 +574,7 @@ export default function AddMotorcycleScreen() {
                             return (
                               <TouchableOpacity
                                 key={entry.id}
-                                className={`bg-surface-low rounded-2xl p-lg flex-row items-center justify-between ${isSel ? 'border-l-4 border-yellow' : ''}`}
+                                className={`bg-bg-2 rounded-2xl p-lg flex-row items-center justify-between ${isSel ? 'border-l-4 border-yellow' : ''}`}
                                 onPress={() => handleSelectCatalogEntry(entry)}
                                 activeOpacity={0.8}
                                 accessibilityRole="button"
@@ -582,23 +582,23 @@ export default function AddMotorcycleScreen() {
                               >
                                 <View className="flex-1">
                                   <View className="flex-row items-center gap-sm">
-                                    <Text className="font-sans-xbold text-charcoal text-lg">{entry.model}</Text>
-                                    <View className="bg-charcoal rounded-full px-sm py-0.5">
+                                    <Text className="font-sans-xbold text-ink text-lg">{entry.model}</Text>
+                                    <View className="bg-ink rounded-full px-sm py-0.5">
                                       <Text className="font-sans-bold text-white text-xs uppercase tracking-widest">{entry.licenseClass}</Text>
                                     </View>
                                   </View>
                                   <View className="flex-row items-center gap-sm mt-xs">
                                     {entry.engineCc != null && (
                                       <>
-                                        <Text className="font-sans-medium text-sand text-sm">{entry.engineCc}cc</Text>
-                                        <Text className="font-sans-medium text-sand text-sm opacity-30">{'\u2022'}</Text>
+                                        <Text className="font-sans-medium text-muted text-sm">{entry.engineCc}cc</Text>
+                                        <Text className="font-sans-medium text-muted text-sm opacity-30">{'\u2022'}</Text>
                                       </>
                                     )}
-                                    <Text className="font-sans-medium text-sand text-sm">{entry.bikeType}</Text>
+                                    <Text className="font-sans-medium text-muted text-sm">{entry.bikeType}</Text>
                                   </View>
                                 </View>
                                 <View className="w-12 h-12 rounded-xl bg-surface items-center justify-center ml-md">
-                                  <MaterialCommunityIcons name="motorbike" size={24} color={isSel ? colors.yellow : colors.sand} />
+                                  <MaterialCommunityIcons name="motorbike" size={24} color={isSel ? colors.yellow : colors.muted} />
                                 </View>
                               </TouchableOpacity>
                             );
@@ -617,10 +617,10 @@ export default function AddMotorcycleScreen() {
                   onEdit={() => reopenSection('model')}
                 >
                   <View>
-                    <Text className="font-sans-bold text-charcoal text-sm">
+                    <Text className="font-sans-bold text-ink text-sm">
                       {selectedCatalogEntry?.model ?? data.model}
                     </Text>
-                    <Text className="text-xs font-sans-medium text-sand">
+                    <Text className="text-xs font-sans-medium text-muted">
                       {selectedCatalogEntry
                         ? `${selectedCatalogEntry.engineCc ?? ''}cc \u2022 ${selectedCatalogEntry.bikeType}`
                         : isOthers && data.brand
@@ -691,7 +691,7 @@ export default function AddMotorcycleScreen() {
 
               {sections.compliance === 'expanded' && (
                 <FadeIn>
-                  <Text className="text-sm font-sans-medium text-sand mb-lg">
+                  <Text className="text-sm font-sans-medium text-muted mb-lg">
                     {"Enter 2 dates and we'll calculate the rest."}
                   </Text>
                   <DateField label="Registration Date" value={data.registrationDate} onChange={(v) => handleChange('registrationDate', v)} className="mb-lg" />
@@ -699,35 +699,35 @@ export default function AddMotorcycleScreen() {
 
                   {/* Auto-calculated dates */}
                   {(hasRegistrationDate || hasInsuranceExpiry) && (
-                    <View className="bg-surface-low rounded-2xl p-lg mt-sm mb-lg">
-                      <Text className="text-xxs font-sans-bold text-sand uppercase tracking-wide-1 mb-md">
+                    <View className="bg-bg-2 rounded-2xl p-lg mt-sm mb-lg">
+                      <Text className="text-xxs font-sans-bold text-muted uppercase tracking-wide-1 mb-md">
                         Auto-calculated
                       </Text>
                       {hasRegistrationDate && (
                         <>
                           <View className="flex-row items-center justify-between mb-sm">
                             <View className="flex-row items-center gap-sm">
-                              <MaterialCommunityIcons name="file-document-outline" size={16} color={colors.sand} />
-                              <Text className="font-sans-medium text-sand text-sm">COE Expiry</Text>
+                              <MaterialCommunityIcons name="file-document-outline" size={16} color={colors.muted} />
+                              <Text className="font-sans-medium text-muted text-sm">COE Expiry</Text>
                             </View>
-                            <Text className="font-sans-bold text-charcoal text-sm">{formatDisplayDate(derivedCoeExpiry)}</Text>
+                            <Text className="font-sans-bold text-ink text-sm">{formatDisplayDate(derivedCoeExpiry)}</Text>
                           </View>
                           <View className="flex-row items-center justify-between mb-sm">
                             <View className="flex-row items-center gap-sm">
-                              <MaterialCommunityIcons name="clipboard-check-outline" size={16} color={colors.sand} />
-                              <Text className="font-sans-medium text-sand text-sm">Inspection Due</Text>
+                              <MaterialCommunityIcons name="clipboard-check-outline" size={16} color={colors.muted} />
+                              <Text className="font-sans-medium text-muted text-sm">Inspection Due</Text>
                             </View>
-                            <Text className="font-sans-bold text-charcoal text-sm">{formatDisplayDate(derivedInspectionDue)}</Text>
+                            <Text className="font-sans-bold text-ink text-sm">{formatDisplayDate(derivedInspectionDue)}</Text>
                           </View>
                         </>
                       )}
                       {hasInsuranceExpiry && (
                         <View className="flex-row items-center justify-between">
                           <View className="flex-row items-center gap-sm">
-                            <MaterialCommunityIcons name="shield-car" size={16} color={colors.sand} />
-                            <Text className="font-sans-medium text-sand text-sm">Road Tax Expiry</Text>
+                            <MaterialCommunityIcons name="shield-car" size={16} color={colors.muted} />
+                            <Text className="font-sans-medium text-muted text-sm">Road Tax Expiry</Text>
                           </View>
-                          <Text className="font-sans-bold text-charcoal text-sm">{formatDisplayDate(derivedRoadTaxExpiry)}</Text>
+                          <Text className="font-sans-bold text-ink text-sm">{formatDisplayDate(derivedRoadTaxExpiry)}</Text>
                         </View>
                       )}
                     </View>
@@ -735,22 +735,22 @@ export default function AddMotorcycleScreen() {
 
                   {/* Motorcycle summary */}
                   {motorcycleName.trim().length > 0 && (
-                    <View className="bg-surface-low rounded-2xl p-lg mt-sm overflow-hidden">
+                    <View className="bg-bg-2 rounded-2xl p-lg mt-sm overflow-hidden">
                       <View className="flex-row items-center justify-between">
                         <View className="flex-1">
-                          <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-xs">Your Motorcycle</Text>
-                          <Text className="font-sans-xbold text-charcoal text-xl">{motorcycleName}</Text>
+                          <Text className="text-xs font-sans-bold text-muted uppercase tracking-widest mb-xs">Your Motorcycle</Text>
+                          <Text className="font-sans-xbold text-ink text-xl">{motorcycleName}</Text>
                           {motorcycleSubtitle.length > 0 && (
-                            <Text className="font-sans-medium text-sand text-sm mt-xs">{motorcycleSubtitle}</Text>
+                            <Text className="font-sans-medium text-muted text-sm mt-xs">{motorcycleSubtitle}</Text>
                           )}
                           {data.plateNumber && (
-                            <Text className="font-sans-medium text-sand text-xs mt-xs">
+                            <Text className="font-sans-medium text-muted text-xs mt-xs">
                               {data.plateNumber.toUpperCase()} {'\u2022'} {Number(data.currentMileage).toLocaleString()} km
                             </Text>
                           )}
                         </View>
                         <View className="w-14 h-14 bg-surface rounded-2xl items-center justify-center ml-md">
-                          <MaterialCommunityIcons name="motorbike" size={28} color={colors.charcoal} />
+                          <MaterialCommunityIcons name="motorbike" size={28} color={colors.ink} />
                         </View>
                       </View>
                     </View>

@@ -15,12 +15,12 @@ export function FilterChips({ options, selected, onSelect, wrap = false }: Filte
         key={option}
         onPress={() => onSelect(option)}
         className={`px-6 py-2.5 rounded-full ${
-          isSelected ? 'bg-charcoal' : 'bg-surface-low'
+          isSelected ? 'bg-ink' : 'bg-bg-2'
         }`}
       >
         <Text
           className={`font-sans-bold text-sm ${
-            isSelected ? 'text-white' : 'text-sand'
+            isSelected ? 'text-white' : 'text-muted'
           }`}
         >
           {option}

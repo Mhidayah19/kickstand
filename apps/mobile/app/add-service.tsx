@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useWatch } from 'react-hook-form';
 import {
   Alert,
+  KeyboardAvoidingView,
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
@@ -207,20 +208,29 @@ export default function AddServiceScreen() {
   return (
     <>
       <SafeAreaView className="flex-1 bg-bg" edges={['top', 'left', 'right']}>
+        <KeyboardAvoidingView
+          className="flex-1"
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+        {/* ── Sticky header bar ──────────────────────────────────────── */}
+        <View
+          className="px-5 pt-4 pb-5 flex-row justify-between items-center"
+          style={{ backgroundColor: '#F4F2EC' }}
+        >
+          <IconBtn icon="close" onPress={handleClose} />
+          <Text className="font-mono text-[10px] tracking-[0.18em] uppercase text-muted">
+            NEW · LOG
+          </Text>
+          <View style={{ width: 36 }} />
+        </View>
+
         <ScrollView
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
+          automaticallyAdjustKeyboardInsets
           contentContainerStyle={{ paddingBottom: 120 }}
           showsVerticalScrollIndicator={false}
         >
-          {/* ── Header bar ─────────────────────────────────────────────── */}
-          <View className="px-5 pt-4 pb-5 flex-row justify-between items-center">
-            <IconBtn icon="close" onPress={handleClose} />
-            <Text className="font-mono text-[10px] tracking-[0.18em] uppercase text-muted">
-              NEW · LOG
-            </Text>
-            <View style={{ width: 36 }} />
-          </View>
-
           {/* ── Hero ────────────────────────────────────────────────────── */}
           <View className="px-5 pb-6">
             <Eyebrow>Quick log</Eyebrow>
@@ -447,12 +457,14 @@ export default function AddServiceScreen() {
             </Text>
           </Pressable>
         </View>
+        </KeyboardAvoidingView>
       </SafeAreaView>
 
       <ConfirmationDialog
         visible={showDiscardDialog}
-        title="Discard Log?"
-        body="You have unsaved changes. They will be lost if you close now."
+        eyebrow="UNSAVED CHANGES"
+        title="Discard log?"
+        body="Your entry will be lost. This cannot be undone."
         confirmLabel="Discard"
         confirmVariant="danger"
         onConfirm={handleConfirmDiscard}

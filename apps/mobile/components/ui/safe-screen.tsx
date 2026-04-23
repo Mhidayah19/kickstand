@@ -46,7 +46,7 @@ export function SafeScreen({
   const handleNotificationPress = onNotificationPress ?? (() => router.push('/notifications' as any));
 
   return (
-    <SafeAreaView className={`flex-1 bg-surface ${className}`}>
+    <SafeAreaView className={`flex-1 bg-bg ${className}`}>
       {showAppBar && (
         <TopAppBar
           activeBike={activeBike}

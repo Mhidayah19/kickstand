@@ -42,38 +42,38 @@ export default function QuickLogScreen() {
     <SafeScreen showAppBar={false} scrollable={false}>
       <View className="flex-row items-center justify-between mb-6">
         <View>
-          <Text className="text-[9px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-1">
+          <Text className="text-[9px] font-sans-bold tracking-atelier uppercase text-ink/55 mb-1">
             Quick log
           </Text>
-          <Text className="text-[22px] font-sans-xbold text-charcoal tracking-tight">
+          <Text className="text-[22px] font-sans-xbold text-ink tracking-tight">
             Odometer reading
           </Text>
         </View>
         <Pressable
           onPress={() => router.back()}
-          className="w-9 h-9 rounded-full bg-sand/20 items-center justify-center active:scale-95"
+          className="w-9 h-9 rounded-full bg-muted/20 items-center justify-center active:scale-95"
           hitSlop={8}
         >
-          <MaterialCommunityIcons name="close" size={18} color={colors.charcoal} />
+          <MaterialCommunityIcons name="close" size={18} color={colors.ink} />
         </Pressable>
       </View>
 
-      <View className="bg-sand/10 rounded-3xl p-6 mb-5">
-        <Text className="text-[9px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-2">
+      <View className="bg-muted/10 rounded-3xl p-6 mb-5">
+        <Text className="text-[9px] font-sans-bold tracking-atelier uppercase text-ink/55 mb-2">
           New reading
         </Text>
         <View className="flex-row items-end">
           <Text
-            className="text-display-sm font-sans-xbold text-charcoal"
+            className="text-display-sm font-sans-xbold text-ink"
             style={{ fontVariant: ['tabular-nums'] }}
           >
             {formatted}
           </Text>
-          <Text className="text-lg font-sans-bold text-charcoal/55 ml-2 pb-3">KM</Text>
+          <Text className="text-lg font-sans-bold text-ink/55 ml-2 pb-3">KM</Text>
         </View>
-        <Text className="text-[11px] font-sans-medium text-charcoal/55 mt-2">
+        <Text className="text-[11px] font-sans-medium text-ink/55 mt-2">
           Previous: {previous.toLocaleString('en-US')} km ·{' '}
-          <Text className="text-charcoal font-sans-bold">+{delta} km</Text>
+          <Text className="text-ink font-sans-bold">+{delta} km</Text>
         </Text>
       </View>
 
@@ -83,7 +83,7 @@ export default function QuickLogScreen() {
         onPress={handleSave}
         className="w-full bg-yellow rounded-full py-4 items-center mt-5 active:scale-[0.98]"
       >
-        <Text className="text-[13px] font-sans-xbold tracking-wide text-charcoal">Save reading</Text>
+        <Text className="text-[13px] font-sans-xbold tracking-wide text-ink">Save reading</Text>
       </Pressable>
     </SafeScreen>
   );
@@ -101,12 +101,12 @@ function Keypad({ onKey }: { onKey: (k: string) => void }) {
           ) : (
             <Pressable
               onPress={() => onKey(k)}
-              className="aspect-[1.6] bg-surface-card rounded-2xl items-center justify-center active:bg-yellow/60"
+              className="aspect-[1.6] bg-surface rounded-2xl items-center justify-center active:bg-yellow/60"
             >
               {k === 'back' ? (
-                <MaterialCommunityIcons name="backspace-outline" size={22} color={colors.charcoal} />
+                <MaterialCommunityIcons name="backspace-outline" size={22} color={colors.ink} />
               ) : (
-                <Text className="text-[28px] font-sans-bold text-charcoal" style={{ letterSpacing: -0.5 }}>
+                <Text className="text-[28px] font-sans-bold text-ink" style={{ letterSpacing: -0.5 }}>
                   {k}
                 </Text>
               )}

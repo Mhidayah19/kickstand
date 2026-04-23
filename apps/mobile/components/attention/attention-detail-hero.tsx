@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, Text } from 'react-native';
+import { Eyebrow } from '../ui/atelier';
 import type { AttentionItem, AttentionStatus } from '../../lib/types/attention';
 
 const STATUS_COLOR: Record<AttentionStatus, string> = {
   overdue: 'text-danger',
-  approaching: 'text-charcoal',
+  approaching: 'text-ink',
   ok: 'text-success',
 };
 
@@ -40,7 +41,7 @@ export function AttentionDetailHero({ item }: { item: AttentionItem }) {
 
   const caption = item.category === 'maintenance'
     ? (item.intervalKm
-        ? `You're past your ${item.intervalKm.toLocaleString('en-SG')} km interval.`
+        ? `Past your ${item.intervalKm.toLocaleString('en-SG')} km interval.`
         : item.intervalMonths
           ? `Service every ${item.intervalMonths} months.`
           : '')
@@ -48,26 +49,26 @@ export function AttentionDetailHero({ item }: { item: AttentionItem }) {
 
   return (
     <View className="mb-8">
-      <Text className={`font-sans-bold text-xxs uppercase tracking-widest mb-3 ${STATUS_COLOR[item.status]}`}>
+      <Eyebrow className={`mb-3 ${STATUS_COLOR[item.status]}`}>
         {STATUS_LABEL[item.status]}
-      </Text>
+      </Eyebrow>
       <Text
-        className="font-sans-xbold text-charcoal mb-4"
-        style={{ fontSize: 32, lineHeight: 36, letterSpacing: -0.8 }}
+        className="font-display text-ink leading-[1.02] tracking-[-0.01em] mb-4"
+        style={{ fontSize: 36 }}
       >
         {item.label}
       </Text>
-      <View className="flex-row items-baseline gap-2 mb-1">
+      <View className="flex-row items-baseline gap-2 mb-2">
         <Text
-          className={`font-sans-xbold ${item.status === 'overdue' ? 'text-danger' : 'text-charcoal'}`}
-          style={{ fontSize: 44, lineHeight: 44, letterSpacing: -1.5 }}
+          className={`font-display ${item.status === 'overdue' ? 'text-danger' : 'text-ink'}`}
+          style={{ fontSize: 48, lineHeight: 56, letterSpacing: -2 }}
         >
           {num}
         </Text>
-        <Text className="font-sans-bold text-sm text-sand uppercase tracking-wide-1">{unit}</Text>
+        <Text className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">{unit}</Text>
       </View>
       {caption ? (
-        <Text className="font-sans-medium text-xs text-sand">{caption}</Text>
+        <Text className="font-sans text-[13px] text-muted leading-[20px]">{caption}</Text>
       ) : null}
     </View>
   );

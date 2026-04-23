@@ -1,9 +1,9 @@
 import { View, Text, Pressable, Modal } from 'react-native';
 import { BlurView } from 'expo-blur';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { usePathname } from 'expo-router';
 import { useState } from 'react';
+import { Icon } from './atelier';
 import { colors } from '../../lib/colors';
 
 const MAIN_TAB_PATHS = new Set(['/', '/garage', '/service', '/settings']);
@@ -39,16 +39,6 @@ export function TopAppBar({
 
   if (!MAIN_TAB_PATHS.has(pathname)) return null;
 
-  const getBikeEmoji = (model: string) => {
-    const lower = model.toLowerCase();
-    if (lower.includes('sport') || lower.includes('ninja')) return '🏍️';
-    if (lower.includes('cruiser') || lower.includes('rebel')) return '🛵';
-    if (lower.includes('adventure') || lower.includes('gs')) return '🏔️';
-    return '🏍️';
-  };
-
-  const activeBikeEmoji = activeBike ? getBikeEmoji(activeBike.model) : '🏍️';
-
   return (
     <>
       <BlurView
@@ -60,40 +50,40 @@ export function TopAppBar({
           className="flex-row items-center justify-between px-6 pb-4"
           style={{ paddingTop: insets.top + 8 }}
         >
-          {/* Left: Bike Button + Name */}
+          {/* Left: Bike avatar + name */}
           <Pressable
             onPress={() => setBikeMenuOpen(true)}
             hitSlop={8}
             className="flex-row items-center gap-2 active:opacity-60"
           >
-            <View className="w-10 h-10 rounded-full bg-sand/20 items-center justify-center">
-              <Text className="text-xl">{activeBikeEmoji}</Text>
+            <View className="w-10 h-10 rounded-full bg-bg-2 items-center justify-center">
+              <Icon name="bike" size={20} stroke={colors.ink} />
             </View>
             {activeBike && (
               <View className="flex-row items-center gap-1">
                 <View>
                   <Text
-                    className="font-sans-bold text-sm text-charcoal tracking-wide-1 uppercase leading-none"
+                    className="font-sans-bold text-sm text-ink tracking-wide-1 uppercase leading-none"
                     numberOfLines={1}
                   >
                     {activeBike.model}
                   </Text>
-                  <Text className="font-sans-medium text-xs text-sand leading-none mt-0.5">
+                  <Text className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted leading-none mt-1">
                     {activeBike.year}
                   </Text>
                 </View>
-                <MaterialCommunityIcons name="chevron-down" size={14} color={colors.sand} />
+                <Icon name="chevron" size={12} stroke={colors.muted} />
               </View>
             )}
           </Pressable>
 
-          {/* Right: Notification Bell */}
+          {/* Right: Notification bell */}
           <Pressable
             onPress={onNotificationPress}
             hitSlop={8}
-            className="relative w-10 h-10 rounded-full bg-sand/20 items-center justify-center active:opacity-70"
+            className="relative w-10 h-10 rounded-full bg-bg-2 items-center justify-center active:opacity-70"
           >
-            <MaterialCommunityIcons name="bell-outline" size={24} color={colors.charcoal} />
+            <Icon name="bell" size={20} stroke={colors.ink} />
             {unreadNotifications > 0 && (
               <View className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-danger items-center justify-center">
                 <Text className="text-xs font-sans-bold text-white">
@@ -105,29 +95,27 @@ export function TopAppBar({
         </View>
       </BlurView>
 
-      {/* Bike Switcher Modal */}
+      {/* Bike switcher */}
       <Modal
         visible={bikeMenuOpen}
         transparent
         animationType="fade"
         onRequestClose={() => setBikeMenuOpen(false)}
       >
-        {/* Backdrop */}
         <Pressable
-          className="absolute inset-0 bg-charcoal/40"
+          className="absolute inset-0 bg-ink/40"
           onPress={() => setBikeMenuOpen(false)}
         />
 
-        {/* Modal Content */}
         <View className="flex-1 justify-end">
           <View className="pb-8">
-            <View className="mx-6 rounded-3xl overflow-hidden bg-surface-card">
-              {/* Header */}
-              <View className="px-6 pt-5 pb-4">
-                <Text className="font-sans-xbold text-lg text-charcoal">Select Bike</Text>
+            <View className="mx-6 rounded-[28px] overflow-hidden bg-surface">
+              <View className="px-6 pt-5 pb-3">
+                <Text className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">
+                  Select Bike
+                </Text>
               </View>
 
-              {/* Bike List */}
               <View>
                 {bikes.map((bike) => (
                   <Pressable
@@ -136,34 +124,37 @@ export function TopAppBar({
                       onBikeChange?.(bike.id);
                       setBikeMenuOpen(false);
                     }}
-                    className="px-6 py-4 flex-row items-center justify-between active:bg-surface-low"
+                    className="px-6 py-4 flex-row items-center justify-between active:bg-bg-2"
                   >
                     <View className="flex-row items-center gap-3 flex-1">
-                      <Text className="text-lg">{getBikeEmoji(bike.model)}</Text>
+                      <View className="w-9 h-9 rounded-full bg-bg-2 items-center justify-center">
+                        <Icon name="bike" size={18} stroke={colors.ink} />
+                      </View>
                       <View className="flex-1">
-                        <Text className="text-base font-sans-bold text-charcoal">
+                        <Text className="text-base font-sans-semibold text-ink">
                           {bike.model}
                         </Text>
-                        <Text className="text-xs font-sans-medium text-sand">{bike.year}</Text>
+                        <Text className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted mt-0.5">
+                          {bike.year}
+                        </Text>
                       </View>
                     </View>
                     {activeBike?.id === bike.id && (
-                      <View className="w-2 h-2 rounded-full bg-yellow" />
+                      <View className="w-2 h-2 rounded-full bg-accent" />
                     )}
                   </Pressable>
                 ))}
               </View>
 
-              {/* Add Bike Action */}
               <Pressable
                 onPress={() => {
                   setBikeMenuOpen(false);
                   onAddBikePress?.();
                 }}
-                className="px-6 py-4 flex-row items-center gap-3 bg-surface-low active:opacity-70"
+                className="px-6 py-4 flex-row items-center gap-3 bg-bg-2 active:opacity-70"
               >
-                <MaterialCommunityIcons name="plus" size={22} color={colors.charcoal} />
-                <Text className="text-base font-sans-bold text-charcoal">Add Bike</Text>
+                <Icon name="plus" size={18} stroke={colors.ink} />
+                <Text className="text-base font-sans-semibold text-ink">Add bike</Text>
               </Pressable>
             </View>
           </View>

@@ -2,14 +2,14 @@ import { View, Text } from 'react-native';
 
 interface PillBadgeProps {
   label: string;
-  variant: 'yellow' | 'danger' | 'charcoal' | 'surface';
+  variant: 'yellow' | 'danger' | 'ink' | 'surface';
 }
 
 const variantStyles: Record<string, { bg: string; text: string }> = {
-  yellow: { bg: 'bg-yellow', text: 'text-charcoal' },
+  yellow: { bg: 'bg-yellow', text: 'text-ink' },
   danger: { bg: 'bg-danger', text: 'text-white' },
-  charcoal: { bg: 'bg-charcoal', text: 'text-white' },
-  surface: { bg: 'bg-surface-card', text: 'text-charcoal' },
+  ink: { bg: 'bg-ink', text: 'text-surface' },
+  surface: { bg: 'bg-surface', text: 'text-ink' },
 };
 
 export function PillBadge({ label, variant }: PillBadgeProps) {

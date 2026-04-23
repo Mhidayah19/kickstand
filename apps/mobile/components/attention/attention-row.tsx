@@ -15,46 +15,40 @@ function formatNumber(n: number): string {
 
 function maintenanceMeta(item: Extract<AttentionItem, { category: 'maintenance' }>): React.ReactNode {
   if (item.lastMileage == null) {
-    return <>Never serviced · Now <Text className="text-charcoal">{formatNumber(item.currentMileage)}</Text></>;
+    return <>Never serviced · Now <Text className="text-ink">{formatNumber(item.currentMileage)}</Text> km</>;
   }
   if (item.status === 'overdue' && item.deltaKm != null && item.deltaKm < 0) {
     return (
       <>
-        Last <Text className="text-charcoal">{formatNumber(item.lastMileage)}</Text> · Now{' '}
-        <Text className="text-charcoal">{formatNumber(item.currentMileage)}</Text> ·{' '}
-        <Text className="text-charcoal">+{formatNumber(-item.deltaKm)} KM</Text>
+        {formatNumber(item.lastMileage)} km last ·{' '}
+        <Text className="text-ink">+{formatNumber(-item.deltaKm)} km over</Text>
       </>
     );
   }
   if (item.status === 'approaching' && item.deltaKm != null) {
     return (
       <>
-        Last <Text className="text-charcoal">{formatNumber(item.lastMileage)}</Text> ·{' '}
-        <Text className="text-charcoal">{formatNumber(item.deltaKm)} KM</Text> away
+        {formatNumber(item.lastMileage)} km last ·{' '}
+        <Text className="text-ink">{formatNumber(item.deltaKm)} km away</Text>
       </>
     );
   }
-  return <>Last <Text className="text-charcoal">{formatNumber(item.lastMileage)}</Text></>;
+  return <>Last at {formatNumber(item.lastMileage)} km</>;
 }
 
 function complianceMeta(item: Extract<AttentionItem, { category: 'compliance' }>): React.ReactNode {
   const abs = Math.abs(item.daysRemaining);
-  const dayLabel = abs === 1 ? 'DAY' : 'DAYS';
-  const suffix = item.daysRemaining < 0 ? ' AGO' : '';
+  const suffix = item.daysRemaining < 0 ? ' ago' : '';
   return (
     <>
-      {item.expiresAt} · <Text className="text-charcoal">{abs} {dayLabel}{suffix}</Text>
+      {item.expiresAt} · <Text className="text-ink">{abs}d{suffix}</Text>
     </>
   );
 }
 
 function pillLabel(item: AttentionItem): string {
-  if (item.status === 'overdue') {
-    return item.category === 'compliance' ? 'Expired' : 'Overdue';
-  }
-  if (item.status === 'approaching') {
-    return item.category === 'compliance' ? 'Expiring' : 'Due Soon';
-  }
+  if (item.status === 'overdue') return item.category === 'compliance' ? 'Expired' : 'Overdue';
+  if (item.status === 'approaching') return item.category === 'compliance' ? 'Expiring' : 'Due soon';
   return 'OK';
 }
 
@@ -62,16 +56,16 @@ export function AttentionRow({ item, onPress }: Props) {
   return (
     <Pressable
       onPress={onPress}
-      className="bg-surface-card rounded-2xl px-5 py-4 mb-2 active:opacity-70"
+      className="py-3 active:opacity-60"
     >
-      <View className="flex-row items-start justify-between mb-1.5">
-        <View className="flex-row items-center gap-2 flex-1">
+      <View className="flex-row items-center justify-between mb-1.5">
+        <View className="flex-row items-center gap-2.5 flex-1">
           <AttentionStatusDot status={item.status} />
-          <Text className="font-sans-xbold text-base text-charcoal">{item.label}</Text>
+          <Text className="font-sans-semibold text-[14px] text-ink flex-1">{item.label}</Text>
         </View>
         <AttentionPillBadge status={item.status} label={pillLabel(item)} />
       </View>
-      <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 ml-3.5">
+      <Text className="font-mono text-[10px] tracking-[0.06em] uppercase text-muted ml-[18px]">
         {item.category === 'maintenance' ? maintenanceMeta(item) : complianceMeta(item)}
       </Text>
     </Pressable>

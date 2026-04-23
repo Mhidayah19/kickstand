@@ -22,12 +22,12 @@ export function UpcomingServiceCard({
   onPress,
 }: UpcomingServiceCardProps) {
   const isDark = variant === 'dark';
-  const bg = isDark ? 'bg-charcoal' : 'bg-sand/10';
-  const iconColor = isDark ? colors.yellow : colors.charcoal;
-  const labelColor = isDark ? 'text-sand' : 'text-charcoal/55';
-  const valueColor = isDark ? 'text-surface' : 'text-charcoal';
-  const unitColor = isDark ? 'text-sand' : 'text-charcoal/55';
-  const supportColor = isDark ? 'text-surface/60' : 'text-charcoal/55';
+  const bg = isDark ? 'bg-ink' : 'bg-muted/10';
+  const iconColor = isDark ? colors.yellow : colors.ink;
+  const labelColor = isDark ? 'text-muted' : 'text-ink/55';
+  const valueColor = isDark ? 'text-surface' : 'text-ink';
+  const unitColor = isDark ? 'text-muted' : 'text-ink/55';
+  const supportColor = isDark ? 'text-surface/60' : 'text-ink/55';
 
   return (
     <Pressable

@@ -96,18 +96,18 @@ export function FilterSheet({
   return (
     <BottomSheet visible={visible} onClose={onClose}>
       <View className="flex-row items-start justify-between mb-1">
-        <Text className="font-sans-xbold text-lg text-charcoal">Filters</Text>
+        <Text className="font-sans-xbold text-lg text-ink">Filters</Text>
         {hasActiveFilters && (
           <TouchableOpacity onPress={handleReset} activeOpacity={0.7} hitSlop={8}>
-            <Text className="font-sans-bold text-sm text-charcoal">Reset</Text>
+            <Text className="font-sans-bold text-sm text-ink">Reset</Text>
           </TouchableOpacity>
         )}
       </View>
-      <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-2 mb-6">
+      <Text className="font-sans-bold text-xxs text-ink uppercase tracking-wide-2 mb-6">
         Category and date range
       </Text>
 
-      <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-1 mb-3">
+      <Text className="font-sans-bold text-xxs text-ink uppercase tracking-wide-1 mb-3">
         Category
       </Text>
       <View className="flex-row flex-wrap gap-2 mb-6">
@@ -116,12 +116,12 @@ export function FilterSheet({
             key={option}
             onPress={() => setActiveCategory(option)}
             className={`px-4 py-2 rounded-full ${
-              activeCategory === option ? 'bg-charcoal' : 'bg-surface-low'
+              activeCategory === option ? 'bg-ink' : 'bg-bg-2'
             }`}
           >
             <Text
               className={`font-sans-bold text-sm ${
-                activeCategory === option ? 'text-white' : 'text-charcoal'
+                activeCategory === option ? 'text-white' : 'text-ink'
               }`}
             >
               {option}
@@ -130,7 +130,7 @@ export function FilterSheet({
         ))}
       </View>
 
-      <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-1 mb-3">
+      <Text className="font-sans-bold text-xxs text-ink uppercase tracking-wide-1 mb-3">
         Date Range
       </Text>
       <View className="flex-row flex-wrap gap-2 mb-5">
@@ -139,12 +139,12 @@ export function FilterSheet({
             key={key}
             onPress={() => setActivePreset(key)}
             className={`px-4 py-2 rounded-full ${
-              activePreset === key ? 'bg-charcoal' : 'bg-surface-low'
+              activePreset === key ? 'bg-ink' : 'bg-bg-2'
             }`}
           >
             <Text
               className={`font-sans-bold text-sm ${
-                activePreset === key ? 'text-white' : 'text-charcoal'
+                activePreset === key ? 'text-white' : 'text-ink'
               }`}
             >
               {label}

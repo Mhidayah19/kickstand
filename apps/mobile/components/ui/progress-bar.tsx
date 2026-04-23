@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native';
 
-type ProgressColor = 'yellow' | 'sand' | 'danger' | 'charcoal';
+type ProgressColor = 'yellow' | 'muted' | 'danger' | 'ink';
 
 interface ProgressBarProps {
   value: number;
@@ -12,9 +12,9 @@ interface ProgressBarProps {
 
 const colorMap: Record<ProgressColor, string> = {
   yellow: 'bg-yellow',
-  sand: 'bg-sand',
+  muted: 'bg-muted',
   danger: 'bg-danger',
-  charcoal: 'bg-charcoal',
+  ink: 'bg-ink',
 };
 
 export function ProgressBar({
@@ -31,18 +31,18 @@ export function ProgressBar({
       {(label || statusText) && (
         <View className="flex-row justify-between items-end mb-2">
           {label && (
-            <Text className="font-sans-bold text-sm text-charcoal uppercase tracking-wide-1">
+            <Text className="font-sans-bold text-sm text-ink uppercase tracking-wide-1">
               {label}
             </Text>
           )}
           {statusText && (
-            <Text className={`font-sans-bold text-xs ${color === 'danger' ? 'text-danger' : color === 'sand' ? 'text-sand' : 'text-yellow'}`}>
+            <Text className={`font-sans-bold text-xs ${color === 'danger' ? 'text-danger' : color === 'muted' ? 'text-muted' : 'text-yellow'}`}>
               {statusText}
             </Text>
           )}
         </View>
       )}
-      <View className={`${height} w-full bg-surface-low rounded-full overflow-hidden`}>
+      <View className={`${height} w-full bg-bg-2 rounded-full overflow-hidden`}>
         <View
           className={`h-full ${colorMap[color]} rounded-full`}
           style={{ width: `${Math.min(100, Math.max(0, value))}%` }}

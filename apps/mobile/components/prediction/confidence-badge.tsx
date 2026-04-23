@@ -13,7 +13,7 @@ const dotClass: Record<ConfidenceLevel, string> = {
   high: 'bg-success',
   medium: 'bg-yellow',
   low: 'bg-yellow/60',
-  unknown: 'bg-outline',
+  unknown: 'bg-hairline-2',
 };
 
 const label: Record<ConfidenceLevel, string> = {
@@ -24,9 +24,9 @@ const label: Record<ConfidenceLevel, string> = {
 };
 
 export function ConfidenceBadge({ level, onDark = true }: ConfidenceBadgeProps) {
-  const textClass = onDark ? 'text-surface/70' : 'text-charcoal/55';
-  const borderClass = onDark ? 'border-white/10' : 'border-outline';
-  const bgClass = onDark ? 'bg-white/5' : 'bg-sand/10';
+  const textClass = onDark ? 'text-surface/70' : 'text-ink/55';
+  const borderClass = onDark ? 'border-white/10' : 'border-hairline-2';
+  const bgClass = onDark ? 'bg-white/5' : 'bg-muted/10';
 
   return (
     <View className={`flex-row items-center px-3 py-1 rounded-full border ${borderClass} ${bgClass} gap-1.5`}>

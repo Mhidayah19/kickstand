@@ -26,9 +26,9 @@ export function MonthlyBarChart({ data }: MonthlyBarChartProps) {
         const barColor = isLast
           ? colors.yellow
           : isPeak
-          ? colors.charcoal
-          : colors.surfaceLow;
-        const textColor = isLast || isPeak ? colors.charcoal : colors.sand;
+          ? colors.ink
+          : colors.bg2;
+        const textColor = isLast || isPeak ? colors.ink : colors.muted;
 
         return (
           <View key={item.month} className="flex-1 items-center gap-1">

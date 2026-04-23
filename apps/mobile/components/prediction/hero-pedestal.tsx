@@ -20,7 +20,7 @@ export function HeroPedestal({ children, onPress }: HeroPedestalProps) {
     return (
       <Pressable
         onPress={onPress}
-        className="bg-charcoal rounded-3xl overflow-hidden active:opacity-90"
+        className="bg-ink rounded-3xl overflow-hidden active:opacity-90"
       >
         {content}
       </Pressable>
@@ -28,7 +28,7 @@ export function HeroPedestal({ children, onPress }: HeroPedestalProps) {
   }
 
   return (
-    <View className="bg-charcoal rounded-3xl overflow-hidden">
+    <View className="bg-ink rounded-3xl overflow-hidden">
       {content}
     </View>
   );

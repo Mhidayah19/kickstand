@@ -1,5 +1,6 @@
 import React from 'react';
-import { Modal, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, Pressable, Text, View } from 'react-native';
+import { Eyebrow } from './atelier';
 
 type ConfirmVariant = 'danger' | 'accent';
 
@@ -11,6 +12,7 @@ interface ConfirmationDialogProps {
   onCancel: () => void;
   confirmLabel?: string;
   confirmVariant?: ConfirmVariant;
+  eyebrow?: string;
 }
 
 export function ConfirmationDialog({
@@ -21,37 +23,52 @@ export function ConfirmationDialog({
   onCancel,
   confirmLabel = 'Confirm',
   confirmVariant = 'danger',
+  eyebrow,
 }: ConfirmationDialogProps) {
+  const confirmBg = confirmVariant === 'danger' ? 'bg-danger' : 'bg-ink';
+  const confirmText = confirmVariant === 'danger' ? 'text-white' : 'text-bg';
+
   return (
     <Modal transparent visible={visible} animationType="fade" onRequestClose={onCancel}>
-      <TouchableOpacity
-        className="flex-1 bg-black/50 items-center justify-center px-lg"
-        activeOpacity={1}
+      <Pressable
+        className="flex-1 bg-black/50 items-center justify-center px-xl"
         onPress={onCancel}
       >
-        <TouchableOpacity activeOpacity={1} className="w-full bg-surface rounded-2xl p-xl">
-          <Text className="text-lg font-sans-bold text-charcoal mb-sm">{title}</Text>
-          <Text className="text-sm font-sans text-sand mb-xl">{body}</Text>
+        <Pressable
+          onPress={(e) => e.stopPropagation()}
+          className="w-full bg-bg rounded-[28px] px-xl pt-xl pb-lg"
+        >
+          {eyebrow ? (
+            <View className="mb-md">
+              <Eyebrow>{eyebrow}</Eyebrow>
+            </View>
+          ) : null}
+          <Text className="font-sans-semibold text-[20px] leading-[24px] tracking-[-0.01em] text-ink mb-sm">
+            {title}
+          </Text>
+          <Text className="font-sans text-[14px] leading-[20px] text-ink-2 mb-xl">
+            {body}
+          </Text>
           <View className="flex-row gap-sm">
-            <TouchableOpacity
+            <Pressable
               onPress={onCancel}
-              className="flex-1 py-md rounded-full bg-surface-low items-center"
-              activeOpacity={0.7}
+              className="flex-1 h-12 rounded-full bg-bg-2 items-center justify-center"
             >
-              <Text className="text-sm font-sans-semibold text-sand">Cancel</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
+              <Text className="font-sans-semibold text-[14px] tracking-[-0.01em] text-ink">
+                Cancel
+              </Text>
+            </Pressable>
+            <Pressable
               onPress={onConfirm}
-              className={`flex-1 py-md rounded-full items-center ${
-                confirmVariant === 'danger' ? 'bg-danger' : 'bg-yellow'
-              }`}
-              activeOpacity={0.8}
+              className={`flex-1 h-12 rounded-full items-center justify-center ${confirmBg}`}
             >
-              <Text className="text-sm font-sans-semibold text-white">{confirmLabel}</Text>
-            </TouchableOpacity>
+              <Text className={`font-sans-semibold text-[14px] tracking-[-0.01em] ${confirmText}`}>
+                {confirmLabel}
+              </Text>
+            </Pressable>
           </View>
-        </TouchableOpacity>
-      </TouchableOpacity>
+        </Pressable>
+      </Pressable>
     </Modal>
   );
 }

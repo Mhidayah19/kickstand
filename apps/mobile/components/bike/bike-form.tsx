@@ -88,7 +88,7 @@ export function BikeForm({ defaultValues, onSubmit, submitLabel = 'Save' }: Bike
       <TouchableOpacity
         onPress={handleSubmit(onSubmit)}
         disabled={isSubmitting}
-        className="bg-charcoal rounded-full py-md items-center mt-sm mb-xl"
+        className="bg-ink rounded-full py-md items-center mt-sm mb-xl"
         activeOpacity={0.85}
       >
         <Text className="text-base font-sans-bold text-white">

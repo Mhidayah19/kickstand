@@ -26,7 +26,7 @@ function DotIndicator({ total, active }: { total: number; active: number }) {
       {Array.from({ length: total }).map((_, i) => (
         <View
           key={`dot-${i}`}
-          className={`rounded-full ${i === active ? 'w-8 h-2.5 bg-charcoal' : 'w-2.5 h-2.5 bg-sand'}`}
+          className={`rounded-full ${i === active ? 'w-8 h-2.5 bg-ink' : 'w-2.5 h-2.5 bg-muted'}`}
         />
       ))}
     </View>
@@ -77,9 +77,9 @@ function OnboardingCard({ entry }: { entry: OnboardingEntry }) {
         <MaterialCommunityIcons name={entry.iconName as any} size={20} color={entry.iconColor} />
       </View>
       <View className="flex-1">
-        <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-1">{entry.label}</Text>
+        <Text className="text-xs font-sans-bold text-muted uppercase tracking-widest mb-1">{entry.label}</Text>
         <Text className={`font-sans-bold ${entry.titleColor} text-base`}>{entry.title}</Text>
-        <Text className="font-sans-medium text-sand text-sm">{entry.subtitle}</Text>
+        <Text className="font-sans-medium text-muted text-sm">{entry.subtitle}</Text>
       </View>
     </View>
   );
@@ -99,7 +99,7 @@ function SlideWelcome({
     <View className="flex-1 px-lg pt-12">
       {/* Hero image */}
       <View
-        className="bg-charcoal rounded-3xl overflow-hidden items-center justify-center mb-xl"
+        className="bg-ink rounded-3xl overflow-hidden items-center justify-center mb-xl"
         style={{ height: SCREEN_HEIGHT * 0.42 }}
       >
         <Text className="text-white font-sans-bold text-2xl tracking-widest absolute top-6 left-6">
@@ -114,10 +114,10 @@ function SlideWelcome({
       </View>
 
       {/* Headline */}
-      <Text className="font-sans-bold text-charcoal" style={{ fontSize: 36, lineHeight: 44, letterSpacing: -0.5 }}>
+      <Text className="font-sans-bold text-ink" style={{ fontSize: 36, lineHeight: 44, letterSpacing: -0.5 }}>
         Your Motorcycle.{'\n'}Your Record.
       </Text>
-      <Text className="font-sans-medium text-sand mt-sm text-base">
+      <Text className="font-sans-medium text-muted mt-sm text-base">
         Precision maintenance records for motorcycles that matter.
       </Text>
 
@@ -132,11 +132,11 @@ function SlideWelcome({
         onPress={onGetStarted}
         activeOpacity={0.8}
       >
-        <Text className="text-charcoal font-sans-bold text-base">Get Started</Text>
-        <Text className="text-charcoal font-sans-bold">→</Text>
+        <Text className="text-ink font-sans-bold text-base">Get Started</Text>
+        <Text className="text-ink font-sans-bold">→</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={onSignIn} activeOpacity={0.7} className="items-center mb-xl">
-        <Text className="text-charcoal font-sans-semibold text-sm tracking-widest uppercase">
+        <Text className="text-ink font-sans-semibold text-sm tracking-widest uppercase">
           Sign In to Account
         </Text>
       </TouchableOpacity>
@@ -151,8 +151,8 @@ const MAINTENANCE_ENTRIES: OnboardingEntry[] = [
     subtitle: 'Motul 7100 10W40 Full Synth',
     iconName: 'oil',
     iconBg: colors.yellow,
-    iconColor: colors.charcoal,
-    titleColor: 'text-charcoal',
+    iconColor: colors.ink,
+    titleColor: 'text-ink',
     borderColor: colors.yellow,
     translateX: 16,
     scale: 1,
@@ -165,23 +165,23 @@ const MAINTENANCE_ENTRIES: OnboardingEntry[] = [
     subtitle: 'Scheduled for 12,000mi Service',
     iconName: 'cog',
     iconBg: '#E8E0D5',
-    iconColor: colors.charcoal,
-    titleColor: 'text-charcoal',
+    iconColor: colors.ink,
+    titleColor: 'text-ink',
     borderColor: null,
     translateX: 0,
     scale: 0.95,
     opacity: 0.8,
-    cardBg: 'bg-surface-low',
+    cardBg: 'bg-bg-2',
   },
   {
     label: 'RECORDED TODAY',
     title: 'Valve Clearance Check',
     subtitle: 'Precision alignment verified',
     iconName: 'wrench',
-    iconBg: colors.charcoal,
+    iconBg: colors.ink,
     iconColor: colors.yellow,
-    titleColor: 'text-charcoal',
-    borderColor: colors.charcoal,
+    titleColor: 'text-ink',
+    borderColor: colors.ink,
     translateX: 8,
     scale: 1,
     opacity: 1,
@@ -202,7 +202,7 @@ function SlideMaintenance({
     <View className="flex-1 px-lg pt-12">
       {/* Header row */}
       <View className="flex-row justify-between items-center mb-xl">
-        <Text className="font-sans-bold text-charcoal text-xs tracking-widest uppercase">
+        <Text className="font-sans-bold text-ink text-xs tracking-widest uppercase">
           Kickstand
         </Text>
         <TouchableOpacity
@@ -210,7 +210,7 @@ function SlideMaintenance({
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           accessibilityLabel="Skip overview"
         >
-          <Text className="font-sans-semibold text-charcoal text-sm uppercase tracking-widest">Skip</Text>
+          <Text className="font-sans-semibold text-ink text-sm uppercase tracking-widest">Skip</Text>
         </TouchableOpacity>
       </View>
 
@@ -222,10 +222,10 @@ function SlideMaintenance({
       </View>
 
       {/* Headline copy */}
-      <Text className="font-sans-bold text-charcoal mb-sm" style={{ fontSize: 40, lineHeight: 48, letterSpacing: -1 }}>
+      <Text className="font-sans-bold text-ink mb-sm" style={{ fontSize: 40, lineHeight: 48, letterSpacing: -1 }}>
         Track Every{'\n'}<Text style={{ color: colors.yellow }}>Service.</Text>
       </Text>
-      <Text className="font-sans-medium text-sand text-base">
+      <Text className="font-sans-medium text-muted text-base">
         From oil changes to full engine overhauls, keep your digital service record pristine.
       </Text>
 
@@ -234,7 +234,7 @@ function SlideMaintenance({
         <View className="flex-row items-center justify-between mb-xl">
           <DotIndicator total={3} active={active} />
           <TouchableOpacity
-            className="bg-charcoal rounded-full px-xl py-md flex-row items-center gap-xs"
+            className="bg-ink rounded-full px-xl py-md flex-row items-center gap-xs"
             onPress={onNext}
             activeOpacity={0.8}
           >
@@ -250,12 +250,12 @@ function SlideMaintenance({
 const FLEET_ENTRIES: OnboardingEntry[] = [
   {
     label: 'Honda CB400X',
-    title: 'Ready to Ride',
+    title: 'On Schedule',
     subtitle: '8,420 km · Last serviced 2 weeks ago',
     iconName: 'motorbike',
     iconBg: colors.yellow,
-    iconColor: colors.charcoal,
-    titleColor: 'text-charcoal',
+    iconColor: colors.ink,
+    titleColor: 'text-ink',
     borderColor: colors.yellow,
     translateX: 16,
     scale: 1,
@@ -268,20 +268,20 @@ const FLEET_ENTRIES: OnboardingEntry[] = [
     subtitle: '3,200 km · Routine check upcoming',
     iconName: 'motorbike',
     iconBg: '#E8E0D5',
-    iconColor: colors.charcoal,
-    titleColor: 'text-charcoal',
+    iconColor: colors.ink,
+    titleColor: 'text-ink',
     borderColor: null,
     translateX: 0,
     scale: 0.95,
     opacity: 0.8,
-    cardBg: 'bg-surface-low',
+    cardBg: 'bg-bg-2',
   },
   {
     label: 'Royal Enfield Meteor 350',
     title: 'Insurance Expired',
     subtitle: '1,050 km · Needs attention',
     iconName: 'motorbike',
-    iconBg: colors.charcoal,
+    iconBg: colors.ink,
     iconColor: colors.danger,
     titleColor: 'text-danger',
     borderColor: colors.danger,
@@ -305,7 +305,7 @@ function SlideFleet({
     <View className="flex-1 px-lg pt-12">
       {/* Header row */}
       <View className="flex-row justify-between items-center mb-xl">
-        <Text className="font-sans-bold text-charcoal text-xs tracking-widest uppercase">
+        <Text className="font-sans-bold text-ink text-xs tracking-widest uppercase">
           Kickstand
         </Text>
         <TouchableOpacity
@@ -313,7 +313,7 @@ function SlideFleet({
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
           accessibilityLabel="Skip overview"
         >
-          <Text className="font-sans-semibold text-charcoal text-sm uppercase tracking-widest">Skip</Text>
+          <Text className="font-sans-semibold text-ink text-sm uppercase tracking-widest">Skip</Text>
         </TouchableOpacity>
       </View>
 
@@ -325,10 +325,10 @@ function SlideFleet({
       </View>
 
       {/* Headline copy */}
-      <Text className="font-sans-bold text-charcoal mb-sm" style={{ fontSize: 40, lineHeight: 48, letterSpacing: -1 }}>
+      <Text className="font-sans-bold text-ink mb-sm" style={{ fontSize: 40, lineHeight: 48, letterSpacing: -1 }}>
         Every Motorcycle.{'\n'}One <Text style={{ color: colors.yellow }}>Garage.</Text>
       </Text>
-      <Text className="font-sans-medium text-sand text-base">
+      <Text className="font-sans-medium text-muted text-base">
         Track status, mileage, and compliance across your entire fleet at a glance.
       </Text>
 
@@ -337,7 +337,7 @@ function SlideFleet({
         <View className="flex-row items-center justify-between mb-xl">
           <DotIndicator total={3} active={active} />
           <TouchableOpacity
-            className="bg-charcoal rounded-full px-xl py-md flex-row items-center gap-xs"
+            className="bg-ink rounded-full px-xl py-md flex-row items-center gap-xs"
             onPress={onFinish}
             activeOpacity={0.8}
           >
@@ -366,7 +366,7 @@ export default function OnboardingCarousel() {
   const goToLogin = () => router.push('/(auth)/login');
 
   return (
-    <SafeAreaView className="flex-1 bg-surface">
+    <SafeAreaView className="flex-1 bg-bg">
       <Animated.View style={{ flex: 1, opacity }}>
         {slide === 0 && (
           <SlideWelcome

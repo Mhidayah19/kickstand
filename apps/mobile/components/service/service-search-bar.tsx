@@ -42,13 +42,13 @@ export function ServiceSearchBar({ value, onChange }: ServiceSearchBarProps) {
   }, [onChange]);
 
   return (
-    <View className="bg-surface-low rounded-xl px-4 py-3 flex-row items-center gap-3 overflow-hidden mb-3">
-      <MaterialCommunityIcons name="magnify" size={18} color={colors.charcoal} />
+    <View className="bg-bg-2 rounded-xl px-4 py-3 flex-row items-center gap-3 overflow-hidden mb-3">
+      <MaterialCommunityIcons name="magnify" size={18} color={colors.ink} />
       <TextInput
         ref={inputRef}
-        className="flex-1 font-sans-medium text-sm text-charcoal"
+        className="flex-1 font-sans-medium text-sm text-ink"
         placeholder="Search logs..."
-        placeholderTextColor={colors.charcoal + '99'}
+        placeholderTextColor={colors.ink + '99'}
         defaultValue={value}
         onChangeText={handleChange}
         onFocus={handleFocus}
@@ -60,7 +60,7 @@ export function ServiceSearchBar({ value, onChange }: ServiceSearchBarProps) {
       />
       {value.length > 0 && (
         <TouchableOpacity onPress={handleClear} hitSlop={8}>
-          <MaterialCommunityIcons name="close-circle" size={16} color={colors.sand} />
+          <MaterialCommunityIcons name="close-circle" size={16} color={colors.muted} />
         </TouchableOpacity>
       )}
       <Animated.View

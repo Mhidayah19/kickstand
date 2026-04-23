@@ -11,7 +11,7 @@ interface CategoryBarProps {
   spentRatio: number;
   projectedRatio?: number;
   sparkValues: number[];
-  barColor?: 'charcoal' | 'yellow';
+  barColor?: 'ink' | 'yellow';
   onPress?: () => void;
 }
 
@@ -23,10 +23,10 @@ export function CategoryBar({
   spentRatio,
   projectedRatio = 0,
   sparkValues,
-  barColor = 'charcoal',
+  barColor = 'ink',
   onPress,
 }: CategoryBarProps) {
-  const barBg = barColor === 'charcoal' ? 'bg-charcoal' : 'bg-yellow';
+  const barBg = barColor === 'ink' ? 'bg-ink' : 'bg-yellow';
   const spentPct = Math.min(100, Math.max(0, spentRatio * 100));
   const projPct = Math.min(100 - spentPct, Math.max(0, projectedRatio * 100));
 
@@ -38,32 +38,32 @@ export function CategoryBar({
     >
       <View className="flex-row items-center justify-between mb-2">
         <View className="flex-row items-center gap-3">
-          <MaterialCommunityIcons name={icon as any} size={18} color={colors.charcoal} />
-          <Text className="text-[13px] font-sans-bold text-charcoal">{label}</Text>
+          <MaterialCommunityIcons name={icon as any} size={18} color={colors.ink} />
+          <Text className="text-[13px] font-sans-bold text-ink">{label}</Text>
         </View>
         <View className="flex-row items-center gap-3">
           <SparkLine values={sparkValues} />
           <Text
-            className="text-[13px] font-sans-bold text-charcoal"
+            className="text-[13px] font-sans-bold text-ink"
             style={{ fontVariant: ['tabular-nums'] }}
           >
             {spent}
             {projected && (
-              <Text className="text-[10px] font-sans-medium text-charcoal/55">
+              <Text className="text-[10px] font-sans-medium text-ink/55">
                 {'  '}{projected}
               </Text>
             )}
           </Text>
           {onPress && (
-            <MaterialCommunityIcons name="chevron-right" size={16} color={colors.outline} />
+            <MaterialCommunityIcons name="chevron-right" size={16} color={colors.hairline2} />
           )}
         </View>
       </View>
-      <View className="h-1.5 rounded-full bg-surface-low overflow-hidden flex-row">
+      <View className="h-1.5 rounded-full bg-bg-2 overflow-hidden flex-row">
         <View className={`h-full ${barBg} rounded-full`} style={{ width: `${spentPct}%` }} />
         {projPct > 0 && (
           <View
-            className="h-full border border-dashed border-sand rounded-r-full"
+            className="h-full border border-dashed border-hairline-2 rounded-r-full"
             style={{ width: `${projPct}%`, marginLeft: -1 }}
           />
         )}

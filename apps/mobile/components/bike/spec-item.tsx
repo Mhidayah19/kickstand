@@ -9,10 +9,10 @@ export const CLASS_LABELS: Record<string, string> = {
 export function SpecItem({ label, value }: { label: string; value: string }) {
   return (
     <View>
-      <Text className="text-xxs font-sans-bold text-sand uppercase tracking-widest mb-1">
+      <Text className="text-xxs font-sans-bold text-muted uppercase tracking-widest mb-1">
         {label}
       </Text>
-      <Text className="text-base font-sans-xbold text-charcoal">{value}</Text>
+      <Text className="text-base font-sans-xbold text-ink">{value}</Text>
     </View>
   );
 }

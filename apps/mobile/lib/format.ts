@@ -12,6 +12,23 @@ export function formatLogDate(dateStr: string): string {
   return `${parseInt(day)} ${MONTHS[parseInt(monthStr) - 1]}`;
 }
 
+/** Format a future day count as a tiered compact duration.
+ *  > 1 year  → "3y 5m"   (day precision is noise)
+ *  > 1 month → "5m"      (day precision is noise)
+ *  ≤ 30 days → "29d"     (urgent — show exact days)
+ */
+export function formatCountdown(days: number): string {
+  if (days > 365) {
+    const y = Math.floor(days / 365);
+    const m = Math.floor((days % 365) / 30);
+    return m > 0 ? `${y}y ${m}m` : `${y}y`;
+  }
+  if (days > 30) {
+    return `${Math.floor(days / 30)}m`;
+  }
+  return `${days}d`;
+}
+
 /** Format a number of days into a compact relative string. */
 export function formatDaysAgo(days: number): string {
   if (days === 0) return 'Today';

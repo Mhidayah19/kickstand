@@ -9,7 +9,7 @@ interface Props {
 
 const STYLE: Record<AttentionStatus, { bg: string; text: string }> = {
   overdue: { bg: 'bg-danger/10', text: 'text-danger' },
-  approaching: { bg: 'bg-yellow', text: 'text-charcoal' },
+  approaching: { bg: 'bg-yellow', text: 'text-ink' },
   ok: { bg: 'bg-success/10', text: 'text-success' },
 };
 

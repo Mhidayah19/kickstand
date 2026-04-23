@@ -39,13 +39,13 @@ export function BikeImageCard({
 }: BikeImageCardProps) {
   const isOverdue = status === 'overdue';
   const iconVariant = isOverdue
-    ? { bg: 'bg-charcoal', color: colors.danger, accent: colors.danger }
-    : { bg: 'bg-yellow', color: colors.charcoal, accent: colors.yellow };
+    ? { bg: 'bg-ink', color: colors.danger, accent: colors.danger }
+    : { bg: 'bg-yellow', color: colors.ink, accent: colors.yellow };
 
   return (
     <Pressable
       onPress={onPress}
-      className="bg-surface-card rounded-2xl overflow-hidden"
+      className="bg-surface rounded-2xl overflow-hidden"
       style={({ pressed }) => [
         pressed && { transform: [{ scale: 0.98 }], opacity: 0.95 },
       ]}
@@ -66,10 +66,10 @@ export function BikeImageCard({
             <MaterialCommunityIcons name="motorbike" size={18} color={iconVariant.color} />
           </View>
           <View className="flex-1">
-            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-0.5">
+            <Text className="font-sans-bold text-xxs text-muted uppercase tracking-widest mb-0.5">
               {make}
             </Text>
-            <Text className="font-sans-xbold text-lg text-charcoal leading-tight">{model}</Text>
+            <Text className="font-sans-xbold text-lg text-ink leading-tight">{model}</Text>
           </View>
         </View>
 
@@ -77,21 +77,21 @@ export function BikeImageCard({
         {stats && stats.length > 0 ? (
           <View className="flex-row gap-2">
             {stats.map((stat) => (
-              <View key={stat.label} className="flex-1 bg-surface-low rounded-xl px-3 py-2.5">
+              <View key={stat.label} className="flex-1 bg-bg-2 rounded-xl px-3 py-2.5">
                 <Text
                   className={`font-sans-bold text-xxs uppercase tracking-widest mb-0.5 ${
-                    stat.danger ? 'text-danger' : 'text-sand'
+                    stat.danger ? 'text-danger' : 'text-muted'
                   }`}
                 >
                   {stat.label}
                 </Text>
                 <Text
-                  className={`font-sans-xbold text-sm ${stat.danger ? 'text-danger' : 'text-charcoal'}`}
+                  className={`font-sans-xbold text-sm ${stat.danger ? 'text-danger' : 'text-ink'}`}
                   style={{ fontVariant: ['tabular-nums'] }}
                 >
                   {stat.value}{' '}
                   <Text
-                    className={`font-sans-bold text-xxs ${stat.danger ? 'text-danger/60' : 'text-sand'}`}
+                    className={`font-sans-bold text-xxs ${stat.danger ? 'text-danger/60' : 'text-muted'}`}
                   >
                     {stat.unit}
                   </Text>
@@ -101,23 +101,23 @@ export function BikeImageCard({
           </View>
         ) : (
           /* Fallback: simple mileage + status line (backwards compat) */
-          <Text className="font-sans-medium text-sm text-sand">
+          <Text className="font-sans-medium text-sm text-muted">
             {mileage && `${mileage.value.toLocaleString()} ${mileage.unit} · `}
-            {isOverdue ? 'Service Overdue' : 'Ready to Ride'}
+            {isOverdue ? 'Service overdue' : 'On schedule'}
           </Text>
         )}
       </View>
 
       {/* Last service footer */}
       {lastService && (
-        <View className="flex-row items-center justify-between px-5 py-3 border-t border-surface-low">
-          <Text className="font-sans-medium text-sm text-sand" numberOfLines={1}>
+        <View className="flex-row items-center justify-between px-5 py-3 border-t border-hairline">
+          <Text className="font-sans-medium text-sm text-muted" numberOfLines={1}>
             {lastService.label}
             {lastService.workshop ? ` · ${lastService.workshop}` : ''}
             {' · '}
             {formatDaysAgo(lastService.daysAgo)}
           </Text>
-          <MaterialCommunityIcons name="chevron-right" size={18} color={colors.outline} />
+          <MaterialCommunityIcons name="chevron-right" size={18} color={colors.hairline2} />
         </View>
       )}
     </Pressable>

@@ -21,19 +21,19 @@ export function Section({ eyebrow, label, action, onAction, trailing, children, 
         <View className="flex-row items-end justify-between mb-4 px-1">
           <View>
             {eyebrow && (
-              <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-0.5">
+              <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-ink/55 mb-0.5">
                 {eyebrow}
               </Text>
             )}
             {label && (
-              <Text className="text-[20px] font-sans-xbold text-charcoal tracking-tight">
+              <Text className="text-[20px] font-sans-xbold text-ink tracking-tight">
                 {label}
               </Text>
             )}
           </View>
           {trailing ?? (action && (
             <Pressable onPress={onAction} className="active:opacity-60">
-              <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55">
+              <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-ink/55">
                 {action}
               </Text>
             </Pressable>

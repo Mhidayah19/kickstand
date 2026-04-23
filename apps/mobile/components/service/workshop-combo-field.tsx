@@ -186,7 +186,7 @@ function ExpandedSearch({ onClose }: { onClose: () => void }) {
             returnKeyType="search"
           />
           {search.isFetching ? (
-            <ActivityIndicator size="small" color={colors.charcoal} />
+            <ActivityIndicator size="small" color={colors.ink} />
           ) : query.length > 0 ? (
             <Pressable
               onPress={() => setQuery('')}
@@ -258,7 +258,7 @@ function SearchResults({ items, loading, hasResults, onSelect }: SearchResultsPr
   if (loading && !hasResults) {
     return (
       <View className="py-6 items-center">
-        <ActivityIndicator color={colors.charcoal} />
+        <ActivityIndicator color={colors.ink} />
       </View>
     );
   }
@@ -290,7 +290,7 @@ function YourWorkshops({ items, loading, onSelect }: YourWorkshopsProps) {
   if (loading) {
     return (
       <View className="py-6 items-center">
-        <ActivityIndicator color={colors.charcoal} />
+        <ActivityIndicator color={colors.ink} />
       </View>
     );
   }

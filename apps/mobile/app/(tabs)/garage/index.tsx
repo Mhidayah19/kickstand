@@ -21,7 +21,7 @@ import { useAttention } from '../../../lib/api/use-attention';
 import { useServiceLogs } from '../../../lib/api/use-service-logs';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { serviceTypeToMeta } from '../../../lib/service-type-meta';
-import { formatComplianceDate, formatLogDate } from '../../../lib/format';
+import { formatComplianceDate, formatLogDate, formatCountdown } from '../../../lib/format';
 import { serviceTypeIcon } from '../../../lib/service-icon';
 import {
   TopBar,
@@ -114,7 +114,7 @@ export default function GarageScreen() {
   // ── Loading state (Option A — keep existing TopAppBar) ──────────────────
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-surface">
+      <SafeAreaView className="flex-1 bg-bg">
         <TopAppBar
           activeBike={activeBikeMeta}
           bikes={bikeList}
@@ -143,7 +143,7 @@ export default function GarageScreen() {
   // ── Empty state (Option A — keep existing TopAppBar) ────────────────────
   if (!activeBikeId || !bike) {
     return (
-      <SafeAreaView className="flex-1 bg-surface">
+      <SafeAreaView className="flex-1 bg-bg">
         <TopAppBar
           activeBike={undefined}
           bikes={bikeList}
@@ -175,7 +175,7 @@ export default function GarageScreen() {
   const compliance = complianceItems.map((item) => {
     const days = daysUntil(item.date);
     const urgent = days !== null && days <= 30;
-    const valueText = days === null ? '—' : days <= 0 ? 'Overdue' : `${days}d`;
+    const valueText = days === null ? '—' : days <= 0 ? 'Overdue' : formatCountdown(days);
     return {
       key: item.label,
       label: item.label.toUpperCase(),
@@ -243,8 +243,8 @@ export default function GarageScreen() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent insets={contentInsets} sideOffset={4} align="end">
                   <DropdownMenuItem onPress={() => router.push(`/(tabs)/garage/${activeBikeId}/edit` as any)}>
-                    <MaterialCommunityIcons name="pencil-outline" size={20} color={colors.charcoal} />
-                    <Text className="text-sm font-sans-bold text-charcoal">Edit Bike</Text>
+                    <MaterialCommunityIcons name="pencil-outline" size={20} color={colors.ink} />
+                    <Text className="text-sm font-sans-bold text-ink">Edit Bike</Text>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem variant="destructive" onPress={() => setShowDeleteDialog(true)}>
@@ -257,12 +257,11 @@ export default function GarageScreen() {
           </View>
         </View>
 
-        {/* ── 3. 4-item spec strip ── */}
-        <View className="flex-row px-5 py-5 border-b border-hairline">
+        {/* ── 3. 3-item spec strip ── */}
+        <View className="flex-row justify-between px-5 py-5 border-b border-hairline">
           <SpecItem label="Plate" value={bike.plateNumber ?? '—'} />
           <SpecItem label="Class" value={`Class ${bike.class ?? '—'}`} />
           <SpecItem label="Engine" value={bike.engineCc ? `${bike.engineCc}cc` : '—'} />
-          <SpecItem label="Type" value={bike.bikeType ?? '—'} />
         </View>
 
         {/* ── 4. Compliance 2×2 ── */}
@@ -291,17 +290,19 @@ export default function GarageScreen() {
             action="ALL"
             onActionPress={() => router.push('/(tabs)/service')}
           />
-          {logs.slice(0, 3).map((log) => {
+          {logs.slice(0, 3).map((log, i) => {
             const meta = serviceTypeToMeta(log.serviceType);
             return (
-              <Row
-                key={log.id}
-                icon={serviceTypeIcon(log.serviceType)}
-                title={meta.label}
-                sub={`${formatLogDate(log.date)} · ${log.mileageAt.toLocaleString()} KM`}
-                trail={log.cost ? `S$${parseFloat(log.cost).toFixed(0)}` : undefined}
-                onPress={() => router.push(`/edit-service?id=${log.id}` as any)}
-              />
+              <React.Fragment key={log.id}>
+                {i > 0 && <View className="h-px bg-hairline" />}
+                <Row
+                  icon={serviceTypeIcon(log.serviceType)}
+                  title={meta.label}
+                  sub={`${formatLogDate(log.date)} · ${log.mileageAt.toLocaleString()} KM`}
+                  trail={log.cost ? `S$${parseFloat(log.cost).toFixed(0)}` : undefined}
+                  onPress={() => router.push(`/service/${log.id}?bikeId=${activeBikeId}` as any)}
+                />
+              </React.Fragment>
             );
           })}
         </View>

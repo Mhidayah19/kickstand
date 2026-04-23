@@ -43,8 +43,8 @@ function renderLeftActions(
       style={{ width: 72, justifyContent: 'center', alignItems: 'center', marginRight: 12, marginBottom: 48, backgroundColor: colors.yellow, borderRadius: 16 }}
     >
       <Animated.View style={{ transform: [{ scale }] }}>
-        <MaterialCommunityIcons name="pencil-outline" size={20} color={colors.charcoal} />
-        <Text style={{ fontFamily: 'PlusJakartaSans_700Bold', fontSize: 10, color: colors.charcoal, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 }}>
+        <MaterialCommunityIcons name="pencil-outline" size={20} color={colors.ink} />
+        <Text style={{ fontFamily: 'PlusJakartaSans_700Bold', fontSize: 10, color: colors.ink, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 }}>
           Edit
         </Text>
       </Animated.View>

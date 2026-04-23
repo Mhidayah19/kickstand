@@ -60,7 +60,7 @@ export function ServiceTypeSelector({
 
   return (
     <View>
-      <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest mb-3">
+      <Text className="text-xs font-sans-bold text-muted uppercase tracking-widest mb-3">
         Service Type
       </Text>
 
@@ -68,22 +68,22 @@ export function ServiceTypeSelector({
         {collapsed && (
           <Pressable
             onPress={onExpand}
-            className="bg-surface-low rounded-xl px-5 py-4 flex-row items-center justify-between mb-4 active:opacity-70"
+            className="bg-bg-2 rounded-xl px-5 py-4 flex-row items-center justify-between mb-4 active:opacity-70"
           >
             <View className="flex-row items-center gap-3">
-              <MaterialCommunityIcons name="wrench" size={20} color={colors.charcoal} />
-              <Text className="font-sans-bold text-charcoal text-sm">
+              <MaterialCommunityIcons name="wrench" size={20} color={colors.ink} />
+              <Text className="font-sans-bold text-ink text-sm">
                 {SERVICE_TYPE_LABELS[selected]}
               </Text>
             </View>
-            <MaterialCommunityIcons name="pencil-outline" size={16} color={colors.sand} />
+            <MaterialCommunityIcons name="pencil-outline" size={16} color={colors.muted} />
           </Pressable>
         )}
       </Animated.View>
 
       {!collapsed && frequentTypes.length > 0 && (
         <View className="mb-5">
-          <Text className="text-xxs font-sans-bold text-sand uppercase tracking-widest mb-2.5">
+          <Text className="text-xxs font-sans-bold text-muted uppercase tracking-widest mb-2.5">
             Recent
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8 }}>
@@ -94,23 +94,23 @@ export function ServiceTypeSelector({
                   key={key}
                   onPress={() => onSelect(key)}
                   className={`flex-row items-center gap-2.5 px-4 py-3 rounded-2xl ${
-                    isSelected ? 'bg-charcoal' : 'bg-surface-card'
+                    isSelected ? 'bg-ink' : 'bg-surface'
                   }`}
                 >
                   <View className={`w-8 h-8 rounded-xl items-center justify-center ${
-                    isSelected ? 'bg-yellow/15' : 'bg-surface-low'
+                    isSelected ? 'bg-yellow/15' : 'bg-bg-2'
                   }`}>
                     <MaterialCommunityIcons
                       name={SERVICE_TYPE_ICONS[key]}
                       size={16}
-                      color={isSelected ? colors.yellow : colors.charcoal}
+                      color={isSelected ? colors.yellow : colors.ink}
                     />
                   </View>
                   <View>
-                    <Text className={`font-sans-bold text-sm ${isSelected ? 'text-white' : 'text-charcoal'}`}>
+                    <Text className={`font-sans-bold text-sm ${isSelected ? 'text-white' : 'text-ink'}`}>
                       {SERVICE_TYPE_LABELS[key]}
                     </Text>
-                    <Text className={`font-sans-medium text-xxs ${isSelected ? 'text-yellow' : 'text-sand'}`}>
+                    <Text className={`font-sans-medium text-xxs ${isSelected ? 'text-yellow' : 'text-muted'}`}>
                       Logged {count}×
                     </Text>
                   </View>
@@ -125,14 +125,14 @@ export function ServiceTypeSelector({
         <View className="mb-5">
           <View className="relative">
             <View className="absolute left-4 top-0 bottom-0 justify-center z-10">
-              <MaterialCommunityIcons name="magnify" size={18} color={colors.sand} />
+              <MaterialCommunityIcons name="magnify" size={18} color={colors.muted} />
             </View>
             <TextInput
               value={search}
               onChangeText={setSearch}
               placeholder="Search service type…"
-              placeholderTextColor={colors.outline}
-              className="bg-surface-low rounded-xl pl-11 pr-4 py-3.5 font-sans-medium text-sm text-charcoal"
+              placeholderTextColor={colors.hairline2}
+              className="bg-bg-2 rounded-xl pl-11 pr-4 py-3.5 font-sans-medium text-sm text-ink"
               style={search ? { borderBottomWidth: 2, borderBottomColor: colors.yellow } : undefined}
               autoCorrect={false}
               autoCapitalize="none"
@@ -150,13 +150,13 @@ export function ServiceTypeSelector({
       >
         <View className="gap-5 mb-10">
           {filteredGroups.length === 0 && search.trim() ? (
-            <Text className="font-sans-medium text-sm text-sand text-center py-6">
+            <Text className="font-sans-medium text-sm text-muted text-center py-6">
               No matching service types
             </Text>
           ) : (
             filteredGroups.map((group) => (
               <View key={group.label}>
-                <Text className="text-xxs font-sans-bold text-sand uppercase tracking-widest mb-2.5">
+                <Text className="text-xxs font-sans-bold text-muted uppercase tracking-widest mb-2.5">
                   {group.label}
                 </Text>
                 <View className="flex-row flex-wrap gap-2.5">
@@ -168,20 +168,20 @@ export function ServiceTypeSelector({
                         onPress={() => onSelect(key)}
                         className={`flex-row items-center gap-1.5 px-5 py-3 rounded-2xl border-2 ${
                           isSelected
-                            ? 'bg-charcoal border-charcoal'
-                            : 'bg-surface-low border-transparent'
+                            ? 'bg-ink border-ink'
+                            : 'bg-bg-2 border-transparent'
                         }`}
                         style={{ minWidth: 90 }}
                       >
                         <MaterialCommunityIcons
                           name={SERVICE_TYPE_ICONS[key]}
                           size={14}
-                          color={isSelected ? colors.white : colors.charcoal}
+                          color={isSelected ? colors.white : colors.ink}
                           style={{ opacity: isSelected ? 1 : 0.5 }}
                         />
                         <Text
                           className={`font-sans-bold text-sm ${
-                            isSelected ? 'text-white' : 'text-charcoal'
+                            isSelected ? 'text-white' : 'text-ink'
                           }`}
                         >
                           {SERVICE_TYPE_LABELS[key]}

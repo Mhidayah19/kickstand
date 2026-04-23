@@ -17,7 +17,7 @@ export function StatusCard({
   title,
   status,
   statusVariant,
-  bgClass = 'bg-surface-low',
+  bgClass = 'bg-bg-2',
 }: StatusCardProps) {
   return (
     <View className={`${bgClass} rounded-3xl p-6 flex-1 aspect-square justify-between`}>
@@ -28,7 +28,7 @@ export function StatusCard({
           color={iconColor}
           style={{ marginBottom: 16 }}
         />
-        <Text className="font-sans-bold text-lg text-charcoal leading-tight">{title}</Text>
+        <Text className="font-sans-bold text-lg text-ink leading-tight">{title}</Text>
       </View>
       <PillBadge label={status} variant={statusVariant} />
     </View>

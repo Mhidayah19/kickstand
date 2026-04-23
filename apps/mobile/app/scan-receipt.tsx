@@ -54,7 +54,7 @@ export default function ScanReceiptScreen() {
           onPress={requestPermission}
           className="mt-6 rounded-2xl bg-yellow px-6 py-3"
         >
-          <Text className="font-jakarta-medium text-base text-charcoal">Allow access</Text>
+          <Text className="font-jakarta-medium text-base text-ink">Allow access</Text>
         </Pressable>
       </View>
     );
@@ -101,10 +101,10 @@ export default function ScanReceiptScreen() {
         </Pressable>
       </View>
       <View
-        className="absolute left-8 right-8 top-32 bottom-40 rounded-2xl border-2 border-dashed border-sand"
+        className="absolute left-8 right-8 top-32 bottom-40 rounded-2xl border-2 border-dashed border-hairline-2"
         pointerEvents="none"
       >
-        <Text className="absolute -bottom-8 self-center font-jakarta-medium text-sm text-sand">
+        <Text className="absolute -bottom-8 self-center font-jakarta-medium text-sm text-muted">
           Align receipt in frame
         </Text>
       </View>
@@ -118,7 +118,7 @@ export default function ScanReceiptScreen() {
           disabled={busy}
           className="h-20 w-20 items-center justify-center rounded-full bg-white"
         >
-          <View className="h-16 w-16 rounded-full border-4 border-charcoal" />
+          <View className="h-16 w-16 rounded-full border-4 border-ink" />
         </Pressable>
         <View className="w-7" />
       </View>

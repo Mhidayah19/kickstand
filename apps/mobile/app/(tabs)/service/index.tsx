@@ -222,7 +222,7 @@ export default function ServiceScreen() {
         onAddBikePress={handleAddBike}
       >
         <View className="mb-10">
-          <Text className="text-[34px] font-sans-xbold text-charcoal leading-[1.05] tracking-tight">
+          <Text className="text-[34px] font-sans-xbold text-ink leading-[1.05] tracking-tight">
             Service History
           </Text>
         </View>
@@ -321,9 +321,8 @@ export default function ServiceScreen() {
           {TIME_PERIODS.map((p) => (
             <Pressable
               key={p}
-              className={`flex-1 py-2.5 rounded-[10px] items-center ${timePeriod === p ? 'bg-surface-card' : ''}`}
+              className={`flex-1 py-2.5 rounded-[10px] items-center ${timePeriod === p ? 'bg-bg' : ''}`}
               onPress={() => handleTimePeriodChange(p)}
-              style={timePeriod === p ? { shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 2, elevation: 1 } : undefined}
             >
               <Text className={`font-mono text-[11px] tracking-[0.08em] uppercase ${timePeriod === p ? 'text-ink' : 'text-muted'}`}>
                 {p}
