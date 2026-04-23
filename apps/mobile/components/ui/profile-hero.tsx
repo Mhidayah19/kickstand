@@ -12,13 +12,13 @@ interface ProfileHeroProps {
 
 export function ProfileHero({ name, role, avatarUri, onAvatarPress, onAvatarRemove }: ProfileHeroProps) {
   const avatarCircle = (
-    <View className="w-24 h-24 rounded-full overflow-hidden mb-4" style={{ borderWidth: 4, borderColor: colors.surfaceCard }}>
+    <View className="w-24 h-24 rounded-full overflow-hidden mb-4" style={{ borderWidth: 4, borderColor: colors.surface }}>
       {avatarUri ? (
         <Image source={{ uri: avatarUri }} className="w-full h-full" />
       ) : (
-        <View className="w-full h-full bg-sand/30 items-center justify-center">
+        <View className="w-full h-full bg-muted/30 items-center justify-center">
           {onAvatarPress && (
-            <MaterialCommunityIcons name="camera-plus-outline" size={28} color={colors.sand} />
+            <MaterialCommunityIcons name="camera-plus-outline" size={28} color={colors.muted} />
           )}
         </View>
       )}
@@ -26,14 +26,14 @@ export function ProfileHero({ name, role, avatarUri, onAvatarPress, onAvatarRemo
   );
 
   return (
-    <View className="relative overflow-hidden bg-surface-low rounded-3xl p-8 items-center">
+    <View className="relative overflow-hidden bg-bg-2 rounded-3xl p-8 items-center">
       {/* Decorative circles */}
       <View
         className="absolute rounded-full bg-yellow/10"
         style={{ width: 192, height: 192, top: -48, right: -48 }}
       />
       <View
-        className="absolute rounded-full bg-sand/10"
+        className="absolute rounded-full bg-muted/10"
         style={{ width: 192, height: 192, bottom: -48, left: -48 }}
       />
 
@@ -53,9 +53,9 @@ export function ProfileHero({ name, role, avatarUri, onAvatarPress, onAvatarRemo
         ) : (
           avatarCircle
         )}
-        {name && <Text className="font-sans-xbold text-2xl text-charcoal mb-1">{name}</Text>}
+        {name && <Text className="font-sans-xbold text-2xl text-ink mb-1">{name}</Text>}
         {role && (
-          <View className="bg-charcoal px-3 py-1 rounded-full">
+          <View className="bg-ink px-3 py-1 rounded-full">
             <Text className="font-sans-bold text-xxs text-white uppercase tracking-wide-1">
               {role}
             </Text>

@@ -12,7 +12,7 @@ interface CountdownDisplayProps {
   /** Size of the display number. Default 'xl' for home hero. */
   size?: DisplaySize;
   /** Color token for primary text. Default 'surface' (for dark pedestals). */
-  tone?: 'surface' | 'charcoal';
+  tone?: 'surface' | 'ink';
 }
 
 const sizeClasses: Record<DisplaySize, string> = {
@@ -55,9 +55,9 @@ export function CountdownDisplay({
   tone = 'surface',
 }: CountdownDisplayProps) {
   const effectiveSize = resolveSize(size, value);
-  const primaryText = tone === 'surface' ? 'text-surface' : 'text-charcoal';
-  const secondaryText = tone === 'surface' ? 'text-sand' : 'text-charcoal/55';
-  const tertiaryText = tone === 'surface' ? 'text-surface/70' : 'text-charcoal/55';
+  const primaryText = tone === 'surface' ? 'text-surface' : 'text-ink';
+  const secondaryText = tone === 'surface' ? 'text-muted' : 'text-ink/55';
+  const tertiaryText = tone === 'surface' ? 'text-surface/70' : 'text-ink/55';
 
   return (
     <View>

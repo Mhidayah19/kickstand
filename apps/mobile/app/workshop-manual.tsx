@@ -43,18 +43,18 @@ export default function WorkshopManualScreen() {
           accessibilityRole="button"
           accessibilityLabel="Cancel"
         >
-          <Text className="text-[13px] font-sans-bold text-charcoal">
+          <Text className="text-[13px] font-sans-bold text-ink">
             Cancel
           </Text>
         </Pressable>
-        <Text className="text-[13px] font-sans-bold text-charcoal">
+        <Text className="text-[13px] font-sans-bold text-ink">
           Add workshop
         </Text>
         <View className="w-10" />
       </View>
 
       <View className="mb-lg">
-        <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-2">
+        <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-ink/55 mb-2">
           Workshop name *
         </Text>
         <TextInput
@@ -62,21 +62,21 @@ export default function WorkshopManualScreen() {
           value={name}
           onChangeText={setName}
           placeholder="e.g. Ah Seng Motor"
-          placeholderTextColor={`${colors.charcoal}88`}
-          className="bg-surface-low rounded-2xl px-4 py-4 text-[15px] font-sans-medium text-charcoal"
+          placeholderTextColor={`${colors.ink}88`}
+          className="bg-bg-2 rounded-2xl px-4 py-4 text-[15px] font-sans-medium text-ink"
         />
       </View>
 
       <View className="mb-lg">
-        <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-2">
+        <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-ink/55 mb-2">
           Address (optional)
         </Text>
         <TextInput
           value={address}
           onChangeText={setAddress}
           placeholder="Blk 12 Geylang Lor 13"
-          placeholderTextColor={`${colors.charcoal}88`}
-          className="bg-surface-low rounded-2xl px-4 py-4 text-[15px] font-sans-medium text-charcoal"
+          placeholderTextColor={`${colors.ink}88`}
+          className="bg-bg-2 rounded-2xl px-4 py-4 text-[15px] font-sans-medium text-ink"
         />
       </View>
 
@@ -85,9 +85,9 @@ export default function WorkshopManualScreen() {
         disabled={!canSave}
         accessibilityRole="button"
         accessibilityState={{ disabled: !canSave }}
-        className={`rounded-full py-4 items-center mt-4 ${canSave ? 'bg-yellow active:scale-[0.98]' : 'bg-sand/30'}`}
+        className={`rounded-full py-4 items-center mt-4 ${canSave ? 'bg-yellow active:scale-[0.98]' : 'bg-muted/30'}`}
       >
-        <Text className="text-[13px] font-sans-xbold tracking-wide text-charcoal">
+        <Text className="text-[13px] font-sans-xbold tracking-wide text-ink">
           {create.isPending ? 'Saving…' : 'Save workshop'}
         </Text>
       </Pressable>

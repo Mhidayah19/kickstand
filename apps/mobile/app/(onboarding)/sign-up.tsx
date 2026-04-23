@@ -33,7 +33,7 @@ export default function SignUpScreen() {
 
   return (
     <KeyboardAvoidingView className="flex-1" behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <SafeAreaView className="flex-1 bg-surface">
+      <SafeAreaView className="flex-1 bg-bg">
         <ScrollView contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 24, paddingBottom: 48 }}>
           {/* Back */}
           <TouchableOpacity
@@ -44,16 +44,16 @@ export default function SignUpScreen() {
             accessibilityLabel="Go back"
             accessibilityRole="button"
           >
-            <MaterialCommunityIcons name="chevron-left" size={28} color={colors.charcoal} />
+            <MaterialCommunityIcons name="chevron-left" size={28} color={colors.ink} />
           </TouchableOpacity>
 
           {/* Logo */}
           <View className="mb-xl">
-            <View className="w-12 h-12 bg-charcoal rounded-2xl items-center justify-center mb-md">
+            <View className="w-12 h-12 bg-ink rounded-2xl items-center justify-center mb-md">
               <MaterialCommunityIcons name="motorbike" size={24} color="white" />
             </View>
-            <Text className="text-3xl font-sans-bold text-charcoal">KICKSTAND</Text>
-            <Text className="text-sm font-sans-medium text-sand mt-xs">Your digital garage for the extraordinary.</Text>
+            <Text className="text-3xl font-sans-bold text-ink">KICKSTAND</Text>
+            <Text className="text-sm font-sans-medium text-muted mt-xs">Your digital garage for the extraordinary.</Text>
           </View>
 
           {/* Error banner */}
@@ -86,10 +86,10 @@ export default function SignUpScreen() {
             disabled={isPending}
             activeOpacity={0.8}
           >
-            <Text className="text-charcoal font-sans-bold text-base">
+            <Text className="text-ink font-sans-bold text-base">
               {isPending ? 'Creating...' : 'Create Account'}
             </Text>
-            {!isPending && <Text className="text-charcoal font-sans-bold">→</Text>}
+            {!isPending && <Text className="text-ink font-sans-bold">→</Text>}
           </TouchableOpacity>
 
           {/* Login link */}
@@ -98,9 +98,9 @@ export default function SignUpScreen() {
             onPress={() => router.push('/(auth)/login')}
             activeOpacity={0.7}
           >
-            <Text className="text-sm font-sans-medium text-sand">
+            <Text className="text-sm font-sans-medium text-muted">
               Already have an account?{' '}
-              <Text className="text-charcoal font-sans-semibold">Login</Text>
+              <Text className="text-ink font-sans-semibold">Login</Text>
             </Text>
           </TouchableOpacity>
         </ScrollView>

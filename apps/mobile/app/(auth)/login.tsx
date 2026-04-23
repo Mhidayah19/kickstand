@@ -35,13 +35,13 @@ export default function LoginScreen() {
       <SafeScreen scrollable>
         {/* Logo area */}
         <View className="items-center pt-3xl pb-2xl">
-          <View className="w-16 h-16 bg-charcoal rounded-2xl items-center justify-center mb-lg">
+          <View className="w-16 h-16 bg-ink rounded-2xl items-center justify-center mb-lg">
             <MaterialCommunityIcons name="motorbike" size={24} color="white" />
           </View>
           <DevAuthToggle>
-            <Text className="text-3xl font-sans-bold text-charcoal">Kickstand</Text>
+            <Text className="text-3xl font-sans-bold text-ink">Kickstand</Text>
           </DevAuthToggle>
-          <Text className="text-sm font-sans-medium text-sand mt-xs">{"Your bike's AI companion"}</Text>
+          <Text className="text-sm font-sans-medium text-muted mt-xs">{"Your bike's AI companion"}</Text>
         </View>
 
         {/* Error banner */}
@@ -61,7 +61,7 @@ export default function LoginScreen() {
           </FormField>
 
           <TouchableOpacity
-            className="bg-charcoal rounded-full py-md items-center mt-sm"
+            className="bg-ink rounded-full py-md items-center mt-sm"
             onPress={handleSubmit(onSubmit)}
             disabled={isPending}
             activeOpacity={0.8}
@@ -74,16 +74,16 @@ export default function LoginScreen() {
 
         {/* Separator */}
         <View className="items-center my-2xl">
-          <Text className="text-xs text-sand font-sans-medium">or</Text>
+          <Text className="text-xs text-muted font-sans-medium">or</Text>
         </View>
 
         {/* Create account */}
         <TouchableOpacity
-          className="border border-outline rounded-full py-md items-center"
+          className="border border-hairline-2 rounded-full py-md items-center"
           onPress={() => router.push('/(onboarding)/sign-up')}
           activeOpacity={0.7}
         >
-          <Text className="text-charcoal font-sans-medium text-sm">Create account</Text>
+          <Text className="text-ink font-sans-medium text-sm">Create account</Text>
         </TouchableOpacity>
       </SafeScreen>
     </KeyboardAvoidingView>

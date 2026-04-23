@@ -27,7 +27,7 @@ export function SelectField({
   return (
     <View className={cn('mb-md', className)}>
       <Label.Root>
-        <Label.Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mb-2">
+        <Label.Text className="font-sans-bold text-xxs text-muted uppercase tracking-wide-1 mb-2">
           {label}
         </Label.Text>
       </Label.Root>
@@ -43,14 +43,14 @@ export function SelectField({
             className={cn(
               'px-md py-sm rounded-full border',
               value === opt.value
-                ? 'bg-charcoal border-charcoal'
-                : 'bg-surface border-outline',
+                ? 'bg-ink border-ink'
+                : 'bg-surface border-hairline-2',
             )}
           >
             <Text
               className={cn(
                 'text-sm font-sans-medium',
-                value === opt.value ? 'text-white' : 'text-sand',
+                value === opt.value ? 'text-white' : 'text-muted',
               )}
             >
               {opt.label}

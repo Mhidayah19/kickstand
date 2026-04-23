@@ -68,12 +68,12 @@ export function DateRangeSheet({ visible, onClose, value, onApply }: DateRangeSh
 
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-      <Text className="font-sans-xbold text-2xl text-charcoal mb-1">Select Date Range</Text>
-      <Text className="font-sans-medium text-sm text-charcoal mb-6">
+      <Text className="font-sans-xbold text-2xl text-ink mb-1">Select Date Range</Text>
+      <Text className="font-sans-medium text-sm text-ink mb-6">
         Filter service logs by timeframe
       </Text>
 
-      <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-2 mb-3">
+      <Text className="font-sans-bold text-xxs text-ink uppercase tracking-wide-2 mb-3">
         Quick Select
       </Text>
 
@@ -88,15 +88,15 @@ export function DateRangeSheet({ visible, onClose, value, onApply }: DateRangeSh
               onPress={() => handlePreset(key)}
               className={`px-4 py-2 rounded-full flex-row items-center gap-1 ${
                 isActive && !isCustomType
-                  ? 'bg-charcoal'
+                  ? 'bg-ink'
                   : isCustomType
-                  ? 'border border-charcoal bg-transparent'
-                  : 'bg-surface-low'
+                  ? 'border border-ink bg-transparent'
+                  : 'bg-bg-2'
               }`}
             >
               <Text
                 className={`font-sans-bold text-sm ${
-                  isActive && !isCustomType ? 'text-white' : 'text-charcoal'
+                  isActive && !isCustomType ? 'text-white' : 'text-ink'
                 }`}
               >
                 {label}
@@ -129,7 +129,7 @@ export function DateRangeSheet({ visible, onClose, value, onApply }: DateRangeSh
 
       <PrimaryButton
         label="Apply Range"
-        icon="arrow-right"
+        icon="arrowRight"
         variant="accent"
         onPress={handleApply}
         disabled={applyDisabled}

@@ -14,16 +14,16 @@ export function EmptyState({ title, description, actionLabel, onAction }: EmptyS
     <Pressable
       onPress={onAction}
       disabled={!onAction}
-      className="h-40 border-2 border-dashed border-sand/40 rounded-3xl items-center justify-center gap-2 active:border-yellow"
+      className="h-40 border-2 border-dashed border-hairline-2/40 rounded-3xl items-center justify-center gap-2 active:border-yellow"
     >
-      <View className="w-12 h-12 rounded-full bg-sand/10 items-center justify-center">
-        <MaterialCommunityIcons name="plus" size={24} color={colors.sand} />
+      <View className="w-12 h-12 rounded-full bg-muted/10 items-center justify-center">
+        <MaterialCommunityIcons name="plus" size={24} color={colors.muted} />
       </View>
-      <Text className="font-sans-bold text-sm text-sand tracking-wide-1">
+      <Text className="font-sans-bold text-sm text-muted tracking-wide-1">
         {actionLabel || title}
       </Text>
       {description && (
-        <Text className="font-sans-medium text-xs text-sand/70 text-center px-6">
+        <Text className="font-sans-medium text-xs text-muted/70 text-center px-6">
           {description}
         </Text>
       )}

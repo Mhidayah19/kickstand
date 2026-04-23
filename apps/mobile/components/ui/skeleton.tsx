@@ -24,7 +24,7 @@ export function Skeleton({ width, height = 16, rounded = false, className = '' }
 
   return (
     <Animated.View
-      className={`bg-surface-low ${rounded ? 'rounded-full' : 'rounded-sm'} ${className}`}
+      className={`bg-bg-2 ${rounded ? 'rounded-full' : 'rounded-sm'} ${className}`}
       style={{ width, height, opacity }}
     />
   );

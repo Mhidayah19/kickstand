@@ -11,10 +11,10 @@ export default function SuccessScreen() {
   const goToDashboard = () => router.replace('/(tabs)');
 
   return (
-    <SafeAreaView className="flex-1 bg-surface px-lg">
+    <SafeAreaView className="flex-1 bg-bg px-lg">
       {/* Hero block — echoes slide 1 */}
       <View
-        className="bg-charcoal rounded-3xl overflow-hidden justify-end px-lg pb-lg mt-4"
+        className="bg-ink rounded-3xl overflow-hidden justify-end px-lg pb-lg mt-4"
         style={{ height: SCREEN_HEIGHT * 0.45 }}
       >
         <Text
@@ -34,12 +34,12 @@ export default function SuccessScreen() {
 
       {/* Copy */}
       <View className="mt-xl flex-1">
-        <Text className="font-sans-medium text-sand text-base">
+        <Text className="font-sans-medium text-muted text-base">
           Your atelier is ready. Add your first motorcycle to begin the record.
         </Text>
         <View className="flex-row items-center gap-xs mt-lg">
-          <MaterialCommunityIcons name="check-circle-outline" size={14} color={colors.sand} />
-          <Text className="text-xs font-sans-bold text-sand uppercase tracking-widest">
+          <MaterialCommunityIcons name="check-circle-outline" size={14} color={colors.muted} />
+          <Text className="text-xs font-sans-bold text-muted uppercase tracking-widest">
             Account Created
           </Text>
         </View>
@@ -51,8 +51,8 @@ export default function SuccessScreen() {
         onPress={goToDashboard}
         activeOpacity={0.8}
       >
-        <Text className="text-charcoal font-sans-bold text-base">Go to Dashboard</Text>
-        <Text className="text-charcoal font-sans-bold">→</Text>
+        <Text className="text-ink font-sans-bold text-base">Go to Dashboard</Text>
+        <Text className="text-ink font-sans-bold">→</Text>
       </TouchableOpacity>
     </SafeAreaView>
   );

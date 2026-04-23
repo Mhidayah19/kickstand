@@ -19,10 +19,10 @@ export function PartsUsed({ serviceTypeKey, parts, onUpdate, onAdd, onRemove }: 
   return (
     <View className="mb-6">
       <View className="flex-row items-center justify-between mb-3">
-        <Text className="text-xs font-sans-bold text-sand uppercase tracking-wide-1">
+        <Text className="text-xs font-sans-bold text-muted uppercase tracking-wide-1">
           Parts Used
         </Text>
-        <Text className="text-xxs font-sans-bold text-sand uppercase tracking-wide-1">
+        <Text className="text-xxs font-sans-bold text-muted uppercase tracking-wide-1">
           Optional
         </Text>
       </View>
@@ -45,7 +45,7 @@ export function PartsUsed({ serviceTypeKey, parts, onUpdate, onAdd, onRemove }: 
                 hitSlop={8}
                 className="active:opacity-50"
               >
-                <MaterialCommunityIcons name="close" size={18} color={colors.outline} />
+                <MaterialCommunityIcons name="close" size={18} color={colors.hairline2} />
               </Pressable>
             )}
           </View>
@@ -54,10 +54,10 @@ export function PartsUsed({ serviceTypeKey, parts, onUpdate, onAdd, onRemove }: 
 
       <Pressable
         onPress={onAdd}
-        className="mt-3 py-3 rounded-xl border-2 border-dashed border-sand/40 flex-row items-center justify-center gap-2 active:opacity-70"
+        className="mt-3 py-3 rounded-xl border-2 border-dashed border-hairline-2/40 flex-row items-center justify-center gap-2 active:opacity-70"
       >
-        <MaterialCommunityIcons name="plus" size={18} color={colors.sand} />
-        <Text className="text-xs font-sans-bold text-sand uppercase tracking-wide-1">
+        <MaterialCommunityIcons name="plus" size={18} color={colors.muted} />
+        <Text className="text-xs font-sans-bold text-muted uppercase tracking-wide-1">
           Add Item
         </Text>
       </Pressable>

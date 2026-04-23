@@ -35,7 +35,7 @@ export default function OcrAnalyzingScreen() {
   }, [receiptUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <View className="flex-1 bg-surface items-center justify-center px-8">
+    <View className="flex-1 bg-bg items-center justify-center px-8">
       <Pressable
         onPress={() => router.back()}
         accessibilityLabel="Cancel OCR"
@@ -51,8 +51,8 @@ export default function OcrAnalyzingScreen() {
           resizeMode="cover"
         />
       ) : null}
-      <Text className="mt-8 font-jakarta-medium text-lg text-charcoal">Reading receipt…</Text>
-      <Text className="mt-1 font-jakarta-medium text-sm text-sand">This takes ~3 sec</Text>
+      <Text className="mt-8 font-jakarta-medium text-lg text-ink">Reading receipt…</Text>
+      <Text className="mt-1 font-jakarta-medium text-sm text-muted">This takes ~3 sec</Text>
 
       <OcrErrorSheet
         visible={error !== null}

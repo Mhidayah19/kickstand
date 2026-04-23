@@ -52,12 +52,12 @@ export function BottomSheet({
           { transform: [{ translateY }] },
           maxHeight ? { maxHeight } : undefined,
         ]}
-        className="absolute bottom-0 left-0 right-0 bg-surface-card rounded-t-2xl px-6 pt-3 pb-6"
+        className="absolute bottom-0 left-0 right-0 bg-surface rounded-t-2xl px-6 pt-3 pb-6"
       >
         {/* Drag handle */}
-        <View className="w-10 h-1 bg-surface-low rounded-full self-center mb-4" />
+        <View className="w-10 h-1 bg-bg-2 rounded-full self-center mb-4" />
         {title ? (
-          <Text className="text-base font-sans-bold text-charcoal mb-3">{title}</Text>
+          <Text className="text-base font-sans-bold text-ink mb-3">{title}</Text>
         ) : null}
         {scrollable ? (
           <ScrollView showsVerticalScrollIndicator={false} bounces={false}>

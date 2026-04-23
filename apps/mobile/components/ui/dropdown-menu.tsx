@@ -48,7 +48,7 @@ function DropdownMenuContent({
           <NativeOnlyAnimatedView>
             <DropdownMenuPrimitive.Content
               className={cn(
-                'bg-surface-card min-w-[10rem] overflow-hidden rounded-2xl p-1 shadow-lg shadow-black/5',
+                'bg-surface min-w-[10rem] overflow-hidden rounded-2xl p-1 border border-hairline-2',
                 className
               )}
               {...props}
@@ -71,7 +71,7 @@ function DropdownMenuItem({
   return (
     <DropdownMenuPrimitive.Item
       className={cn(
-        'active:bg-surface-low group relative flex flex-row items-center gap-3 rounded-xl px-4 py-3',
+        'active:bg-bg-2 group relative flex flex-row items-center gap-3 rounded-xl px-4 py-3',
         variant === 'destructive' && 'active:bg-danger/10',
         props.disabled && 'opacity-50',
         className
@@ -87,7 +87,7 @@ function DropdownMenuSeparator({
 }: React.ComponentProps<typeof DropdownMenuPrimitive.Separator>) {
   return (
     <DropdownMenuPrimitive.Separator
-      className={cn('bg-surface-low -mx-1 my-1 h-px', className)}
+      className={cn('bg-bg-2 -mx-1 my-1 h-px', className)}
       {...props}
     />
   );

@@ -58,35 +58,35 @@ export function DismissibleCallout({
       }}
       className="mb-10"
     >
-      <View className="relative bg-sand/30 rounded-3xl p-6 pr-10 overflow-hidden">
+      <View className="relative bg-muted/30 rounded-3xl p-6 pr-10 overflow-hidden">
         <Pressable
           onPress={handleDismiss}
-          className="absolute top-4 right-4 w-7 h-7 rounded-full bg-surface-card/80 items-center justify-center active:scale-95"
+          className="absolute top-4 right-4 w-7 h-7 rounded-full bg-surface/80 items-center justify-center active:scale-95"
           hitSlop={8}
         >
-          <MaterialCommunityIcons name="close" size={16} color={colors.charcoal} />
+          <MaterialCommunityIcons name="close" size={16} color={colors.ink} />
         </Pressable>
         <View className="flex-row items-start gap-4">
-          <View className="w-11 h-11 rounded-2xl bg-charcoal items-center justify-center">
+          <View className="w-11 h-11 rounded-2xl bg-ink items-center justify-center">
             <MaterialCommunityIcons name={icon as any} size={22} color={colors.yellow} />
           </View>
           <View className="flex-1 min-w-0">
             {eyebrow && (
-              <Text className="text-[9px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-1">
+              <Text className="text-[9px] font-sans-bold tracking-atelier uppercase text-ink/55 mb-1">
                 {eyebrow}
               </Text>
             )}
-            <Text className="text-[17px] font-sans-xbold text-charcoal leading-snug mb-1.5">
+            <Text className="text-[17px] font-sans-xbold text-ink leading-snug mb-1.5">
               {title}
             </Text>
-            <Text className="text-[13px] font-sans-medium text-charcoal/80 leading-relaxed mb-4">
+            <Text className="text-[13px] font-sans-medium text-ink/80 leading-relaxed mb-4">
               {body}
             </Text>
             <View className="flex-row items-center gap-3">
               {primaryLabel && onPrimary && (
                 <Pressable
                   onPress={onPrimary}
-                  className="px-4 py-2 rounded-full bg-charcoal active:opacity-80"
+                  className="px-4 py-2 rounded-full bg-ink active:opacity-80"
                 >
                   <Text className="text-[11px] font-sans-bold tracking-wide text-surface">
                     {primaryLabel}
@@ -95,7 +95,7 @@ export function DismissibleCallout({
               )}
               {secondaryLabel && onSecondary && (
                 <Pressable onPress={onSecondary} className="active:opacity-70">
-                  <Text className="text-[11px] font-sans-bold tracking-wide text-charcoal/70">
+                  <Text className="text-[11px] font-sans-bold tracking-wide text-ink/70">
                     {secondaryLabel}
                   </Text>
                 </Pressable>

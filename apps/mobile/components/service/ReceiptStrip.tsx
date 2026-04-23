@@ -12,7 +12,7 @@ const thumbContainerStyle = {
   height: THUMB,
   borderRadius: THUMB_RADIUS,
   overflow: 'hidden' as const,
-  backgroundColor: colors.surfaceLow,
+  backgroundColor: colors.bg2,
 };
 
 const removeBadgeStyle = {
@@ -62,10 +62,10 @@ export function ReceiptStrip({
     return (
       <Pressable
         onPress={onAdd}
-        className="border-2 border-dashed border-outline rounded-xl py-3xl items-center justify-center active:opacity-70"
+        className="border-2 border-dashed border-hairline-2 rounded-xl py-3xl items-center justify-center active:opacity-70"
       >
-        <MaterialCommunityIcons name="camera-outline" size={28} color={colors.outline} />
-        <Text className="font-sans-bold text-sm text-outline mt-sm">
+        <MaterialCommunityIcons name="camera-outline" size={28} color={colors.hairline2} />
+        <Text className="font-sans-bold text-sm text-muted mt-sm">
           Upload Evidence
         </Text>
       </Pressable>
@@ -102,7 +102,7 @@ export function ReceiptStrip({
               width: THUMB,
               height: THUMB,
               borderRadius: THUMB_RADIUS,
-              backgroundColor: colors.surfaceLow,
+              backgroundColor: colors.bg2,
               alignItems: 'center',
               justifyContent: 'center',
               gap: 4,
@@ -124,22 +124,22 @@ export function ReceiptStrip({
               borderRadius: THUMB_RADIUS,
               borderWidth: 1.5,
               borderStyle: 'dashed',
-              borderColor: colors.outline,
+              borderColor: colors.hairline2,
               alignItems: 'center',
               justifyContent: 'center',
               gap: 2,
             }}
             className="active:opacity-70"
           >
-            <MaterialCommunityIcons name="plus" size={20} color={colors.outline} />
-            <Text style={{ color: colors.outline, fontSize: 9, fontFamily: 'PlusJakartaSans_700Bold' }}>
+            <MaterialCommunityIcons name="plus" size={20} color={colors.hairline2} />
+            <Text style={{ color: colors.hairline2, fontSize: 9, fontFamily: 'PlusJakartaSans_700Bold' }}>
               Add
             </Text>
           </Pressable>
         )}
       </ScrollView>
 
-      <Text className="font-sans-medium text-xxs text-sand text-right mt-1">
+      <Text className="font-sans-medium text-xxs text-muted text-right mt-1">
         {urls.length} of {maxCount}
       </Text>
     </View>

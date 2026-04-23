@@ -55,44 +55,44 @@ export default function PredictionScreen() {
       <View className="flex-row items-center mb-6">
         <Pressable
           onPress={() => router.back()}
-          className="w-9 h-9 rounded-full bg-sand/20 items-center justify-center active:scale-95 mr-3"
+          className="w-9 h-9 rounded-full bg-muted/20 items-center justify-center active:scale-95 mr-3"
           hitSlop={8}
         >
-          <MaterialCommunityIcons name="arrow-left" size={20} color={colors.charcoal} />
+          <MaterialCommunityIcons name="arrow-left" size={20} color={colors.ink} />
         </Pressable>
-        <Text className="text-[13px] font-sans-bold tracking-atelier uppercase text-charcoal">
+        <Text className="text-[13px] font-sans-bold tracking-atelier uppercase text-ink">
           Prediction
         </Text>
       </View>
 
       {/* Header */}
       <View className="mb-6">
-        <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-1">
+        <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-ink/55 mb-1">
           Engine Oil
         </Text>
-        <Text className="text-[30px] font-sans-xbold text-charcoal tracking-tight leading-[1.05]">
+        <Text className="text-[30px] font-sans-xbold text-ink tracking-tight leading-[1.05]">
           Your next oil change
         </Text>
-        <Text className="text-sm font-sans-medium text-charcoal/55 mt-1">
+        <Text className="text-sm font-sans-medium text-ink/55 mt-1">
           How we estimated your next service
         </Text>
       </View>
 
       {/* State toggle */}
-      <View className="bg-sand/10 rounded-3xl p-4 mb-6">
-        <Text className="text-[9px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-2 px-2">
+      <View className="bg-muted/10 rounded-3xl p-4 mb-6">
+        <Text className="text-[9px] font-sans-bold tracking-atelier uppercase text-ink/55 mb-2 px-2">
           Preview confidence state
         </Text>
-        <View className="flex-row gap-1 bg-surface-low rounded-2xl p-1">
+        <View className="flex-row gap-1 bg-bg-2 rounded-2xl p-1">
           {STATES.map((s) => (
             <Pressable
               key={s.key}
               onPress={() => setState(s.key)}
-              className={`flex-1 py-2.5 rounded-xl items-center active:opacity-70 ${state === s.key ? 'bg-charcoal' : ''}`}
+              className={`flex-1 py-2.5 rounded-xl items-center active:opacity-70 ${state === s.key ? 'bg-ink' : ''}`}
             >
               <Text
                 className={`text-[10px] font-sans-bold tracking-atelier uppercase ${
-                  state === s.key ? 'text-surface' : 'text-charcoal/55'
+                  state === s.key ? 'text-surface' : 'text-ink/55'
                 }`}
               >
                 {s.label}
@@ -106,7 +106,7 @@ export default function PredictionScreen() {
       <HeroPedestal>
         <View className="p-8">
           <View className="flex-row items-center justify-between mb-6">
-            <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-sand">
+            <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-muted">
               Oil Change In
             </Text>
             <ConfidenceBadge level={state as ConfidenceLevel} />
@@ -128,25 +128,25 @@ export default function PredictionScreen() {
       </HeroPedestal>
 
       {/* Historical accuracy (static placeholder) */}
-      <View className="bg-sand/10 rounded-3xl p-6 mt-6 mb-6">
+      <View className="bg-muted/10 rounded-3xl p-6 mt-6 mb-6">
         <View className="flex-row items-center justify-between mb-4">
-          <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55">
+          <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-ink/55">
             Prediction accuracy
           </Text>
           <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-success">
             ± 40 km avg
           </Text>
         </View>
-        <Text className="text-[11px] font-sans-medium text-charcoal/55 leading-relaxed">
+        <Text className="text-[11px] font-sans-medium text-ink/55 leading-relaxed">
           Previous oil change predictions landed within 40 km of actual service on average.
         </Text>
       </View>
 
       {/* Contributing factors */}
-      <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-charcoal/55 mb-3 px-1">
+      <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-ink/55 mb-3 px-1">
         Contributing factors
       </Text>
-      <View className="bg-sand/10 rounded-3xl overflow-hidden mb-6">
+      <View className="bg-muted/10 rounded-3xl overflow-hidden mb-6">
         {[
           { icon: 'speedometer', label: 'Riding intensity', value: '+14%', danger: false },
           { icon: 'map-marker-distance', label: 'Last 60 days distance', value: '1,840 km' },
@@ -155,13 +155,13 @@ export default function PredictionScreen() {
         ].map((f, i) => (
           <View
             key={f.label}
-            className={`flex-row items-center justify-between px-5 py-4 ${i > 0 ? 'border-t border-sand/20' : ''}`}
+            className={`flex-row items-center justify-between px-5 py-4 ${i > 0 ? 'border-t border-hairline-2/20' : ''}`}
           >
             <View className="flex-row items-center gap-3">
-              <MaterialCommunityIcons name={f.icon as any} size={18} color={colors.charcoal} />
-              <Text className="text-[13px] font-sans-bold text-charcoal">{f.label}</Text>
+              <MaterialCommunityIcons name={f.icon as any} size={18} color={colors.ink} />
+              <Text className="text-[13px] font-sans-bold text-ink">{f.label}</Text>
             </View>
-            <Text className={`text-[12px] font-sans-bold ${f.danger ? 'text-danger' : 'text-charcoal'}`}>
+            <Text className={`text-[12px] font-sans-bold ${f.danger ? 'text-danger' : 'text-ink'}`}>
               {f.value}
             </Text>
           </View>
@@ -170,7 +170,7 @@ export default function PredictionScreen() {
 
       <Pressable
         onPress={() => router.push('/add-service')}
-        className="w-full bg-charcoal rounded-full py-4 items-center active:opacity-85 mb-8"
+        className="w-full bg-ink rounded-full py-4 items-center active:opacity-85 mb-8"
       >
         <Text className="text-[13px] font-sans-bold tracking-wide text-surface">Log this service</Text>
       </Pressable>

@@ -70,16 +70,16 @@ export function DateField({ label, value = '', onChange, error, className }: Dat
   return (
     <View className={cn(className)}>
       <TouchableOpacity
-        className="bg-surface-low p-6 rounded-xl overflow-hidden"
+        className="bg-bg-2 p-6 rounded-xl overflow-hidden"
         onPress={handleOpen}
         activeOpacity={0.7}
       >
         <Label.Root onPress={handleOpen}>
-          <Label.Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-1 mb-2">
+          <Label.Text className="font-sans-bold text-xxs text-ink uppercase tracking-wide-1 mb-2">
             {label}
           </Label.Text>
         </Label.Root>
-        <Text className={cn('font-sans-bold text-xl', value ? 'text-charcoal' : 'text-outline')}>
+        <Text className={cn('font-sans-bold text-xl', value ? 'text-ink' : 'text-muted')}>
           {formatDisplay(value)}
         </Text>
         <Animated.View
@@ -101,7 +101,7 @@ export function DateField({ label, value = '', onChange, error, className }: Dat
           <View className="bg-surface rounded-t-3xl px-6 pb-8 pt-4">
             <View className="flex-row justify-between items-center mb-2">
               <Pressable onPress={handleClose} hitSlop={8}>
-                <Text className="font-sans-bold text-sm text-charcoal">Cancel</Text>
+                <Text className="font-sans-bold text-sm text-ink">Cancel</Text>
               </Pressable>
               <Pressable onPress={handleDone} hitSlop={8}>
                 <Text className="font-sans-bold text-sm text-yellow">Done</Text>

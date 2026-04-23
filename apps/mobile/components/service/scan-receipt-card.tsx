@@ -15,10 +15,10 @@ export function ScanReceiptCard({ onPress, variant = 'full' }: ScanReceiptCardPr
         onPress={onPress}
         accessibilityRole="button"
         accessibilityLabel="Scan a receipt to auto-fill the form"
-        className="self-start flex-row items-center gap-2 rounded-full bg-charcoal px-4 py-2.5 active:opacity-85"
+        className="self-start flex-row items-center gap-2 rounded-full bg-ink px-4 py-2.5 active:opacity-85"
       >
         <MaterialCommunityIcons name="line-scan" size={16} color={colors.yellow} />
-        <Text className="text-[12px] font-sans-bold tracking-wide-1 uppercase text-surface-card">
+        <Text className="text-[12px] font-sans-bold tracking-wide-1 uppercase text-surface">
           Scan receipt
         </Text>
       </Pressable>
@@ -31,7 +31,7 @@ export function ScanReceiptCard({ onPress, variant = 'full' }: ScanReceiptCardPr
       accessibilityRole="button"
       accessibilityLabel="Scan a receipt to auto-fill the service log"
       testID="scan-receipt-card"
-      className="rounded-3xl bg-charcoal p-lg active:opacity-90"
+      className="rounded-3xl bg-ink p-lg active:opacity-90"
     >
       <View className="flex-row items-center gap-md">
         <View className="h-14 w-14 items-center justify-center rounded-2xl bg-yellow/20">
@@ -41,10 +41,10 @@ export function ScanReceiptCard({ onPress, variant = 'full' }: ScanReceiptCardPr
           <Text className="text-[10px] font-sans-bold tracking-atelier uppercase text-yellow/85 mb-0.5">
             Faster
           </Text>
-          <Text className="text-[17px] font-sans-bold text-surface-card leading-tight">
+          <Text className="text-[17px] font-sans-bold text-surface leading-tight">
             Scan a receipt
           </Text>
-          <Text className="text-[12px] font-sans-medium text-surface-card/60 mt-0.5 leading-snug">
+          <Text className="text-[12px] font-sans-medium text-surface/60 mt-0.5 leading-snug">
             Auto-fill date, workshop, items and cost
           </Text>
         </View>

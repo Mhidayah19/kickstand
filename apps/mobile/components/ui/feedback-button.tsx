@@ -36,7 +36,7 @@ export function FeedbackButton() {
     <Pressable
       onPress={handlePress}
       hitSlop={8}
-      className="absolute z-50 w-11 h-11 rounded-full bg-charcoal/80 items-center justify-center active:opacity-70"
+      className="absolute z-50 w-11 h-11 rounded-full bg-ink/80 items-center justify-center active:opacity-70"
       style={{ right: 20, bottom: insets.bottom + 100 }}
     >
       <MaterialCommunityIcons name="bug-outline" size={20} color={colors.surface} />

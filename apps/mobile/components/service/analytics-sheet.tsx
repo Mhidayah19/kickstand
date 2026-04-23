@@ -43,25 +43,25 @@ export function AnalyticsSheet({
       scrollable
       maxHeight={height * 0.78}
     >
-      <Text className="font-sans-xbold text-lg text-charcoal mb-1">Maintenance Insights</Text>
-      <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-2 mb-5">
+      <Text className="font-sans-xbold text-lg text-ink mb-1">Maintenance Insights</Text>
+      <Text className="font-sans-bold text-xxs text-muted uppercase tracking-wide-2 mb-5">
         {bikeModel} · {periodLabel}
       </Text>
 
       <View className="flex-row gap-3 mb-6">
-        <View className="flex-1 bg-surface-low rounded-xl p-4">
-          <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mb-1">
+        <View className="flex-1 bg-bg-2 rounded-xl p-4">
+          <Text className="font-sans-bold text-xxs text-muted uppercase tracking-wide-1 mb-1">
             Total Spend
           </Text>
-          <Text className="font-sans-xbold text-lg text-charcoal">
+          <Text className="font-sans-xbold text-lg text-ink">
             ${totalSpend.toFixed(2)}
           </Text>
         </View>
-        <View className="flex-1 bg-surface-low rounded-xl p-4">
-          <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mb-1">
+        <View className="flex-1 bg-bg-2 rounded-xl p-4">
+          <Text className="font-sans-bold text-xxs text-muted uppercase tracking-wide-1 mb-1">
             Per 1,000 km
           </Text>
-          <Text className="font-sans-xbold text-lg text-charcoal">
+          <Text className="font-sans-xbold text-lg text-ink">
             {costPerKm !== null ? `$${Math.round(costPerKm)}` : '—'}
           </Text>
         </View>
@@ -69,7 +69,7 @@ export function AnalyticsSheet({
 
       {byCategory.length > 0 && (
         <View className="mb-6">
-          <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-2 mb-4">
+          <Text className="font-sans-bold text-xxs text-muted uppercase tracking-wide-2 mb-4">
             Spend by Category
           </Text>
           <CategoryBarChart data={byCategory} />
@@ -78,7 +78,7 @@ export function AnalyticsSheet({
 
       {byMonth.length > 0 && (
         <View className="mb-2">
-          <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-2 mb-4">
+          <Text className="font-sans-bold text-xxs text-muted uppercase tracking-wide-2 mb-4">
             Monthly Spend
           </Text>
           <MonthlyBarChart data={byMonth} />
@@ -86,7 +86,7 @@ export function AnalyticsSheet({
       )}
 
       {logs.length === 0 && (
-        <Text className="font-sans-medium text-sm text-sand text-center py-8">
+        <Text className="font-sans-medium text-sm text-muted text-center py-8">
           No service logs in this period.
         </Text>
       )}

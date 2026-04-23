@@ -1,8 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { ConfirmationDialog } from '../../../components/ui/confirmation-dialog';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { ReceiptStrip } from '../../../components/service/ReceiptStrip';
@@ -13,51 +12,45 @@ import { useImageUpload } from '../../../lib/hooks/use-image-upload';
 import { useBikeStore } from '../../../lib/store/bike-store';
 import { colors } from '../../../lib/colors';
 import { SERVICE_TYPE_LABELS } from '../../../lib/constants/service-types';
-import type { ServiceTypeKey, IconName } from '../../../lib/constants/service-types';
-
-const PART_ICON_RULES: { keywords: string[]; icon: IconName }[] = [
-  { keywords: ['spark', 'plug'],                    icon: 'lightning-bolt' },
-  { keywords: ['brake', 'fluid', 'dot'],            icon: 'alert-circle' },
-  { keywords: ['air', 'filter'],                    icon: 'air-filter' },
-  { keywords: ['oil', 'engine oil', 'fork oil'],    icon: 'oil' },
-  { keywords: ['chain'],                            icon: 'link-variant' },
-  { keywords: ['tire', 'tyre'],                     icon: 'circle-outline' },
-  { keywords: ['battery'],                          icon: 'battery' },
-  { keywords: ['coolant', 'antifreeze'],            icon: 'thermometer' },
-  { keywords: ['clutch'],                           icon: 'cog' },
-  { keywords: ['pad', 'brake pad'],                 icon: 'alert-circle' },
-];
-
-function getPartIcon(name: string): IconName {
-  const lower = name.toLowerCase();
-  for (const rule of PART_ICON_RULES) {
-    if (rule.keywords.some((kw) => lower.includes(kw))) return rule.icon;
-  }
-  return 'wrench';
-}
+import type { ServiceTypeKey } from '../../../lib/constants/service-types';
+import { Icon, Eyebrow } from '../../../components/ui/atelier';
 
 function formatDate(iso: string): string {
   const d = new Date(iso);
-  if (isNaN(d.getTime())) return 'Unknown date';
-  return d.toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' });
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('en-SG', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 function formatCost(cost: string): string {
   const num = parseFloat(cost);
-  return isNaN(num) ? '$0.00' : `$${num.toFixed(2)}`;
+  return isNaN(num) ? 'S$0' : `S$${num % 1 === 0 ? num.toFixed(0) : num.toFixed(2)}`;
 }
 
 function formatMileage(mileage: number): string {
-  return `${mileage.toLocaleString('en-US')} km`;
+  return `${mileage.toLocaleString('en-SG')} km`;
 }
 
+function BackBtn() {
+  const router = useRouter();
+  return (
+    <Pressable onPress={() => router.back()} hitSlop={12} className="w-9 h-9 items-center justify-center">
+      <View style={{ transform: [{ rotate: '180deg' }] }}>
+        <Icon name="chevron" size={18} stroke={colors.ink} />
+      </View>
+    </Pressable>
+  );
+}
+
+const Divider = () => <View className="h-px bg-hairline mx-5" />;
+
 export default function ServiceDetailScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, bikeId: bikeIdParam } = useLocalSearchParams<{ id: string; bikeId?: string }>();
   const router = useRouter();
   const { activeBikeId } = useBikeStore();
-  const { data: log, isLoading } = useServiceLog(activeBikeId, id ?? null);
-  const deleteLog = useDeleteServiceLog(activeBikeId);
-  const updateLog = useUpdateServiceLog(activeBikeId);
+  const bikeId = bikeIdParam ?? activeBikeId;
+  const { data: log, isLoading } = useServiceLog(bikeId, id ?? null);
+  const deleteLog = useDeleteServiceLog(bikeId);
+  const updateLog = useUpdateServiceLog(bikeId);
   const { uploadingCount, pickAndUploadMultiple } = useImageUpload({
     bucket: 'receipts',
     prefix: id ?? '',
@@ -68,9 +61,9 @@ export default function ServiceDetailScreen() {
   const [viewerVisible, setViewerVisible] = useState(false);
 
   const handleEdit = useCallback(() => {
-    if (!id || !activeBikeId) return;
-    router.push(`/edit-service?logId=${id}&bikeId=${activeBikeId}`);
-  }, [id, activeBikeId, router]);
+    if (!id || !bikeId) return;
+    router.push(`/edit-service?logId=${id}&bikeId=${bikeId}`);
+  }, [id, bikeId, router]);
 
   const handleConfirmDelete = useCallback(() => {
     if (!id) return;
@@ -81,7 +74,7 @@ export default function ServiceDetailScreen() {
       },
       onError: () => {
         setShowDeleteDialog(false);
-        Alert.alert('Error', 'Failed to delete service log. Please try again.');
+        Alert.alert('Error', 'Failed to delete service log.');
       },
     });
   }, [id, deleteLog, router]);
@@ -97,7 +90,7 @@ export default function ServiceDetailScreen() {
       { logId: id!, input: { receiptUrls: [...existing, ...newUrls] } },
       {
         onSuccess: () => Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success),
-        onError: () => Alert.alert('Error', 'Failed to save receipt. Please try again.'),
+        onError: () => Alert.alert('Error', 'Failed to save receipt.'),
       },
     );
   }, [log, id, pickAndUploadMultiple, updateLog]);
@@ -107,9 +100,7 @@ export default function ServiceDetailScreen() {
     const updated = log.receiptUrls.filter((_, i) => i !== index);
     updateLog.mutate(
       { logId: id!, input: { receiptUrls: updated } },
-      {
-        onError: () => Alert.alert('Error', 'Failed to remove receipt. Please try again.'),
-      },
+      { onError: () => Alert.alert('Error', 'Failed to remove receipt.') },
     );
   }, [log, id, updateLog]);
 
@@ -120,20 +111,17 @@ export default function ServiceDetailScreen() {
 
   if (isLoading) {
     return (
-      <SafeAreaView className="flex-1 bg-surface">
-        <View className="px-6 pt-4 flex-row items-center justify-between mb-6">
-          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <MaterialCommunityIcons name="arrow-left" size={24} color={colors.charcoal} />
-          </TouchableOpacity>
+      <SafeAreaView className="flex-1 bg-bg">
+        <View className="px-5 pt-4 pb-2 flex-row items-center">
+          <BackBtn />
         </View>
-        <View className="px-6">
-          <Skeleton height={12} className="w-24 rounded-md mb-3" />
-          <Skeleton height={32} className="w-56 rounded-md mb-2" />
-          <Skeleton height={32} className="w-40 rounded-md mb-8" />
-          <Skeleton height={16} className="w-full rounded-md mb-3" />
-          <Skeleton height={16} className="w-3/4 rounded-md mb-8" />
-          <Skeleton height={80} className="w-full rounded-2xl mb-4" />
-          <Skeleton height={60} className="w-full rounded-2xl" />
+        <View className="px-5 pt-4">
+          <Skeleton height={10} className="w-20 rounded mb-4" />
+          <Skeleton height={40} className="w-56 rounded mb-8" />
+          <Skeleton height={1} className="w-full rounded mb-4" />
+          <Skeleton height={60} className="w-full rounded mb-4" />
+          <Skeleton height={1} className="w-full rounded mb-4" />
+          <Skeleton height={40} className="w-full rounded mb-4" />
         </View>
       </SafeAreaView>
     );
@@ -141,15 +129,15 @@ export default function ServiceDetailScreen() {
 
   if (!log) {
     return (
-      <SafeAreaView className="flex-1 bg-surface">
-        <View className="px-6 pt-4 mb-6">
-          <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-            <MaterialCommunityIcons name="arrow-left" size={24} color={colors.charcoal} />
-          </TouchableOpacity>
+      <SafeAreaView className="flex-1 bg-bg">
+        <View className="px-5 pt-4 pb-2 flex-row items-center">
+          <BackBtn />
         </View>
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="font-sans-xbold text-xl text-charcoal mb-2">Log not found</Text>
-          <Text className="font-sans-medium text-sm text-sand text-center">
+          <Text className="font-display text-[28px] leading-[32px] tracking-[-0.01em] text-ink mb-2">
+            Not found
+          </Text>
+          <Text className="font-sans text-sm text-muted text-center">
             This service log may have been deleted.
           </Text>
         </View>
@@ -159,118 +147,117 @@ export default function ServiceDetailScreen() {
 
   const key = log.serviceType as ServiceTypeKey;
   const serviceLabel = SERVICE_TYPE_LABELS[key] ?? log.serviceType;
-  const receiptUrls = log.receiptUrls;
 
   return (
-    <SafeAreaView className="flex-1 bg-surface">
-      <View className="px-6 pt-4 flex-row items-center justify-between mb-2">
-        <TouchableOpacity onPress={() => router.back()} hitSlop={8}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color={colors.charcoal} />
-        </TouchableOpacity>
-        <TouchableOpacity
+    <SafeAreaView className="flex-1 bg-bg">
+      {/* Top bar */}
+      <View className="px-5 pt-4 pb-2 flex-row items-center justify-between">
+        <BackBtn />
+        <Eyebrow>Service Log</Eyebrow>
+        <Pressable
           onPress={handleEdit}
-          className="flex-row items-center gap-1 bg-yellow px-4 py-2 rounded-full active:opacity-70"
           hitSlop={8}
+          className="active:opacity-60 px-1 py-1"
         >
-          <MaterialCommunityIcons name="pencil-outline" size={14} color={colors.charcoal} />
-          <Text className="font-sans-bold text-xs text-charcoal">Edit</Text>
-        </TouchableOpacity>
+          <Text className="font-mono text-[10px] tracking-[0.14em] uppercase text-ink">Edit</Text>
+        </Pressable>
       </View>
 
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 48 }}
+        contentContainerStyle={{ paddingBottom: 64 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Metadata card */}
-        <View className="bg-surface-card rounded-2xl mb-4 overflow-hidden">
-          <View className="p-4">
-            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">
-              Service Type
-            </Text>
-            <Text className="font-sans-xbold text-charcoal" style={{ fontSize: 28, lineHeight: 34 }}>
-              {serviceLabel}
-            </Text>
-          </View>
-
-          <View className="h-px bg-surface-low mx-4" />
-
-          <View className="flex-row p-4">
-            <View className="flex-1">
-              <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">Date</Text>
-              <Text className="font-sans-bold text-sm text-charcoal">{formatDate(log.date)}</Text>
-            </View>
-            <View className="flex-1">
-              <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">Cost</Text>
-              <Text className="font-sans-xbold text-2xl text-charcoal">{formatCost(log.cost)}</Text>
-            </View>
-          </View>
-
-          {!!log.workshop && (
-            <>
-              <View className="h-px bg-surface-low mx-4" />
-              <View className="p-4">
-                <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">
-                  Workshop
-                </Text>
-                <Text className="font-sans-bold text-sm text-charcoal" numberOfLines={1}>
-                  {log.workshop.name}
-                </Text>
-                {!!log.workshop.address && (
-                  <Text
-                    className="font-sans-medium text-xs text-charcoal/55 mt-0.5"
-                    numberOfLines={2}
-                  >
-                    {log.workshop.address}
-                  </Text>
-                )}
-              </View>
-            </>
-          )}
-
-          <View className="h-px bg-surface-low mx-4" />
-
-          <View className="p-4">
-            <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-1">Mileage</Text>
-            <Text className="font-sans-bold text-sm text-charcoal">{formatMileage(log.mileageAt)}</Text>
-          </View>
-
-          {!!log.description && (
-            <>
-              <View className="h-px bg-surface-low mx-4" />
-              <View className="p-4">
-                <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-2">
-                  Description/Notes
-                </Text>
-                <View className="bg-surface-low rounded-xl p-3">
-                  <Text className="font-sans-medium text-sm text-charcoal leading-relaxed">
-                    {log.description}
-                  </Text>
-                </View>
-              </View>
-            </>
-          )}
+        {/* Hero — service type name */}
+        <View className="px-5 pt-4 pb-6">
+          <Eyebrow className="mb-3">Service Type</Eyebrow>
+          <Text
+            className="font-display text-ink leading-[1.02] tracking-[-0.01em]"
+            style={{ fontSize: 40 }}
+          >
+            {serviceLabel}
+          </Text>
         </View>
 
+        <View className="h-px bg-hairline" />
+
+        {/* Date + Cost */}
+        <View className="flex-row px-5 py-5">
+          <View className="flex-1">
+            <Eyebrow className="mb-2">Date</Eyebrow>
+            <Text className="font-sans-semibold text-[14px] text-ink">{formatDate(log.date)}</Text>
+          </View>
+          <View className="flex-1">
+            <Eyebrow className="mb-2">Cost</Eyebrow>
+            <Text
+              className="font-display text-ink"
+              style={{ fontSize: 28, lineHeight: 34 }}
+            >
+              {formatCost(log.cost)}
+            </Text>
+          </View>
+        </View>
+
+        <Divider />
+
+        {/* Mileage */}
+        <View className="px-5 py-5">
+          <Eyebrow className="mb-2">Mileage</Eyebrow>
+          <Text className="font-sans-semibold text-[14px] text-ink">{formatMileage(log.mileageAt)}</Text>
+        </View>
+
+        {/* Workshop */}
+        {!!log.workshop && (
+          <>
+            <Divider />
+            <View className="px-5 py-5">
+              <Eyebrow className="mb-2">Workshop</Eyebrow>
+              <Text className="font-sans-semibold text-[14px] text-ink" numberOfLines={1}>
+                {log.workshop.name}
+              </Text>
+              {!!log.workshop.address && (
+                <Text className="font-sans text-[13px] text-muted mt-1" numberOfLines={2}>
+                  {log.workshop.address}
+                </Text>
+              )}
+            </View>
+          </>
+        )}
+
+        {/* Notes */}
+        {!!log.description && (
+          <>
+            <Divider />
+            <View className="px-5 py-5">
+              <Eyebrow className="mb-3">Notes</Eyebrow>
+              <Text className="font-sans text-[14px] leading-[22px] text-ink">
+                {log.description}
+              </Text>
+            </View>
+          </>
+        )}
+
+        {/* Parts */}
         {log.parts && log.parts.length > 0 && (
-          <View className="mb-4">
-            <Text className="font-sans-xbold text-base text-charcoal mb-3">Parts Replaced</Text>
-            <View className="flex-row flex-wrap gap-2">
-              {log.parts.map((part, index) => (
-                <View key={`${index}-${part}`} className="bg-surface-card px-3 py-2 rounded-full flex-row items-center gap-1.5">
-                  <MaterialCommunityIcons name={getPartIcon(part)} size={12} color={colors.charcoal} />
-                  <Text className="font-sans-bold text-xs text-charcoal">{part}</Text>
+          <>
+            <Divider />
+            <View className="px-5 py-5">
+              <Eyebrow className="mb-3">Parts replaced</Eyebrow>
+              {log.parts.map((part, i) => (
+                <View key={`${i}-${part}`} className="flex-row items-center py-2">
+                  <View className="w-1 h-1 rounded-full bg-muted mr-3" />
+                  <Text className="font-sans text-[14px] text-ink">{part}</Text>
                 </View>
               ))}
             </View>
-          </View>
+          </>
         )}
 
-        <View className="mb-8">
-          <Text className="font-sans-bold text-xxs text-sand uppercase tracking-widest mb-3">
-            Receipts
-          </Text>
+        {/* Receipts */}
+        <Divider />
+        <View className="px-5 py-5">
+          <Eyebrow className="mb-3">Receipts</Eyebrow>
           <ReceiptStrip
-            urls={receiptUrls}
+            urls={log.receiptUrls}
             onAdd={handleAdd}
             onRemove={handleRemove}
             onPress={handlePress}
@@ -279,21 +266,21 @@ export default function ServiceDetailScreen() {
           />
         </View>
 
-        <View className="bg-danger/5 rounded-2xl p-4 mt-4 items-center">
-          <TouchableOpacity
-            onPress={() => setShowDeleteDialog(true)}
-            className="active:opacity-70"
-            hitSlop={8}
-          >
-            <Text className="font-sans-bold text-sm text-danger">Delete this log</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Delete */}
+        <View className="h-px bg-hairline mt-4" />
+        <Pressable
+          onPress={() => setShowDeleteDialog(true)}
+          className="px-5 py-5 active:opacity-60"
+          hitSlop={8}
+        >
+          <Text className="font-sans text-[14px] text-danger">Delete this log</Text>
+        </Pressable>
       </ScrollView>
 
       <ConfirmationDialog
         visible={showDeleteDialog}
-        title="Delete Service Log"
-        body={`Are you sure you want to delete this ${serviceLabel} log?`}
+        title="Delete log?"
+        body={`This ${serviceLabel} record will be permanently removed.`}
         confirmLabel="Delete"
         confirmVariant="danger"
         onConfirm={handleConfirmDelete}
@@ -301,7 +288,7 @@ export default function ServiceDetailScreen() {
       />
 
       <ReceiptViewer
-        urls={receiptUrls}
+        urls={log.receiptUrls}
         initialIndex={viewerIndex}
         visible={viewerVisible}
         onClose={() => setViewerVisible(false)}

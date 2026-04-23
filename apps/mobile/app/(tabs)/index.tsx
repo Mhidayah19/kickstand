@@ -131,15 +131,15 @@ export default function HomeScreen() {
         onBikeChange={setActiveBikeId}
       >
         <DevAuthToggle>
-          <Text className="text-[34px] font-sans-xbold text-charcoal leading-[1.05]">
-            Welcome to Kickstand
+          <Text className="font-display text-[40px] leading-[42px] tracking-[-0.02em] text-ink">
+            Your Garage
           </Text>
         </DevAuthToggle>
         <View className="mt-8">
           <EmptyState
-            title="No bikes yet"
-            description="Add your first bike to start tracking services and stay road-ready"
-            actionLabel="Add your first bike"
+            title="No bikes logged"
+            description="Add a bike to start tracking services, mileage, and compliance."
+            actionLabel="Add a bike"
             onAction={() => router.push('/add-bike')}
           />
         </View>
@@ -208,8 +208,8 @@ export default function HomeScreen() {
           {/* Big countdown number */}
           <View className="flex-row items-end gap-2 mt-2">
             <Text
-              className="font-display text-yellow leading-none"
-              style={{ fontSize: 78 }}
+              className="font-display text-yellow"
+              style={{ fontSize: 78, lineHeight: 88 }}
             >
               {prediction.daysUntil}
             </Text>
@@ -385,15 +385,17 @@ export default function HomeScreen() {
               Nothing logged yet — tap + to add a service.
             </Text>
           ) : (
-            recentServices.slice(0, 3).map((r) => (
-              <Row
-                key={r.id}
-                icon={serviceTypeIcon(r.serviceType)}
-                title={serviceTypeToMeta(r.serviceType).label}
-                sub={`${formatDaysAgo(daysAgo(r.date))} · ${r.mileageAt?.toLocaleString() ?? '—'} km`}
-                trail={r.cost ? 'S$' + parseFloat(r.cost).toFixed(0) : undefined}
-                onPress={() => router.push(`/edit-service?id=${r.id}` as any)}
-              />
+            recentServices.slice(0, 3).map((r, i) => (
+              <React.Fragment key={r.id}>
+                {i > 0 && <View className="h-px bg-hairline" />}
+                <Row
+                  icon={serviceTypeIcon(r.serviceType)}
+                  title={serviceTypeToMeta(r.serviceType).label}
+                  sub={`${formatDaysAgo(daysAgo(r.date))} · ${r.mileageAt?.toLocaleString() ?? '—'} km`}
+                  trail={r.cost ? 'S$' + parseFloat(r.cost).toFixed(0) : undefined}
+                  onPress={() => router.push(`/service/${r.id}?bikeId=${activeBike?.id}` as any)}
+                />
+              </React.Fragment>
             ))
           )}
         </View>

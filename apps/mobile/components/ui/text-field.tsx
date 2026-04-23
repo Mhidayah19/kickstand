@@ -57,14 +57,14 @@ export function TextField({
     <View>
       <View
         className={cn(
-          'bg-surface-low p-6 rounded-xl overflow-hidden',
+          'bg-bg-2 p-6 rounded-xl overflow-hidden',
           editable === false && 'opacity-50',
           className,
         )}
       >
         {!!label && (
           <Label.Root>
-            <Label.Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mb-2">
+            <Label.Text className="font-sans-bold text-xxs text-muted uppercase tracking-wide-1 mb-2">
               {label}
             </Label.Text>
           </Label.Root>
@@ -75,24 +75,24 @@ export function TextField({
             <MaterialCommunityIcons
               name={icon}
               size={20}
-              color={colors.sand}
+              color={colors.muted}
             />
           )}
           {prefix && (
-            <Label.Text className="font-sans-bold text-xl text-charcoal">
+            <Label.Text className="font-sans-bold text-xl text-ink">
               {prefix}
             </Label.Text>
           )}
           <TextInput
-            className={cn('flex-1 font-sans-bold text-charcoal p-0', inputClassName ?? 'text-2xl')}
-            placeholderTextColor={colors.outline}
+            className={cn('flex-1 font-sans-bold text-ink p-0', inputClassName ?? 'text-2xl')}
+            placeholderTextColor={colors.hairline2}
             editable={editable}
             onFocus={handleFocus}
             onBlur={handleBlur}
             {...props}
           />
           {suffix && (
-            <Label.Text className="font-sans-bold text-xs text-sand uppercase tracking-wide-1">
+            <Label.Text className="font-sans-bold text-xs text-muted uppercase tracking-wide-1">
               {suffix}
             </Label.Text>
           )}

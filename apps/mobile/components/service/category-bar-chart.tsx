@@ -25,23 +25,23 @@ export function CategoryBarChart({ data }: CategoryBarChartProps) {
     <View className="gap-3">
       {data.map((item) => {
         const widthPercent = maxTotal > 0 ? (item.total / maxTotal) * 100 : 0;
-        const barColor = CATEGORY_COLORS[item.group] ?? colors.charcoal;
+        const barColor = CATEGORY_COLORS[item.group] ?? colors.ink;
         return (
           <View key={item.group} className="flex-row items-center gap-2">
             <Text
-              className="font-sans-medium text-xs text-charcoal text-right"
+              className="font-sans-medium text-xs text-ink text-right"
               style={{ width: 76 }}
               numberOfLines={1}
             >
               {item.group}
             </Text>
-            <View className="flex-1 bg-surface-low rounded h-2 overflow-hidden">
+            <View className="flex-1 bg-bg-2 rounded h-2 overflow-hidden">
               <View
                 style={{ width: `${widthPercent}%`, backgroundColor: barColor }}
                 className="h-full rounded"
               />
             </View>
-            <Text className="font-sans-bold text-xs text-sand" style={{ width: 40, textAlign: 'right' }}>
+            <Text className="font-sans-bold text-xs text-muted" style={{ width: 40, textAlign: 'right' }}>
               {formatCostShort(item.total)}
             </Text>
           </View>

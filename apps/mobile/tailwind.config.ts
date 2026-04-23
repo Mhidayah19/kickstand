@@ -6,28 +6,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // New redesign tokens
+        // Atelier tokens (source of truth — matches design-systems/DESIGN.md §2)
         ink:          '#1A1A1A',
         'ink-2':      '#2E2B27',
         bg:           '#F4F2EC',
         'bg-2':       '#EBE8DF',
+        surface:      '#FFFFFF',
         muted:        '#7A756C',
         hairline:     'rgba(26,26,26,0.09)',
         'hairline-2': 'rgba(26,26,26,0.16)',
 
-        // Existing brand (unchanged)
-        yellow:           '#F2D06B',
+        // Brand
+        accent:           '#F2D06B',
+        yellow:           '#F2D06B', // alias for accent (historical name retained)
         danger:           '#DC2626',
         'danger-surface': '#FFDAD6',
         success:          '#22C55E',
-
-        // Temporary aliases — remove at the end of Phase 4
-        charcoal:        '#1A1A1A',
-        sand:            '#C7B299',
-        surface:         '#F4F2EC',
-        'surface-low':   '#EBE8DF',
-        'surface-card':  '#FFFFFF',
-        outline:         'rgba(26,26,26,0.16)',
       },
       fontFamily: {
         // Existing
@@ -62,6 +56,11 @@ const config: Config = {
         '2xl': '24px',
         '2.5xl': '28px',
         '3xl': '32px',
+        // Atelier spec radii (DESIGN.md §5)
+        card:       '14px',
+        'card-lg':  '18px',
+        hero:       '22px',
+        phone:      '28px',
       },
       spacing: {
         xs: '4px',

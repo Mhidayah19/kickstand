@@ -14,9 +14,9 @@ export interface RowProps {
 
 export function Row({ icon, title, sub, trail, chevron = false, onPress, testID }: RowProps) {
   const Body = (
-    <View className="flex-row items-center gap-[14px] py-[14px] border-b border-hairline">
-      <View className="w-10 h-10 items-center justify-center rounded-xl border border-hairline-2">
-        <Icon name={icon} size={18} stroke="#1A1A1A" />
+    <View className="flex-row items-center gap-[14px] py-3">
+      <View className="w-8 h-8 items-center justify-center">
+        <Icon name={icon} size={20} stroke="#1A1A1A" />
       </View>
       <View className="flex-1 min-w-0">
         <Text className="font-sans-semibold text-[15px] text-ink tracking-[-0.01em]" numberOfLines={1}>

@@ -13,13 +13,13 @@ export function ScreenHeader({ title, label, subtitle, rightAction, onTitlePress
   const titleSize = size === 'lg' ? 'text-4xl' : 'text-3xl';
 
   const titleElement = (
-    <Text className={`${titleSize} font-sans-xbold text-charcoal tracking-tight`}>{title}</Text>
+    <Text className={`${titleSize} font-sans-xbold text-ink tracking-tight`}>{title}</Text>
   );
 
   return (
     <View className="mb-8">
       {label && (
-        <Text className="font-sans-bold text-xxs text-charcoal uppercase tracking-wide-2 mb-2">
+        <Text className="font-sans-bold text-xxs text-ink uppercase tracking-wide-2 mb-2">
           {label}
         </Text>
       )}
@@ -36,7 +36,7 @@ export function ScreenHeader({ title, label, subtitle, rightAction, onTitlePress
         {rightAction}
       </View>
       {subtitle && (
-        <Text className="font-sans-bold text-xxs text-sand uppercase tracking-wide-1 mt-1">
+        <Text className="font-sans-bold text-xxs text-muted uppercase tracking-wide-1 mt-1">
           {subtitle}
         </Text>
       )}
