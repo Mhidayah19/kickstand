@@ -6,7 +6,8 @@ export type IconName =
   | 'chevron' | 'chevronDown' | 'chevronUp' | 'search' | 'filter' | 'close'
   | 'oil' | 'chain' | 'tire' | 'brake' | 'wrench' | 'shield'
   | 'calendar' | 'doc' | 'sparkle' | 'arrowUp' | 'arrowDown' | 'arrowRight'
-  | 'gauge' | 'zap' | 'tune' | 'dots' | 'dotsV' | 'camera' | 'receipt' | 'settings';
+  | 'gauge' | 'zap' | 'tune' | 'dots' | 'dotsV' | 'camera' | 'receipt' | 'settings'
+  | 'chart';
 
 export interface IconProps {
   name: IconName;
@@ -166,6 +167,12 @@ const paths: Record<IconName, React.ReactNode> = {
     <>
       <Circle cx={12} cy={12} r={3} />
       <Path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+    </>
+  ),
+  chart: (
+    <>
+      <Path d="M3 3v18h18" />
+      <Path d="M7 16l4-4 4 4 4-6" />
     </>
   ),
 };
