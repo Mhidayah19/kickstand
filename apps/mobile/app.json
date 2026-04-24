@@ -35,17 +35,6 @@
       "typedRoutes": true
     },
     "plugins": [
-      [
-        "expo-font",
-        {
-          "fonts": [
-            "./assets/fonts/PlusJakartaSans-Regular.ttf",
-            "./assets/fonts/PlusJakartaSans-Medium.ttf",
-            "./assets/fonts/PlusJakartaSans-SemiBold.ttf",
-            "./assets/fonts/PlusJakartaSans-Bold.ttf"
-          ]
-        }
-      ],
       "expo-router",
       "expo-secure-store",
       [

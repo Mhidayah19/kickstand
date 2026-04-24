@@ -31,6 +31,7 @@ import { useAllServiceLogs } from '../lib/api/use-service-logs';
 import { useBikeStore } from '../lib/store/bike-store';
 import { useServiceLogForm } from '../lib/hooks/use-service-log-form';
 import { SERVICE_TYPE_KEYS } from '../lib/constants/service-types';
+import { FONTS } from '../lib/theme';
 import type { ServiceTypeKey } from '../lib/constants/service-types';
 import { useOcrStore } from '../lib/ocr/ocr-store';
 
@@ -234,7 +235,7 @@ export default function AddServiceScreen() {
           {/* ── Hero ────────────────────────────────────────────────────── */}
           <View className="px-5 pb-6">
             <Eyebrow>Quick log</Eyebrow>
-            <Text className="font-display text-[38px] leading-[1.05] text-ink mt-1.5">
+            <Text className="font-display text-[38px] leading-[1.05] tracking-[-0.03em] text-ink mt-1.5">
               What did you do?
             </Text>
           </View>
@@ -417,7 +418,7 @@ export default function AddServiceScreen() {
               placeholder="Add a part + return"
               placeholderTextColor="rgba(26,26,26,0.35)"
               style={{
-                fontFamily: 'PlusJakartaSans-Medium',
+                fontFamily: FONTS.medium,
                 fontSize: 14,
                 color: '#1A1A1A',
               }}

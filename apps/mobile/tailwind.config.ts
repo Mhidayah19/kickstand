@@ -24,14 +24,12 @@ const config: Config = {
         success:          '#22C55E',
       },
       fontFamily: {
-        // Existing
-        sans: ['PlusJakartaSans-Regular'],
-        'sans-medium': ['PlusJakartaSans-Medium'],
-        'sans-semibold': ['PlusJakartaSans-SemiBold'],
-        'sans-bold': ['PlusJakartaSans-Bold'],
-        'sans-xbold': ['PlusJakartaSans-ExtraBold'],
-        // New
-        display: ['InstrumentSerif_400Regular'],
+        sans: ['Inter_400Regular'],
+        'sans-medium': ['Inter_500Medium'],
+        'sans-semibold': ['Inter_600SemiBold'],
+        'sans-bold': ['Inter_700Bold'],
+        'sans-xbold': ['Inter_800ExtraBold'],
+        display: ['Inter_700Bold'],
         mono: ['JetBrainsMono_500Medium'],
         'mono-semibold': ['JetBrainsMono_600SemiBold'],
       },

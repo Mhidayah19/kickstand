@@ -78,7 +78,7 @@ function Hero({ days, km, pace }: { days: number; km: number; pace: Tone }) {
           style={{
             fontSize: 76,
             lineHeight: 78,
-            letterSpacing: -2,
+            letterSpacing: -3.5,
             color: PAPER,
             marginTop: 4,
             fontVariant: ['tabular-nums'],
@@ -415,7 +415,7 @@ export default function HomeScreen() {
           contentContainerStyle={{ paddingTop: 20, paddingBottom: 140, paddingHorizontal: 20 }}
         >
           <DevAuthToggle>
-            <Text className="font-display text-[40px] leading-[42px] tracking-[-0.02em] text-ink">
+            <Text className="font-display text-[40px] leading-[42px] tracking-[-0.035em] text-ink">
               Your Garage
             </Text>
           </DevAuthToggle>

@@ -17,6 +17,7 @@ import { useBikeCatalogMakes, useBikeCatalogModels } from '../lib/api/use-bike-c
 import { useBikeStore } from '../lib/store/bike-store';
 import type { BikeClass, BikeCatalogEntry, CreateBikeInput } from '../lib/types/bike';
 import { colors } from '../lib/colors';
+import { FONTS } from '../lib/theme';
 import { TOP_BRANDS, getDisplayBrands } from '../lib/brand-picker';
 import { FadeIn } from '../components/ui/fade-in';
 import { SummaryPill } from '../components/ui/summary-pill';
@@ -500,7 +501,7 @@ export default function AddMotorcycleScreen() {
             {/* Hero */}
             <View className="px-5 pb-6">
               <Eyebrow>Add to garage</Eyebrow>
-              <Text className="font-display text-[38px] leading-[1.05] text-ink mt-1.5">
+              <Text className="font-display text-[38px] leading-[1.05] tracking-[-0.03em] text-ink mt-1.5">
                 What are you riding?
               </Text>
             </View>
@@ -561,7 +562,7 @@ export default function AddMotorcycleScreen() {
                           accessibilityLabel={`Class ${cls}`}
                         >
                           <Text
-                            className={`font-display text-[28px] leading-[30px] tracking-[-0.02em] ${
+                            className={`font-display text-[28px] leading-[30px] tracking-[-0.025em] ${
                               isSel ? 'text-bg' : 'text-ink'
                             }`}
                           >
@@ -617,7 +618,7 @@ export default function AddMotorcycleScreen() {
                           placeholderTextColor="rgba(26,26,26,0.35)"
                           autoCapitalize="words"
                           style={{
-                            fontFamily: 'PlusJakartaSans-SemiBold',
+                            fontFamily: FONTS.semibold,
                             fontSize: 16,
                             color: colors.ink,
                           }}
@@ -631,7 +632,7 @@ export default function AddMotorcycleScreen() {
                           placeholderTextColor="rgba(26,26,26,0.35)"
                           autoCapitalize="words"
                           style={{
-                            fontFamily: 'PlusJakartaSans-SemiBold',
+                            fontFamily: FONTS.semibold,
                             fontSize: 16,
                             color: colors.ink,
                           }}
@@ -891,7 +892,7 @@ export default function AddMotorcycleScreen() {
                           <Text className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted mb-xs">
                             Your bike
                           </Text>
-                          <Text className="font-display text-[28px] leading-[30px] tracking-[-0.01em] text-ink">
+                          <Text className="font-display text-[28px] leading-[30px] tracking-[-0.025em] text-ink">
                             {motorcycleName}
                           </Text>
                           {motorcycleSubtitle.length > 0 && (
