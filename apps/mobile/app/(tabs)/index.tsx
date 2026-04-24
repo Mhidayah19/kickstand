@@ -254,7 +254,7 @@ interface FeatureTileData {
 function FeatureGrid({ tiles }: { tiles: FeatureTileData[] }) {
   return (
     <View style={{ paddingTop: 24 }}>
-      <View className="px-5"><Eyebrow>Tools</Eyebrow></View>
+      <View className="px-5"><Eyebrow>More</Eyebrow></View>
       <View className="flex-row flex-wrap px-5" style={{ gap: 8, paddingTop: 10 }}>
         {tiles.map((t, i) => (
           <Pressable
@@ -354,7 +354,7 @@ const FEATURE_TILES: FeatureTileData[] = [
   { icon: 'gauge',   label: 'Log mileage',  onPress: () => router.push('/quick-log' as any) },
   { icon: 'receipt', label: 'Scan receipt', onPress: () => router.push('/scan-receipt' as any) },
   { icon: 'tire',    label: 'Ride tracker', onPress: () => showComingSoon('Ride tracker') },
-  { icon: 'sparkle', label: 'AI insights',  onPress: () => router.navigate('/(tabs)/agent') },
+  { icon: 'sparkle', label: 'AI insights',  onPress: () => showComingSoon('AI insights') },
   { icon: 'wrench',  label: 'Workshops',    onPress: () => showComingSoon('Workshops') },
   { icon: 'chart',   label: 'Ownership',    onPress: () => showComingSoon('Ownership') },
 ];

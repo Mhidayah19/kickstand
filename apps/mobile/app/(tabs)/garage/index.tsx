@@ -1,5 +1,6 @@
 import { router, useFocusEffect } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { colors } from '../../../lib/colors';
 import { daysUntil } from '../../../lib/theme';
 import React, { useMemo, useState, useRef, useCallback } from 'react';
@@ -18,18 +19,13 @@ import { Skeleton } from '../../../components/ui/skeleton';
 import { TopAppBar } from '../../../components/ui/top-app-bar';
 import { useDeleteBike, useBike, useBikes } from '../../../lib/api/use-bikes';
 import { useAttention } from '../../../lib/api/use-attention';
-import { useServiceLogs } from '../../../lib/api/use-service-logs';
 import { useBikeStore } from '../../../lib/store/bike-store';
-import { serviceTypeToMeta } from '../../../lib/service-type-meta';
-import { formatComplianceDate, formatLogDate, formatCountdown } from '../../../lib/format';
-import { serviceTypeIcon } from '../../../lib/service-icon';
+import { formatComplianceDate, formatCountdown } from '../../../lib/format';
 import {
   TopBar,
   BikeSwitcher,
   Eyebrow,
   Badge,
-  SectionHead,
-  Row,
 } from '../../../components/ui/atelier';
 
 // ---------------------------------------------------------------------------
@@ -75,7 +71,6 @@ export default function GarageScreen() {
   const { activeBikeId, setActiveBikeId } = useBikeStore();
   const { data: bikes = [], isLoading: bikesLoading } = useBikes();
   const { data: bike, isLoading: bikeLoading } = useBike(activeBikeId);
-  const { data: logsData } = useServiceLogs(activeBikeId, 3);
   const { data: attention } = useAttention(activeBikeId);
   const deleteBike = useDeleteBike(activeBikeId ?? '');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -87,7 +82,6 @@ export default function GarageScreen() {
     scrollRef.current?.scrollTo({ y: 0, animated: false });
   }, []));
 
-  const logs = logsData?.data ?? [];
   const bikeList = useMemo(
     () => bikes.map((b) => ({ id: b.id, model: b.model, year: b.year })),
     [bikes]
@@ -211,15 +205,36 @@ export default function GarageScreen() {
         contentContainerStyle={{ paddingBottom: 140 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* ── 2. Hero card ── */}
-        <View className="mx-4 mt-4 rounded-[28px] bg-bg-2 overflow-hidden" style={{ minHeight: 180 }}>
+        {/* ── 2. Hero card ──
+            Uses `surface` (top-layer white) so stock photos shot on white
+            backgrounds merge cleanly. Paper bg-2 conflicted with #FFFFFF
+            photo backgrounds and read as two pasted tones. */}
+        <View className="mx-4 mt-4 rounded-[28px] bg-surface overflow-hidden" style={{ minHeight: 200 }}>
           {bike.imageUrl ? (
-            <Image
-              source={{ uri: bike.imageUrl }}
-              className="absolute inset-0"
-              style={{ opacity: 0.7 }}
-              resizeMode="cover"
-            />
+            <>
+              <Image
+                source={{ uri: bike.imageUrl }}
+                style={{ position: 'absolute', right: -24, bottom: -4, width: '82%', height: '92%' }}
+                resizeMode="contain"
+              />
+              {/* Corner scrim: soft surface-tone bubble behind the text block.
+                  Guarantees readability across any bike photo without the
+                  two-tone seam of an edge-to-edge gradient. */}
+              <Svg
+                pointerEvents="none"
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+              >
+                <Defs>
+                  <RadialGradient id="heroScrim" cx="0%" cy="0%" rx="110%" ry="100%" fx="0%" fy="0%">
+                    <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
+                    <Stop offset="35%" stopColor="#FFFFFF" stopOpacity="0.95" />
+                    <Stop offset="70%" stopColor="#FFFFFF" stopOpacity="0.5" />
+                    <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
+                  </RadialGradient>
+                </Defs>
+                <Rect x="0" y="0" width="100%" height="100%" fill="url(#heroScrim)" />
+              </Svg>
+            </>
           ) : null}
           <View className="p-5 pb-5">
             <View className="flex-row justify-between items-start">
@@ -283,29 +298,6 @@ export default function GarageScreen() {
           </View>
         )}
 
-        {/* ── 5. Service history ── */}
-        <View className="px-5 pt-7 pb-24">
-          <SectionHead
-            title="Service history"
-            action="ALL"
-            onActionPress={() => router.push('/(tabs)/service')}
-          />
-          {logs.slice(0, 3).map((log, i) => {
-            const meta = serviceTypeToMeta(log.serviceType);
-            return (
-              <React.Fragment key={log.id}>
-                {i > 0 && <View className="h-px bg-hairline" />}
-                <Row
-                  icon={serviceTypeIcon(log.serviceType)}
-                  title={meta.label}
-                  sub={`${formatLogDate(log.date)} · ${log.mileageAt.toLocaleString()} KM`}
-                  trail={log.cost ? `S$${parseFloat(log.cost).toFixed(0)}` : undefined}
-                  onPress={() => router.push(`/service/${log.id}?bikeId=${activeBikeId}` as any)}
-                />
-              </React.Fragment>
-            );
-          })}
-        </View>
       </ScrollView>
 
       <ConfirmationDialog
