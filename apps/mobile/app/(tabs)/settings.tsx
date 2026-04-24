@@ -74,7 +74,7 @@ export default function SettingsScreen() {
   return (
     <View className="flex-1 bg-bg">
       <TopBar
-        bike={activeBike ? `${activeBike.model}${activeBike.year ? ` · ${activeBike.year}` : ''}` : 'Garage'}
+        bike={activeBike?.model ?? 'Garage'}
         unread={0}
         onBikePress={() => setBikeSwitcherOpen(true)}
         onBellPress={() => router.push('/notifications' as any)}

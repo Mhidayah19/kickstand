@@ -244,7 +244,7 @@ export default function ServiceScreen() {
   return (
     <View className="flex-1 bg-bg">
       <TopBar
-        bike={`${bike?.model ?? 'Garage'}${bike?.year ? ` · ${bike.year}` : ''}`}
+        bike={bike?.model ?? 'Garage'}
         unread={0}
         onBikePress={() => setBikeSwitcherOpen(true)}
         onBellPress={() => router.push('/notifications' as any)}
