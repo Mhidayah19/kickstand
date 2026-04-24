@@ -26,6 +26,7 @@
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
 - [Features](#features)
+- [Design System](#design-system)
 - [Project Structure](#project-structure)
 - [Getting Started](#getting-started)
 - [API Reference](#api-reference)
@@ -42,16 +43,16 @@
 
 ## Overview
 
-Kickstand is a mobile-first platform that helps motorcycle owners in Singapore manage compliance deadlines, track maintenance, compare workshop prices, and get AI-powered advice — through a conversational voice agent that understands your specific bike.
+Kickstand is a mobile-first platform that helps motorcycle owners in Singapore manage compliance deadlines, track maintenance, and compare workshop prices — with receipt-scanning OCR that pre-fills service logs from a photo.
 
 **What makes it different:**
 
 - Compliance tracking built specifically for Singapore regulations (COE, road tax, inspection, insurance)
-- Workshop price comparison across real local shops — not just a directory
-- A Mastra-powered AI agent that knows your bike's service history and can advise you proactively
+- Workshop picker backed by Google Places with cross-user deduplication and a manual-entry fallback
+- Scan a workshop receipt and auto-fill the service log — OpenAI-powered OCR with per-user and global rate limits
 - Notification-first design: it reminds you before things expire, not after
 
-> **Note:** This is an active portfolio project by **Muhammad Hidayah (Hid)**, demonstrating full-stack mobile + AI agent engineering. The core platform (auth, bikes, compliance, service logs, workshops, push notifications) is production-deployed. The AI agent is in active development.
+> **Note:** This is an active portfolio project by **Muhammad Hidayah (Hid)**, demonstrating full-stack mobile + backend engineering. The core platform (auth, bikes, compliance, service logs, workshop picker, receipt OCR, push notifications) is production-deployed. A conversational AI agent is on the roadmap.
 
 ---
 
@@ -85,10 +86,7 @@ Existing solutions fall short: SGBikemart is buy/sell only, Motorist SG is car-f
 
 ## Architecture
 
-Kickstand operates in two core modes:
-
-1. **Proactive agent** — background jobs scan compliance deadlines and maintenance schedules, sending push notifications before things expire
-2. **Voice conversational agent** — speak naturally to get advice specific to your bike model, service history, and nearby workshops with real prices
+Kickstand operates as a mobile-first client against a NestJS API, with background jobs handling proactive notifications.
 
 ```
 +-----------------------------------+
@@ -96,26 +94,34 @@ Kickstand operates in two core modes:
 |  - Bike profile screens           |
 |  - Service log screens            |
 |  - Compliance dashboard           |
-|  - Voice agent interface          |
+|  - Scan-receipt camera flow       |
+|  - Workshop picker (Places)       |
 |  - Push notification handling     |
 +----------------+------------------+
-                 | REST + WebSocket/Streaming
+                 | REST (JSON)
                  v
 +-----------------------------------+
 |     NestJS Backend                |
 |  +-------------------------+     |
-|  | Mastra Agent Module     |     |
-|  | - Bike-aware tools      |     |
-|  | - Workshop lookup       |     |
-|  | - Compliance checker    |     |
-|  | - Maintenance advisor   |     |
+|  | OCR Module              |     |
+|  | - Supabase Storage fetch|     |
+|  | - SHA-256 cache         |     |
+|  | - OpenAI (gpt-4o-mini)  |     |
+|  | - Per-user + global RPM |     |
+|  +-------------------------+     |
+|  +-------------------------+     |
+|  | Workshops Module        |     |
+|  | - Google Places proxy   |     |
+|  | - google_place_id dedup |     |
+|  | - Haversine proximity   |     |
 |  +-------------------------+     |
 |  +-------------------------+     |
 |  | @nestjs/schedule        |     |
-|  | - Daily compliance      |     |
-|  |   deadline scan         |     |
+|  | - Daily compliance scan |     |
 |  | - Weekly maintenance    |     |
 |  |   reminders             |     |
+|  | - Monthly workshop      |     |
+|  |   freshness check       |     |
 |  +-------------------------+     |
 |  +-------------------------+     |
 |  | Push Notification Svc   |     |
@@ -141,14 +147,16 @@ Kickstand operates in two core modes:
 
 | Technology | Purpose |
 |---|---|
-| React Native (Expo SDK 55) | Cross-platform mobile framework |
-| Expo Router v3 | File-based navigation |
+| React Native 0.81 (Expo SDK 54) | Cross-platform mobile framework |
+| Expo Router v6 | File-based navigation |
 | Zustand v5 | Client state management |
 | TanStack Query v5 | Server state / caching |
 | NativeWind v4 | Tailwind CSS for React Native |
-| React Hook Form + Zod | Form handling + validation |
+| React Hook Form + Zod v4 | Form handling + validation |
 | MMKV | Encrypted local storage |
 | FlashList | High-performance lists |
+| expo-camera + expo-image-manipulator | Receipt scan capture |
+| expo-blur | Glass effect on the top app bar |
 | Sentry | Error monitoring + session replay |
 
 ### Backend
@@ -156,8 +164,9 @@ Kickstand operates in two core modes:
 | Technology | Purpose |
 |---|---|
 | NestJS v11 | API framework |
-| Mastra | AI agent framework (YC-backed) |
 | Drizzle ORM | Type-safe database access |
+| OpenAI SDK (`gpt-4o-mini`) | Receipt OCR with structured output |
+| Google Places API (New) | Workshop autocomplete + details |
 | @nestjs/schedule | Background cron jobs |
 | class-validator | Request validation |
 | Helmet + @nestjs/throttler | Security (headers + rate limiting) |
@@ -182,8 +191,7 @@ Kickstand operates in two core modes:
 
 | Provider | Usage |
 |---|---|
-| Gemini | Development (free tier) |
-| Claude | Production (via Mastra provider config) |
+| OpenAI (`gpt-4o-mini`) | Receipt OCR auto-fill — structured output, per-user daily cap + global RPM limiter |
 
 ---
 
@@ -194,17 +202,19 @@ Kickstand operates in two core modes:
 - [x] Auth module — register, login, token refresh (Supabase Auth proxy with rollback on failure)
 - [x] Bikes CRUD — create, read, update, delete with ownership guards
 - [x] Mileage tracking with forward-only validation
-- [x] Database schema — 9 tables via Drizzle ORM
+- [x] Database schema — 12 tables via Drizzle ORM
 - [x] 15 seeded service types (oil change, chain adjustment, brake pads, etc.)
-- [x] Workshops module — proximity search (Haversine), price comparison, workshop details
+- [x] Workshops module — Google Places autocomplete, upsert-from-place dedup, manual entry, Haversine proximity search, price comparison
 - [x] Service logs module — full CRUD (paginated list, create, update, delete) with cost tracking
+- [x] Receipt OCR module — Supabase Storage fetch, SHA-256 cache, OpenAI (`gpt-4o-mini`) structured-output extraction, per-user daily cap + global RPM limiter
+- [x] Compliance status + maintenance status + attention (dashboard) modules
 - [x] Bike catalog with 100+ models (Honda, Yamaha, Kawasaki, etc.)
 - [x] Users module — get/update profile
 - [x] Background jobs — compliance deadline scanner, maintenance reminders, workshop data freshness
 - [x] Push notification registration & cron-based job triggers
 - [x] SupabaseAuthGuard + @CurrentUser() decorator
 - [x] Health check endpoint
-- [x] Unit tests for auth + bikes modules
+- [x] Unit tests across auth, bikes, workshops, service-logs, OCR modules
 - [x] ESLint + Prettier + TypeScript strict mode
 - [x] Drizzle migrations
 - [x] Dockerized multi-stage build
@@ -223,56 +233,47 @@ Kickstand operates in two core modes:
 - [x] Service History — date-grouped timeline, filter by service category, date range picker, search, total spend counter, analytics sheet, paginated
 - [x] Service Detail — full record view with parts pills, receipt photos with full-screen viewer, edit and delete actions
 - [x] Add Service — type selector with recent suggestions, cost/mileage/date/parts inputs, receipt photo capture & upload
+- [x] Scan Receipt — camera flow → Supabase upload → OCR auto-fill with silent pre-fill into the service log form
+- [x] Workshop Picker — Google Places autocomplete combo field, manual-entry fallback, previously-used workshops in empty state
 - [x] Edit Service — pre-filled form with unsaved changes guard, receipt management
 - [x] Settings — profile display, logout
-- [x] 38 reusable UI components (buttons, cards, inputs, timeline, bottom sheet, skeleton loaders, etc.)
+- [x] Atelier design system — `components/ui/atelier/` primitives (Icon, Badge, IconBtn, Eyebrow, SectionHead, Row, StatCell, TopBar, TabBar, Pedestal, CategoryCell, FieldCard, BikeSwitcher) with Instrument Serif + Plus Jakarta Sans + JetBrains Mono typography
+- [x] 80+ reusable UI components across the atelier primitives and feature-level components
 - [x] ESLint + TypeScript strict mode
 - [x] Sentry error tracking + session replay + in-app feedback button
 - [x] EAS Update (OTA updates via Expo Go)
 - [x] Service receipt photo upload via Supabase Storage
 - [x] Swipe-to-edit/delete on service entries with haptic feedback
 - [x] Service cost breakdown & analytics (monthly trends, category breakdown)
+- [x] Jest + `@testing-library/react-native` coverage on form hooks and atelier primitives
 
 ### Coming Soon (v1.1+)
 
-**Agent & Intelligence (Phase 3)**
-- [ ] Mastra AI agent with voice + chat interface (agent tab screen exists, tools not yet implemented)
-- [ ] 9 agent tools: get_bike_profile, get_service_history, get_compliance_status, find_workshops_nearby, compare_workshop_prices, get_workshop_details, get_maintenance_schedule, log_service, update_mileage
-- [ ] Conversational bike advice based on service history and compliance status
-
-**UI Enhancements (Phase 2 - In Progress)**
-- [ ] Workshop discovery screen (API is fully built, mobile UI in progress)
+**UI Enhancements**
 - [ ] Full-screen image viewer with pinch-to-zoom for receipt photos
 - [ ] Dark mode (toggle exists in settings, not wired)
 
-**Infrastructure & Settings (Phase 4)**
+**Agent & Intelligence (planned)**
+- [ ] Conversational AI agent with tool-calling access to bike profile, service history, compliance status, and workshop data
+- [ ] Agent surfaces on the existing agent tab screen; framework and provider TBD
+
+**Infrastructure & Settings**
 - [ ] Personal info / security settings (menu items exist, not functional)
 - [ ] Terraform IaC for all AWS infrastructure
 - [ ] Kubernetes manifests for EKS/GKE deployment
 
 ---
 
-## Agent Example
+## Design System
 
-> **User (voice):** "My chain feels loose"
->
-> **Agent calls:** `get_bike_profile` → `get_service_history(service_type: "chain")` → `get_maintenance_schedule` → `find_workshops_nearby`
->
-> **Agent responds (voice):** "For your CB400X at 15,200km, chain slack should be 25-30mm. Your last chain adjustment was 8 months ago at 12,000km — you're overdue. Three workshops near you do chain adjustment: Ah Boy Motor $25-30, Ban Leong $20-35, and Revology $30-40. Want me to log this when you get it done?"
+The mobile app uses the **Atelier** design system — full token spec in [`design-systems/DESIGN.md`](./design-systems/DESIGN.md).
 
-### Agent Tools
-
-| Tool | Description |
-|---|---|
-| `get_bike_profile` | Retrieve bike details (model, year, mileage, compliance dates) |
-| `get_service_history` | Query past service logs, optionally filtered by type |
-| `get_compliance_status` | Check all compliance deadlines and flag upcoming/overdue |
-| `find_workshops_nearby` | Locate workshops within radius using Haversine distance |
-| `compare_workshop_prices` | Compare prices across workshops for a service + bike model |
-| `get_workshop_details` | Full workshop info including services and pricing |
-| `get_maintenance_schedule` | Recommended intervals for a given bike model |
-| `log_service` | Record a completed service with cost, mileage, and workshop |
-| `update_mileage` | Update current mileage (forward-only) |
+- **Typography:** Instrument Serif (display), Plus Jakarta Sans (body), JetBrains Mono (labels + metadata)
+- **Palette:** three variants (Studio Editorial, Moto Technical, Analog Warm) sharing a burnt-orange accent — used sparingly, one primary action per screen
+- **Surfaces:** layered neutrals (`bg → bg-2 → surface`) instead of drop shadows; hairlines + whitespace instead of divider lines
+- **Elevation:** drop shadows reserved for the floating tab bar and FAB only
+- **Glass:** `expo-blur` reserved for the top app bar as a hierarchy signal
+- **Primitives:** `components/ui/atelier/` — Icon, Badge, IconBtn, Eyebrow, SectionHead, Row, StatCell, TopBar, TabBar, Pedestal, CategoryCell, FieldCard, BikeSwitcher
 
 ---
 
@@ -288,7 +289,7 @@ kickstand/
 │   │   │   │   └── guards/           # SupabaseAuthGuard
 │   │   │   ├── config/               # Environment config
 │   │   │   ├── database/
-│   │   │   │   ├── schema.ts         # Drizzle schema (9 tables)
+│   │   │   │   ├── schema.ts         # Drizzle schema (12 tables)
 │   │   │   │   ├── database.module.ts
 │   │   │   │   └── database.types.ts
 │   │   │   ├── modules/
@@ -296,25 +297,37 @@ kickstand/
 │   │   │   │   ├── bikes/            # CRUD + mileage
 │   │   │   │   ├── bike-catalog/     # Make/model lookup
 │   │   │   │   ├── users/            # Profile management
-│   │   │   │   ├── workshops/        # Proximity search, price comparison
+│   │   │   │   ├── workshops/        # Places autocomplete, upsert, proximity, price comparison
 │   │   │   │   ├── service-logs/     # Maintenance record CRUD
+│   │   │   │   ├── ocr/              # Receipt OCR (OpenAI + cache + rate limit)
+│   │   │   │   ├── compliance-status/# Internal: per-bike compliance snapshot
+│   │   │   │   ├── maintenance-status/# Internal: per-bike maintenance snapshot
+│   │   │   │   ├── attention/        # /bikes/:bikeId/attention — combined feed
 │   │   │   │   └── notifications/    # Push + cron scan jobs
 │   │   │   ├── seeds/                # Service type + workshop seeder
 │   │   │   ├── app.module.ts
 │   │   │   ├── health.controller.ts
 │   │   │   └── main.ts
-│   │   ├── drizzle/                  # Migration files
+│   │   ├── drizzle/                  # Migration files (0001..0008)
 │   │   ├── Dockerfile                # Multi-stage build
 │   │   └── test/
 │   └── mobile/                       # Expo React Native app
 │       ├── app/                      # Expo Router screens
-│       ├── components/               # 38 reusable UI components
-│       ├── lib/                      # Hooks, stores, API clients
+│       ├── components/
+│       │   └── ui/atelier/           # Atelier design-system primitives
+│       ├── lib/                      # Hooks, stores, API clients, tokens
 │       └── assets/
+├── design-systems/
+│   └── DESIGN.md                     # Atelier tokens, typography, motion
 ├── docs/
+│   ├── design-plans/                 # Mobile design plans
+│   ├── functional-requirements/      # Feature requirement specs
 │   ├── plans/                        # Infrastructure plans (ECS, Terraform, K8s)
+│   ├── research/                     # SG motorcycle community research
 │   ├── user-stories/                 # SG-specific feature backlog
-│   └── research/                     # SG motorcycle community research
+│   ├── COMPLETION_LOG.md
+│   ├── sentry-webhook-workflow.md
+│   └── user-testing-guide.md
 ├── package.json                      # Workspace root
 └── README.md
 ```
@@ -352,6 +365,17 @@ SUPABASE_JWT_SECRET=your-supabase-jwt-secret
 SUPABASE_URL=https://xxxxx.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 SCAN_API_KEY=your-scan-api-key
+SENTRY_DSN=
+
+# Receipt OCR
+OPENAI_API_KEY=your-openai-key
+OPENAI_MODEL=gpt-4o-mini
+OPENAI_GLOBAL_RPM=10
+OPENAI_PER_USER_DAILY_CAP=50
+OPENAI_CONFIDENCE_FLOOR=0.5
+
+# Workshop picker
+GOOGLE_PLACES_API_KEY=your-google-places-key
 ```
 
 ### 3. Run database migrations and seed
@@ -422,8 +446,14 @@ npm run test:cov
 | `PATCH` | `/bikes/:id/mileage` | Yes | Update mileage (forward-only) |
 | `GET` | `/health` | No | Health check |
 | `GET` | `/workshops?lat=X&lng=Y&radius=10` | Yes | Find nearby workshops (Haversine) |
-| `GET` | `/workshops/:id` | Yes | Workshop details |
+| `GET` | `/workshops/search?q=X` | Yes | Google Places autocomplete proxy |
+| `GET` | `/workshops/mine` | Yes | Workshops previously used by the current user |
 | `GET` | `/workshops/compare?service_type=X&bike_model=Y` | Yes | Compare prices |
+| `GET` | `/workshops/:id` | Yes | Workshop details |
+| `POST` | `/workshops` | Yes | Create a workshop (manual entry) |
+| `POST` | `/workshops/upsert-from-place` | Yes | Upsert a workshop from a Google `placeId` |
+| `GET` | `/service-logs` | Yes | List current user's service logs across bikes |
+| `POST` | `/service-logs/ocr` | Yes | Extract structured fields from a receipt image URL |
 | `GET` | `/bikes/:bikeId/services` | Yes | List service logs (paginated) |
 | `GET` | `/bikes/:bikeId/services/:id` | Yes | Get service log detail |
 | `POST` | `/bikes/:bikeId/services` | Yes | Log a service |
@@ -432,14 +462,8 @@ npm run test:cov
 | `GET` | `/bike-catalog/makes` | No | List all bike makes |
 | `GET` | `/bike-catalog/models?make=Honda` | No | List models for make |
 | `GET` | `/bike-catalog/:id` | No | Catalog entry details |
+| `GET` | `/bikes/:bikeId/attention` | Yes | Compliance + maintenance attention feed for a bike |
 | `POST` | `/notifications/register-token` | Yes | Register Expo push token |
-
-### Coming Soon (v1.1+)
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/agent/chat` | Chat with AI agent |
-| `POST` | `/agent/stream` | Streaming voice agent response |
 
 ---
 
@@ -455,13 +479,14 @@ npm run test:cov
 
 ## Data Model
 
-9 tables: `users`, `bikes`, `bike_catalog`, `service_types`, `maintenance_schedules`, `service_logs`, `workshops`, `workshop_services`, `notification_logs`, `agent_conversations`
+12 tables: `users`, `bikes`, `bike_catalog`, `service_types`, `maintenance_schedules`, `service_logs`, `workshops`, `workshop_services`, `notification_logs`, `agent_conversations`, `ocr_cache`, `ai_usage_logs`
 
 Key relationships:
 - A user owns many bikes
 - A bike has many service logs
-- Workshops offer many services with model-specific pricing
+- Workshops offer many services with model-specific pricing (deduped on `google_place_id` where present)
 - Notification and conversation logs are tied to users
+- `ocr_cache` keys OCR results by image SHA-256; `ai_usage_logs` records every Gemini/OpenAI call for cost + rate-limit accounting
 
 ---
 
@@ -484,24 +509,29 @@ Key relationships:
 - ✓ Analytics sheet with cost breakdown by category
 - ✓ Search + date range picker for service history
 - ✓ Unsaved changes guard on forms
-- 🔄 Workshop discovery screen (API ready, UI in progress)
+- ✓ Workshop picker — Google Places autocomplete, manual entry, previously-used shortcuts
 
-**Phase 3 — Intelligence (in progress)**
-- Mastra AI agent with voice + chat interface
-- Conversational bike advice based on service history
-- 9 agent tools for bike management, compliance, and workshop discovery
+**Phase 3 — OCR + Design System (shipped)**
+- ✓ Scan-receipt camera flow with Supabase Storage upload
+- ✓ OpenAI-powered receipt OCR with SHA-256 cache, per-user daily cap, global RPM limiter
+- ✓ Workshop name → existing-workshop fuzzy matcher
+- ✓ Atelier design system rollout (Instrument Serif + Plus Jakarta Sans + JetBrains Mono, hairline surfaces, glass top bar, burnt-orange accent)
+
+**Phase 4 — Intelligence (planned)**
+- Conversational AI agent with tool-calling (bike profile, service history, compliance status, workshop data)
 - Workshop recommendation engine
+- Framework and provider TBD
 
-**Phase 4 — Infrastructure (queued)**
+**Phase 5 — Infrastructure (queued)**
 - Terraform IaC for all AWS resources
 - Kubernetes manifests (EKS/GKE)
 
-**Phase 5 — Community (future)**
+**Phase 6 — Community (future)**
 - Community-contributed workshop data & reviews
 - Crowd-sourced pricing updates
 - Ride logs & trip tracking
 
-**Phase 6 — Expansion (future)**
+**Phase 7 — Expansion (future)**
 - Cross-border riding (Malaysia, Thailand) — VEP tracking, pre-departure checklists
 - COE renewal planning tools
 - License progression (2B → 2A → 2) notifications
