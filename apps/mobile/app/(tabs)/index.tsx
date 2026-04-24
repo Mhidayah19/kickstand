@@ -1,89 +1,378 @@
+// Home — named job: "Tell me what needs attention on any of my bikes, right now."
+// See docs/design-plans/home-brief.md § 6.
 import { router } from 'expo-router';
-import React, { useMemo, useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import React, { useCallback, useMemo, useState } from 'react';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 
-import { SafeScreen } from '../../components/ui/safe-screen';
 import { Skeleton } from '../../components/ui/skeleton';
 import { EmptyState } from '../../components/ui/empty-state';
 import { DevAuthToggle } from '../../components/dev/DevAuthToggle';
 
-import { TopBar, Pedestal, Badge, Icon, SectionHead, Row, BikeSwitcher, type IconName } from '../../components/ui/atelier';
+import { TopBar, Icon, Eyebrow, BikeSwitcher, type IconName } from '../../components/ui/atelier';
 
 import { useBikes } from '../../lib/api/use-bikes';
+import { useAttention } from '../../lib/api/use-attention';
 import { useServiceLogs } from '../../lib/api/use-service-logs';
 import { useBikeStore } from '../../lib/store/bike-store';
 import { computeNextService } from '../../lib/prediction/compute-next-service';
-import { getActiveSeasonalCallout } from '../../lib/seasonal';
-import { serviceTypeToMeta } from '../../lib/service-type-meta';
-import { daysAgo, formatDaysAgo } from '../../lib/format';
-import { yellowTint } from '../../lib/colors';
-import { serviceTypeIcon } from '../../lib/service-icon';
+import { formatComplianceDate } from '../../lib/format';
+import { colors } from '../../lib/colors';
+import type {
+  AttentionItem,
+  AttentionStatus,
+  ComplianceAttentionItem,
+  MaintenanceAttentionItem,
+} from '../../lib/types/attention';
 
-// ─── Local sub-components ──────────────────────────────────────────────────
+// Screen-local atelier tokens that aren't yet in lib/colors.ts.
+// PAPER is atelier --surface (#FAF8F4); lib/colors surface is currently #FFFFFF.
+// DIM_1/DIM_2 are the two dim-ink shades used across the editorial variant.
+// BRASS_* are the hairline mixes used for card borders.
+// ORANGE/AMBER are the overdue/warning accents (not yet tokenised).
+const PAPER = '#FAF8F4';
+const DIM_1 = '#6B5E4F';
+const DIM_2 = '#8B7B6B';
+const BRASS_35 = 'rgba(199,178,153,0.35)';
+const BRASS_28 = 'rgba(199,178,153,0.28)';
+const ORANGE = '#B44A2C';
+const AMBER = '#B4843A';
 
-function UpTile({
-  icon,
-  label,
-  value,
-  unit,
-  sub,
-  accent = false,
-}: {
-  icon: IconName;
-  label: string;
-  value: number;
-  unit: string;
-  sub: string;
-  accent?: boolean;
-}) {
+type Tone = 'ok' | 'warn' | 'overdue';
+
+const HERO_PACE: Record<Tone, { pct: number; badge: string; badgeBg: string }> = {
+  ok:      { pct: 62, badge: 'ON PACE',  badgeBg: colors.success },
+  warn:    { pct: 82, badge: 'DUE SOON', badgeBg: AMBER },
+  overdue: { pct: 96, badge: 'OVERDUE',  badgeBg: ORANGE },
+};
+
+function Hero({ days, km, pace }: { days: number; km: number; pace: Tone }) {
+  const { pct, badge, badgeBg } = HERO_PACE[pace];
+
   return (
     <View
-      className={`flex-shrink-0 w-[152px] p-4 border rounded-[18px] ${accent ? 'bg-ink border-ink' : 'bg-transparent border-hairline-2'}`}
+      className="mx-5 mt-4 rounded-[22px] overflow-hidden"
+      style={{ backgroundColor: colors.ink, minHeight: 216 }}
     >
-      <Icon name={icon} size={22} stroke={accent ? '#F4F2EC' : '#1A1A1A'} />
-      <View className="flex-row items-baseline gap-1 mt-8">
-        <Text
-          className={`font-sans-semibold text-[26px] tracking-[-0.02em] ${accent ? 'text-bg' : 'text-ink'}`}
-          style={{ fontVariant: ['tabular-nums'] }}
-        >
-          {value}
-        </Text>
-        <Text
-          className="font-mono text-[10px] tracking-[0.1em]"
-          style={{ opacity: 0.65, color: accent ? '#F4F2EC' : '#1A1A1A' }}
-        >
-          {unit}
-        </Text>
-      </View>
-      <Text className={`font-sans-medium text-[12px] mt-0.5 ${accent ? 'text-bg' : 'text-ink'}`}>
-        {label}
-      </Text>
-      <Text
-        className="font-mono text-[10px] tracking-[0.06em] mt-0.5"
-        style={{ opacity: 0.55, color: accent ? '#F4F2EC' : '#1A1A1A' }}
+      <View
+        pointerEvents="none"
+        style={{ position: 'absolute', right: 12, bottom: 20, opacity: 0.14 }}
       >
-        {sub}
-      </Text>
+        <Icon name="bike" size={170} stroke={PAPER} strokeWidth={0.9} />
+      </View>
+
+      <View className="p-6 pb-5">
+        <Text
+          className="font-mono"
+          style={{
+            fontSize: 9,
+            letterSpacing: 2,
+            color: 'rgba(250,248,244,0.5)',
+            textTransform: 'uppercase',
+          }}
+        >
+          Next service · Engine oil
+        </Text>
+
+        <Text
+          className="font-display"
+          style={{
+            fontSize: 76,
+            lineHeight: 78,
+            letterSpacing: -2,
+            color: PAPER,
+            marginTop: 4,
+            fontVariant: ['tabular-nums'],
+          }}
+        >
+          {days}
+        </Text>
+        <Text
+          className="font-mono"
+          style={{
+            fontSize: 11,
+            letterSpacing: 1.3,
+            color: 'rgba(250,248,244,0.55)',
+            marginTop: -2,
+          }}
+        >
+          DAYS · OR {km.toLocaleString()} KM
+        </Text>
+
+        <View
+          className="self-start mt-3 rounded-md"
+          style={{ backgroundColor: badgeBg, paddingHorizontal: 9, paddingVertical: 3 }}
+        >
+          <Text
+            className="font-mono"
+            style={{ fontSize: 9, letterSpacing: 1.3, color: '#fff', fontWeight: '600' }}
+          >
+            {badge}
+          </Text>
+        </View>
+
+        {pace !== 'overdue' && (
+          <View className="mt-4">
+            <View
+              style={{ height: 2, backgroundColor: 'rgba(250,248,244,0.15)', borderRadius: 1 }}
+            >
+              <View
+                style={{
+                  height: 2,
+                  width: `${pct}%`,
+                  backgroundColor: colors.yellow,
+                  borderRadius: 1,
+                }}
+              />
+            </View>
+            <View className="flex-row justify-between mt-2">
+              {['Last', 'Today', 'Due'].map((l) => (
+                <Text
+                  key={l}
+                  className="font-mono"
+                  style={{ fontSize: 9, letterSpacing: 1, color: 'rgba(250,248,244,0.4)' }}
+                >
+                  {l}
+                </Text>
+              ))}
+            </View>
+          </View>
+        )}
+      </View>
     </View>
   );
 }
 
+interface QuickCardData {
+  icon: IconName;
+  title: string;
+  meta: string;
+  tone: Tone;
+  onPress?: () => void;
+}
+
+interface QuickToneStyle {
+  tag: string | null;
+  tagBg: string;
+  tagFg: string;
+  icoBg: string;
+  icoFg: string;
+}
+
+const QUICK_TONE: Record<Tone, QuickToneStyle> = {
+  ok:      { tag: null,        tagBg: '',                          tagFg: '',    icoBg: 'rgba(242,208,107,0.22)', icoFg: DIM_1  },
+  warn:    { tag: 'DUE SOON',  tagBg: 'rgba(180,132,58,0.22)',     tagFg: AMBER, icoBg: '#EDE9E2',                icoFg: DIM_1  },
+  overdue: { tag: 'OVERDUE',   tagBg: 'rgba(180,74,44,0.16)',      tagFg: ORANGE,icoBg: 'rgba(180,74,44,0.18)',   icoFg: ORANGE },
+};
+
+function QuickActions({ cards }: { cards: QuickCardData[] }) {
+  if (cards.length === 0) return null;
+  return (
+    <View style={{ paddingTop: 24 }}>
+      <View className="px-5"><Eyebrow>Upcoming</Eyebrow></View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 10, paddingHorizontal: 20, paddingTop: 10 }}
+      >
+        {cards.map((c, i) => {
+          const t = QUICK_TONE[c.tone];
+          return (
+          <Pressable
+            key={`${c.title}-${i}`}
+            onPress={c.onPress}
+            className="rounded-[18px]"
+            style={{
+              width: 124,
+              backgroundColor: PAPER,
+              borderWidth: 1,
+              borderColor: BRASS_35,
+              paddingHorizontal: 13,
+              paddingTop: 13,
+              paddingBottom: 11,
+              position: 'relative',
+            }}
+          >
+            {t.tag && (
+              <View
+                style={{
+                  position: 'absolute',
+                  top: 9,
+                  right: 9,
+                  paddingHorizontal: 5,
+                  paddingVertical: 2,
+                  borderRadius: 4,
+                  backgroundColor: t.tagBg,
+                }}
+              >
+                <Text
+                  className="font-mono"
+                  style={{ fontSize: 8, letterSpacing: 0.9, fontWeight: '600', color: t.tagFg }}
+                >
+                  {t.tag}
+                </Text>
+              </View>
+            )}
+            <View
+              className="items-center justify-center rounded-[9px]"
+              style={{
+                width: 32,
+                height: 32,
+                marginBottom: 9,
+                backgroundColor: t.icoBg,
+              }}
+            >
+              <Icon name={c.icon} size={15} stroke={t.icoFg} />
+            </View>
+            <Text
+              className="font-sans-semibold"
+              style={{ fontSize: 12, letterSpacing: -0.1, lineHeight: 16, color: colors.ink }}
+              numberOfLines={2}
+            >
+              {c.title}
+            </Text>
+            <Text
+              className="font-mono"
+              style={{ fontSize: 9, letterSpacing: 0.6, color: DIM_2, marginTop: 3 }}
+              numberOfLines={1}
+            >
+              {c.meta}
+            </Text>
+          </Pressable>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+}
+
+interface FeatureTileData {
+  icon: IconName;
+  label: string;
+  onPress?: () => void;
+}
+
+function FeatureGrid({ tiles }: { tiles: FeatureTileData[] }) {
+  return (
+    <View style={{ paddingTop: 24 }}>
+      <View className="px-5"><Eyebrow>Tools</Eyebrow></View>
+      <View className="flex-row flex-wrap px-5" style={{ gap: 8, paddingTop: 10 }}>
+        {tiles.map((t, i) => (
+          <Pressable
+            key={`${t.label}-${i}`}
+            onPress={t.onPress}
+            className="rounded-[14px]"
+            style={{
+              width: '31.5%',
+              backgroundColor: PAPER,
+              borderWidth: 1,
+              borderColor: BRASS_28,
+              paddingHorizontal: 12,
+              paddingTop: 14,
+              paddingBottom: 12,
+              gap: 7,
+            }}
+          >
+            <Icon name={t.icon} size={19} stroke={DIM_1} />
+            <Text
+              className="font-sans-semibold"
+              style={{ fontSize: 11, letterSpacing: -0.1, lineHeight: 14, color: colors.ink }}
+            >
+              {t.label}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+// ─── Data helpers ─────────────────────────────────────────────────────────
+
+function iconForAttention(item: AttentionItem): IconName {
+  if (item.category === 'compliance') {
+    if (item.key === 'coeExpiry' || item.key === 'insuranceExpiry') return 'shield';
+    if (item.key === 'roadTaxExpiry') return 'doc';
+    return 'calendar';
+  }
+  const key = item.key.toLowerCase();
+  if (key.includes('oil')) return 'oil';
+  if (key.includes('chain')) return 'chain';
+  if (key.includes('tyre') || key.includes('tire')) return 'tire';
+  if (key.includes('brake')) return 'brake';
+  return 'wrench';
+}
+
+const STATUS_TO_TONE: Record<AttentionStatus, Tone> = {
+  ok: 'ok',
+  approaching: 'warn',
+  overdue: 'overdue',
+};
+
+function titleFor(item: AttentionItem): string {
+  const overdue = item.status === 'overdue';
+  if (item.category === 'compliance') {
+    return overdue ? `Renew ${item.label.toLowerCase()}` : `${item.label} renewal`;
+  }
+  return overdue ? `${item.label} now` : item.label;
+}
+
+function metaFor(item: AttentionItem): string {
+  if (item.category === 'compliance') {
+    const ci = item as ComplianceAttentionItem;
+    if (item.status === 'overdue') return `Expired ${Math.abs(ci.daysRemaining)}d ago`;
+    return `Exp. ${formatComplianceDate(ci.expiresAt) ?? '—'}`;
+  }
+  const mi = item as MaintenanceAttentionItem;
+  const km = mi.deltaKm ?? 0;
+  return item.status === 'overdue' ? `${Math.abs(km)}km overdue` : `In ${km} km`;
+}
+
+function buildQuickActions(
+  items: AttentionItem[],
+  onPress: (item: AttentionItem) => void,
+): QuickCardData[] {
+  return [...items]
+    .sort((a, b) => b.severity - a.severity)
+    .slice(0, 6)
+    .map<QuickCardData>((item) => ({
+      icon: iconForAttention(item),
+      title: titleFor(item),
+      meta: metaFor(item),
+      tone: STATUS_TO_TONE[item.status],
+      onPress: () => onPress(item),
+    }));
+}
+
+function showComingSoon(feature: string) {
+  Alert.alert(feature, 'Coming soon.');
+}
+
+// Tools surfaces entry points that have no tab, no FAB, and no TopBar home.
+// Future features sourced from docs/plans/ (02 mileage tracking, 03 bike
+// health agent, 04 compass workshop recsys, 05 depreciation economics).
+const FEATURE_TILES: FeatureTileData[] = [
+  { icon: 'gauge',   label: 'Log mileage',  onPress: () => router.push('/quick-log' as any) },
+  { icon: 'receipt', label: 'Scan receipt', onPress: () => router.push('/scan-receipt' as any) },
+  { icon: 'tire',    label: 'Ride tracker', onPress: () => showComingSoon('Ride tracker') },
+  { icon: 'sparkle', label: 'AI insights',  onPress: () => router.navigate('/(tabs)/agent') },
+  { icon: 'wrench',  label: 'Workshops',    onPress: () => showComingSoon('Workshops') },
+  { icon: 'chart',   label: 'Ownership',    onPress: () => showComingSoon('Ownership') },
+];
+
 // ─── Screen ────────────────────────────────────────────────────────────────
 
 export default function HomeScreen() {
-  const { data: bikes, isLoading } = useBikes();
+  const { data: bikes, isLoading: bikesLoading } = useBikes();
   const { activeBikeId, setActiveBikeId } = useBikeStore();
-  const [monsoonDismissed] = useState(false);
 
   const activeBike = useMemo(() => {
     if (!bikes || bikes.length === 0) return null;
     return bikes.find((b) => b.id === activeBikeId) ?? bikes[0];
   }, [bikes, activeBikeId]);
 
-  const { data: serviceLogsData } = useServiceLogs(activeBike?.id ?? null, 3);
-  const recentServices = serviceLogsData?.data ?? [];
-
-  const lastService = recentServices[0];
+  const { data: attention } = useAttention(activeBike?.id ?? null);
+  const { data: serviceLogsData } = useServiceLogs(activeBike?.id ?? null, 1);
+  const lastService = serviceLogsData?.data?.[0];
   const prediction = useMemo(
     () =>
       computeNextService({
@@ -94,87 +383,69 @@ export default function HomeScreen() {
     [activeBike, lastService],
   );
 
-  const callout = useMemo(() => getActiveSeasonalCallout(), []);
-
-  // TODO: wire once add-bike FAB / prediction detail / service entry CTA land in later batches
-  // handleAddBike → router.push('/add-bike')
-  // handlePrediction → router.push('/prediction')
-  // handleServiceEntry → router.push('/add-service')
+  const onAttentionPress = useCallback(() => router.navigate('/(tabs)/garage'), []);
+  const quickActions = useMemo(
+    () => buildQuickActions(attention?.items ?? [], onAttentionPress),
+    [attention?.items, onAttentionPress],
+  );
 
   const [bikeSwitcherOpen, setBikeSwitcherOpen] = useState(false);
 
-  // ────────────── Loading state ──────────────
-  if (isLoading) {
+  if (bikesLoading) {
     return (
-      <SafeScreen
-        scrollable
-        bikes={bikes}
-        activeBike={activeBike ?? undefined}
-        onBikeChange={setActiveBikeId}
-      >
-        <Skeleton height={20} className="rounded-md mb-2 w-32" />
-        <Skeleton height={36} className="rounded-md mb-8 w-48" />
-        <Skeleton height={360} className="rounded-3xl mb-10" />
-        <Skeleton height={140} className="rounded-3xl mb-10" />
-        <Skeleton height={180} className="rounded-2xl mb-10" />
-      </SafeScreen>
+      <View className="flex-1 bg-bg">
+        <TopBar bike="—" unread={0} />
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingTop: 20, paddingBottom: 140, paddingHorizontal: 20 }}
+        >
+          <Skeleton height={216} className="rounded-[22px] mb-4" />
+          <Skeleton height={120} className="rounded-[18px] mb-4" />
+          <Skeleton height={240} className="rounded-[14px]" />
+        </ScrollView>
+      </View>
     );
   }
 
-  // ────────────── Empty state ──────────────
   if (!activeBike) {
     return (
-      <SafeScreen
-        scrollable
-        bikes={bikes}
-        activeBike={undefined}
-        onBikeChange={setActiveBikeId}
-      >
-        <DevAuthToggle>
-          <Text className="font-display text-[40px] leading-[42px] tracking-[-0.02em] text-ink">
-            Your Garage
-          </Text>
-        </DevAuthToggle>
-        <View className="mt-8">
-          <EmptyState
-            title="No bikes logged"
-            description="Add a bike to start tracking services, mileage, and compliance."
-            actionLabel="Add a bike"
-            onAction={() => router.push('/add-bike')}
-          />
-        </View>
-      </SafeScreen>
+      <View className="flex-1 bg-bg">
+        <TopBar bike="Add a bike" unread={0} />
+        <ScrollView
+          contentContainerStyle={{ paddingTop: 20, paddingBottom: 140, paddingHorizontal: 20 }}
+        >
+          <DevAuthToggle>
+            <Text className="font-display text-[40px] leading-[42px] tracking-[-0.02em] text-ink">
+              Your Garage
+            </Text>
+          </DevAuthToggle>
+          <View className="mt-8">
+            <EmptyState
+              title="No bikes logged"
+              description="Add a bike to start tracking services, mileage, and compliance."
+              actionLabel="Add a bike"
+              onAction={() => router.push('/add-bike')}
+            />
+          </View>
+        </ScrollView>
+      </View>
     );
   }
 
-  // ────────────── Derived display values ──────────────
-  const lastServiceLabel = lastService?.date
-    ? formatDaysAgo(daysAgo(lastService.date))
-    : '—';
-  const whenDueLabel = `${prediction.daysUntil}d`;
+  const unread = attention?.summary.needsAttention ?? 0;
 
-  const upcomingServices = [
-    { type: 'oil',   icon: 'oil' as IconName,   label: 'Engine oil',  days: prediction.daysUntil, km: prediction.kmUntil },
-    { type: 'chain', icon: 'chain' as IconName, label: 'Chain lube',  days: 6,   km: 120 },
-    { type: 'tyre',  icon: 'tire' as IconName,  label: 'Tyre check',  days: 42,  km: 2110 },
-    { type: 'brake', icon: 'brake' as IconName, label: 'Brake pads',  days: 94,  km: 4800 },
-  ];
+  const pace: Tone =
+    (attention?.summary.overdue ?? 0) > 0
+      ? 'overdue'
+      : (attention?.summary.approaching ?? 0) > 0
+        ? 'warn'
+        : 'ok';
 
-  const costCategories = [
-    { label: 'Tyres',         icon: 'tire' as IconName,   value: 860, ratio: 0.82 },
-    { label: 'Consumables',   icon: 'oil' as IconName,    value: 640, ratio: 0.61 },
-    { label: 'Repair',        icon: 'wrench' as IconName, value: 520, ratio: 0.50 },
-    { label: 'Modifications', icon: 'tune' as IconName,   value: 240, ratio: 0.23 },
-    { label: 'Compliance',    icon: 'shield' as IconName, value: 80,  ratio: 0.08 },
-  ];
-
-  // ────────────── Main state ──────────────
   return (
     <View className="flex-1 bg-bg">
-      {/* Top bar with bike selector + notifications bell */}
       <TopBar
         bike={activeBike.model}
-        unread={0}
+        unread={unread}
         onBikePress={() => setBikeSwitcherOpen(true)}
         onBellPress={() => router.push('/notifications' as any)}
       />
@@ -192,213 +463,11 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 140 }}
       >
-        {/* ── 1. Hero pedestal ── */}
-        <Pedestal>
-          {/* Eyebrow + badge row */}
-          <View className="flex-row items-center justify-between mb-1">
-            <Text
-              className="font-mono text-[10px] tracking-[0.12em] uppercase"
-              style={{ opacity: 0.55, color: '#F4F2EC' }}
-            >
-              Next service · Engine oil
-            </Text>
-            <Badge tone="accent">ON PACE</Badge>
-          </View>
+        <Hero days={prediction.daysUntil} km={prediction.kmUntil} pace={pace} />
 
-          {/* Big countdown number */}
-          <View className="flex-row items-end gap-2 mt-2">
-            <Text
-              className="font-display text-yellow"
-              style={{ fontSize: 78, lineHeight: 88 }}
-            >
-              {prediction.daysUntil}
-            </Text>
-            <Text
-              className="font-mono text-[11px] tracking-[0.1em] uppercase mb-3"
-              style={{ color: '#F4F2EC', opacity: 0.7 }}
-            >
-              DAYS
-            </Text>
-          </View>
+        <QuickActions cards={quickActions} />
 
-          {/* KM sub-label */}
-          <Text
-            className="font-mono text-[11px] tracking-[0.08em] uppercase mt-1"
-            style={{ color: '#F4F2EC', opacity: 0.55 }}
-          >
-            OR {prediction.kmUntil.toLocaleString()} KM
-          </Text>
-
-          {/* Pace bar section */}
-          <View className="mt-5">
-            {/* Labels row */}
-            <View className="flex-row justify-between mb-2">
-              <Text
-                className="font-mono text-[10px] tracking-[0.06em]"
-                style={{ color: '#F4F2EC', opacity: 0.5 }}
-              >
-                Last · {lastServiceLabel}
-              </Text>
-              <Text
-                className="font-mono text-[10px] tracking-[0.06em]"
-                style={{ color: '#F4F2EC', opacity: 0.5 }}
-              >
-                Today · {Math.round(prediction.idealProgress * 100)}%
-              </Text>
-              <Text
-                className="font-mono text-[10px] tracking-[0.06em]"
-                style={{ color: '#F4F2EC', opacity: 0.5 }}
-              >
-                Due · {whenDueLabel}
-              </Text>
-            </View>
-
-            {/* Hairline track with yellow fill */}
-            <View
-              className="w-full rounded-full overflow-hidden"
-              style={{ height: 3, backgroundColor: 'rgba(244,242,236,0.15)' }}
-            >
-              <View
-                className="h-full rounded-full bg-yellow"
-                style={{ width: `${prediction.idealProgress * 100}%` }}
-              />
-            </View>
-          </View>
-        </Pedestal>
-
-        {/* ── 2. Seasonal callout ── */}
-        {callout && !monsoonDismissed && (
-          <View
-            className="mx-4 mt-4 p-4 rounded-2xl flex-row gap-3 border border-hairline-2"
-          >
-            {/* Icon well */}
-            <View
-              className="w-10 h-10 items-center justify-center rounded-xl flex-shrink-0"
-              style={{ backgroundColor: yellowTint(0.12) }}
-            >
-              <Icon name="zap" size={18} stroke="#F2D06B" />
-            </View>
-
-            {/* Text column */}
-            <View className="flex-1">
-              <Text className="font-mono text-[9px] tracking-[0.14em] uppercase text-muted mb-0.5">
-                {callout.eyebrow ?? 'SEASONAL'}
-              </Text>
-              <Text className="font-sans-semibold text-[14px] text-ink tracking-[-0.01em]">
-                {callout.title}
-              </Text>
-              <Text className="font-sans-medium text-[13px] text-muted mt-0.5">
-                {callout.body}
-              </Text>
-            </View>
-          </View>
-        )}
-
-        {/* ── 3. Upcoming services carousel ── */}
-        <View className="mt-6 px-4">
-          <SectionHead
-            title="Upcoming"
-            action="ALL"
-            onActionPress={() => {}}
-          />
-        </View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: 10, paddingHorizontal: 20 }}
-        >
-          {upcomingServices.map((svc, i) => (
-            <UpTile
-              key={svc.type}
-              icon={svc.icon}
-              label={svc.label}
-              value={svc.days}
-              unit="DAYS"
-              sub={`or ${svc.km.toLocaleString()} km`}
-              accent={i === 0}
-            />
-          ))}
-        </ScrollView>
-
-        {/* ── 4. Cost breakdown ── */}
-        <View className="mt-6 px-4">
-          {/* Header */}
-          <View className="flex-row items-baseline justify-between mb-4">
-            <View>
-              <Text className="font-mono text-[9px] tracking-[0.14em] uppercase text-muted mb-0.5">
-                LAST 12 MONTHS
-              </Text>
-              <Text className="font-sans-semibold text-[13px] text-ink tracking-[-0.01em]">
-                Cost breakdown
-              </Text>
-            </View>
-            <Pressable onPress={() => {}}>
-              <Text className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">
-                DETAIL →
-              </Text>
-            </Pressable>
-          </View>
-
-          {/* Category rows */}
-          {costCategories.map((c) => (
-            <View
-              key={c.label}
-              className="flex-row items-center gap-3 py-3 border-b border-hairline"
-            >
-              <Icon name={c.icon} size={16} stroke="#1A1A1A" />
-              <Text
-                className="font-sans-medium text-[13px] text-ink"
-                style={{ width: 88 }}
-              >
-                {c.label}
-              </Text>
-              {/* Progress bar */}
-              <View
-                className="flex-1 rounded-sm overflow-hidden"
-                style={{ height: 6, backgroundColor: '#E8E5DF' }}
-              >
-                <View
-                  className="h-full bg-ink rounded-sm"
-                  style={{ width: `${c.ratio * 100}%` }}
-                />
-              </View>
-              {/* Value */}
-              <Text
-                className="font-mono text-[12px] text-ink text-right"
-                style={{ fontVariant: ['tabular-nums'], minWidth: 60 }}
-              >
-                S${c.value}
-              </Text>
-            </View>
-          ))}
-        </View>
-
-        {/* ── 5. Recent services ── */}
-        <View className="mt-6 px-4">
-          <SectionHead
-            title="Recent services"
-            action="LOG"
-            onActionPress={() => router.navigate('/(tabs)/service')}
-          />
-          {recentServices.length === 0 ? (
-            <Text className="text-sm font-sans-medium text-ink/55 py-4 text-center">
-              Nothing logged yet — tap + to add a service.
-            </Text>
-          ) : (
-            recentServices.slice(0, 3).map((r, i) => (
-              <React.Fragment key={r.id}>
-                {i > 0 && <View className="h-px bg-hairline" />}
-                <Row
-                  icon={serviceTypeIcon(r.serviceType)}
-                  title={serviceTypeToMeta(r.serviceType).label}
-                  sub={`${formatDaysAgo(daysAgo(r.date))} · ${r.mileageAt?.toLocaleString() ?? '—'} km`}
-                  trail={r.cost ? 'S$' + parseFloat(r.cost).toFixed(0) : undefined}
-                  onPress={() => router.push(`/service/${r.id}?bikeId=${activeBike?.id}` as any)}
-                />
-              </React.Fragment>
-            ))
-          )}
-        </View>
+        <FeatureGrid tiles={FEATURE_TILES} />
       </ScrollView>
     </View>
   );

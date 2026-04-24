@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { View, Text, ScrollView, Pressable, Platform, UIManager } from 'react-native';
 import { useRouter } from 'expo-router';
-import Svg, { Path, Defs, LinearGradient, Stop, Circle } from 'react-native-svg';
 import { SafeScreen } from '../../../components/ui/safe-screen';
 import { Skeleton } from '../../../components/ui/skeleton';
 import { EmptyState } from '../../../components/ui/empty-state';
@@ -26,27 +25,11 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
-type TimePeriod = '1M' | '6M' | '1Y' | 'All';
-const TIME_PERIODS: TimePeriod[] = ['1M', '6M', '1Y', 'All'];
-
-function getTimePeriodRange(period: TimePeriod): { from: string; to: string } | null {
-  if (period === 'All') return null;
-  const today = new Date();
-  const to = today.toISOString().split('T')[0];
-  const from = new Date(today);
-  switch (period) {
-    case '1M':
-      from.setMonth(from.getMonth() - 1);
-      break;
-    case '6M':
-      from.setMonth(from.getMonth() - 6);
-      break;
-    case '1Y':
-      from.setFullYear(from.getFullYear() - 1);
-      break;
-  }
-  return { from: from.toISOString().split('T')[0], to };
-}
+const ACCENT_SERVICE_TYPES = new Set<string>(['oil_change', 'tire_front', 'tire_rear']);
+const MONTH_FULL: Record<number, string> = {
+  0: 'January', 1: 'February', 2: 'March', 3: 'April', 4: 'May', 5: 'June',
+  6: 'July', 7: 'August', 8: 'September', 9: 'October', 10: 'November', 11: 'December',
+};
 
 export default function ServiceScreen() {
   const router = useRouter();
@@ -57,7 +40,6 @@ export default function ServiceScreen() {
 
   const [selectedFilter, setSelectedFilter] = useState<FilterGroupKey>('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>('All');
   const [dateRange, setDateRange] = useState<{ from: string; to: string } | null>(null);
   const [analyticsVisible, setAnalyticsVisible] = useState(false);
   const [filterSheetVisible, setFilterSheetVisible] = useState(false);
@@ -70,14 +52,8 @@ export default function ServiceScreen() {
     setSearchQuery('');
     setDateRange(null);
     setSelectedFilter('All');
-    setTimePeriod('All');
     setSearchExpanded(false);
   }, [activeBikeId]);
-
-  const handleTimePeriodChange = useCallback((period: TimePeriod) => {
-    setTimePeriod(period);
-    setDateRange(getTimePeriodRange(period));
-  }, []);
 
   const toggleSearch = useCallback(() => {
     if (searchExpanded) {
@@ -141,36 +117,7 @@ export default function ServiceScreen() {
     return Array.from(map.entries()).map(([dateKey, entries]) => ({ dateKey, entries }));
   }, [filteredLogs]);
 
-  // Monthly cost series (up to 12 buckets), based on dateFilteredLogs.
-  const monthlyCosts = useMemo(() => {
-    if (dateFilteredLogs.length === 0) return [] as number[];
-    const buckets = new Map<string, number>();
-    for (const log of dateFilteredLogs) {
-      const key = log.date.slice(0, 7);
-      buckets.set(key, (buckets.get(key) ?? 0) + (parseFloat(log.cost) || 0));
-    }
-    const sorted = Array.from(buckets.entries()).sort(([a], [b]) => a.localeCompare(b));
-    return sorted.slice(-12).map(([, v]) => v);
-  }, [dateFilteredLogs]);
-
-  const sparkPoints = useMemo(() => {
-    if (monthlyCosts.length < 2) return [] as { x: number; y: number }[];
-    const maxY = Math.max(...monthlyCosts, 1);
-    return monthlyCosts.map((v, i) => ({
-      x: (i / (monthlyCosts.length - 1)) * 320,
-      y: 92 - (v / maxY) * 84,
-    }));
-  }, [monthlyCosts]);
-
-  const sparkLinePath = useMemo(
-    () => sparkPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' '),
-    [sparkPoints],
-  );
-
-  const sparkFillPath = useMemo(
-    () => (sparkPoints.length > 1 ? `${sparkLinePath} L 320 96 L 0 96 Z` : ''),
-    [sparkPoints, sparkLinePath],
-  );
+  const rangeLabel = dateRange ? 'FILTERED' : 'ALL TIME';
 
   const handleAddBike = useCallback(() => {
     router.push('/add-bike');
@@ -285,83 +232,17 @@ export default function ServiceScreen() {
             </Text>
             <Text className="font-mono text-[11px] text-muted">·</Text>
             <Text className="font-mono text-[11px] tracking-[0.04em] text-ink">
-              PAST {timePeriod === 'All' ? 'ALL TIME' : timePeriod}
+              {rangeLabel}
             </Text>
           </View>
         </View>
 
-        {/* Sparkline */}
-        {sparkPoints.length > 1 ? (
-          <View className="px-5 pt-4 pb-2">
-            <Svg viewBox="0 0 320 96" width="100%" height={96}>
-              <Defs>
-                <LinearGradient id="spark-fill" x1="0" y1="0" x2="0" y2="1">
-                  <Stop offset="0%" stopColor="#F2D06B" stopOpacity={0.3} />
-                  <Stop offset="100%" stopColor="#F2D06B" stopOpacity={0} />
-                </LinearGradient>
-              </Defs>
-              <Path d={sparkFillPath} fill="url(#spark-fill)" />
-              <Path d={sparkLinePath} stroke="#F2D06B" strokeWidth={1.5} fill="none" />
-              {sparkPoints.map((p, i) => (
-                <Circle
-                  key={i}
-                  cx={p.x}
-                  cy={p.y}
-                  r={i === sparkPoints.length - 1 ? 3 : 1.5}
-                  fill={i === sparkPoints.length - 1 ? '#F2D06B' : '#1A1A1A'}
-                  opacity={i === sparkPoints.length - 1 ? 1 : 0.4}
-                />
-              ))}
-            </Svg>
-          </View>
-        ) : null}
-
-        {/* Segmented time period control */}
-        <View className="flex-row bg-hairline rounded-xl p-[3px] mx-5 mt-2">
-          {TIME_PERIODS.map((p) => (
-            <Pressable
-              key={p}
-              className={`flex-1 py-2.5 rounded-[10px] items-center ${timePeriod === p ? 'bg-bg' : ''}`}
-              onPress={() => handleTimePeriodChange(p)}
-            >
-              <Text className={`font-mono text-[11px] tracking-[0.08em] uppercase ${timePeriod === p ? 'text-ink' : 'text-muted'}`}>
-                {p}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
         {/* Stats row */}
-        <View className="flex-row mt-2 border-t border-b border-hairline" style={{ columnGap: 1, backgroundColor: 'rgba(26,26,26,0.09)' }}>
+        <View className="flex-row mt-5 border-t border-b border-hairline" style={{ columnGap: 1, backgroundColor: 'rgba(26,26,26,0.09)' }}>
           <StatCell value={String(serviceCount)} label="Services" />
           <StatCell value={avgCost > 0 ? `S$${Math.round(avgCost)}` : '—'} label="Avg cost" />
           <StatCell value={costPerKm !== null ? `S$${Math.round(costPerKm)}` : 'N/A'} label="Per 1K KM" />
         </View>
-
-        {/* Filter chips */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 20, gap: 6, paddingTop: 16 }}
-        >
-          {(Object.keys(SERVICE_FILTER_GROUPS) as FilterGroupKey[]).map((f) => (
-            <Pressable
-              key={f}
-              onPress={() => setSelectedFilter(f)}
-              className={`px-3 py-2 rounded-full border ${
-                selectedFilter === f ? 'bg-ink border-ink' : 'bg-transparent border-hairline-2'
-              }`}
-            >
-              <Text
-                className={`font-mono text-[10px] tracking-[0.12em] uppercase ${
-                  selectedFilter === f ? 'text-bg' : 'text-ink-2'
-                }`}
-              >
-                {f}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
 
         {/* Timeline header */}
         <View className="px-5 pt-5 flex-row justify-between items-center">
@@ -391,7 +272,7 @@ export default function ServiceScreen() {
         ) : null}
 
         {/* Timeline groups */}
-        <View className="px-5 pt-2 pb-24">
+        <View className="px-5 pt-3 pb-24">
           {filteredLogs.length === 0 ? (
             <View className="items-center justify-center py-16 gap-4">
               <Text className="font-sans-medium text-[14px] text-muted text-center">
@@ -401,7 +282,6 @@ export default function ServiceScreen() {
                 onPress={() => {
                   setSelectedFilter('All');
                   setDateRange(null);
-                  setTimePeriod('All');
                   setSearchQuery('');
                   setSearchExpanded(false);
                 }}
@@ -411,90 +291,127 @@ export default function ServiceScreen() {
               </Pressable>
             </View>
           ) : (
-            <View className="relative">
-              <View
-                pointerEvents="none"
-                className="bg-hairline-2"
-                style={{ position: 'absolute', top: 22, bottom: 10, left: 72, width: 1 }}
-              />
-              {groupedLogs.map((g, gi) => {
-                const d = new Date(g.dateKey);
-                const dateDay = String(d.getDate()).padStart(2, '0');
-                const dateMonth = d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-                const groupTotal = g.entries.reduce((s, e) => s + (parseFloat(e.cost) || 0), 0);
-                const isMulti = g.entries.length > 1;
-                const isLast = gi === groupedLogs.length - 1;
-                return (
-                  <View
-                    key={g.dateKey}
-                    className="flex-row gap-3"
-                    style={{ marginBottom: isLast ? 0 : 20 }}
-                  >
-                    <View className="items-center w-14 flex-shrink-0 pt-1">
-                      <Text className="font-display text-[26px] leading-[1.1] text-ink text-center">
-                        {dateDay}
+            groupedLogs.map((g) => {
+              const d = new Date(g.dateKey);
+              const monthFull = MONTH_FULL[d.getMonth()];
+              const dateDay = String(d.getDate()).padStart(2, '0');
+              const year = d.getFullYear();
+              const groupKm = g.entries.find((e) => e.mileageAt)?.mileageAt;
+              return (
+                <View key={g.dateKey} style={{ marginBottom: 20 }}>
+                  {/* Date group header */}
+                  <View className="flex-row items-center justify-between mb-2">
+                    <Text className="font-mono text-[10px] tracking-[0.14em] uppercase text-muted">
+                      {monthFull} {dateDay}, {year}
+                    </Text>
+                    {groupKm ? (
+                      <Text
+                        className="font-mono text-[10px] tracking-[0.04em] text-muted"
+                        style={{ fontVariant: ['tabular-nums'] }}
+                      >
+                        {groupKm.toLocaleString()} km
                       </Text>
-                      <Text className="font-mono text-[9px] tracking-[0.16em] uppercase text-muted mt-1.5 text-center">
-                        {dateMonth}
-                      </Text>
-                      {isMulti ? (
-                        <View className="mt-2 px-1.5 py-[3px] rounded-full bg-hairline">
-                          <Text
-                            className="font-mono text-[9px] text-ink"
-                            style={{ fontVariant: ['tabular-nums'] }}
-                          >
-                            S${Math.round(groupTotal)}
-                          </Text>
-                        </View>
-                      ) : null}
-                    </View>
-                    <View className="flex-1 gap-2 pt-1 min-w-0">
-                      {g.entries.map((e, ei) => {
-                        const meta = serviceTypeToMeta(e.serviceType);
-                        const subParts: string[] = [];
-                        if (e.mileageAt) subParts.push(`${e.mileageAt.toLocaleString()} KM`);
-                        if (e.description) subParts.push(e.description);
-                        const isFirstEver = gi === 0 && ei === 0;
-                        const isGroupStart = ei === 0;
-                        return (
-                          <View key={e.id} className="flex-row items-start gap-2.5">
-                            <View
-                              className={`w-2.5 h-2.5 rounded-full mt-[14px] border-2 ${
-                                isFirstEver
-                                  ? 'bg-yellow border-yellow'
-                                  : isGroupStart
-                                    ? 'bg-ink border-ink'
-                                    : 'bg-bg border-ink-2'
-                              }`}
-                              style={{ zIndex: 1 }}
-                            />
-                            <Pressable
-                              onPress={() => router.push(`/service/${e.id}` as any)}
-                              className="flex-1 bg-bg-2 rounded-[14px] px-3.5 py-2.5 flex-row items-center gap-2.5 min-w-0"
-                            >
-                              <Icon name={serviceTypeIcon(e.serviceType)} size={18} stroke="#1A1A1A" />
-                              <View className="flex-1 min-w-0">
-                                <Text className="font-sans-semibold text-[13px] tracking-[-0.01em] text-ink" numberOfLines={1}>
-                                  {meta.label}
-                                </Text>
-                                {subParts.length > 0 ? (
-                                  <Text className="font-mono text-[10px] text-muted mt-0.5 tracking-[0.04em]" numberOfLines={1}>
-                                    {subParts.join(' · ')}
-                                  </Text>
-                                ) : null}
-                              </View>
-                              <Text className="font-mono text-[12px] text-ink" style={{ fontVariant: ['tabular-nums'] }}>
-                                S${Math.round(parseFloat(e.cost) || 0)}
-                              </Text>
-                            </Pressable>
-                          </View>
-                        );
-                      })}
-                    </View>
+                    ) : null}
                   </View>
-                );
-              })}
-            </View>
+
+                  {/* Cards */}
+                  <View className="gap-2">
+                    {g.entries.map((e) => {
+                      const meta = serviceTypeToMeta(e.serviceType);
+                      const accent = ACCENT_SERVICE_TYPES.has(e.serviceType);
+                      const subParts: string[] = [];
+                      if (e.description) subParts.push(e.description);
+                      if (e.parts && e.parts.length > 0) subParts.push(e.parts.join(' · '));
+                      const subtitle = subParts.join(' · ');
+                      const cost = Math.round(parseFloat(e.cost) || 0);
+                      return (
+                        <Pressable
+                          key={e.id}
+                          onPress={() => router.push(`/service/${e.id}` as any)}
+                          className="flex-row items-center bg-surface rounded-[16px]"
+                          style={{
+                            borderWidth: 1,
+                            borderColor: 'rgba(26,26,26,0.09)',
+                            paddingVertical: 12,
+                            paddingHorizontal: 14,
+                            columnGap: 12,
+                            shadowColor: '#1A1A1A',
+                            shadowOffset: { width: 0, height: 1 },
+                            shadowOpacity: 0.05,
+                            shadowRadius: 4,
+                            elevation: 1,
+                          }}
+                        >
+                          {/* Icon badge */}
+                          <View
+                            className="items-center justify-center"
+                            style={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: 12,
+                              backgroundColor: accent ? 'rgba(242,208,107,0.22)' : '#EBE8DF',
+                              borderWidth: 1,
+                              borderColor: accent ? 'rgba(242,208,107,0.45)' : 'rgba(26,26,26,0.09)',
+                            }}
+                          >
+                            <Icon name={serviceTypeIcon(e.serviceType)} size={18} stroke="#1A1A1A" />
+                          </View>
+
+                          {/* Main info */}
+                          <View className="flex-1 min-w-0">
+                            <Text
+                              className="font-sans-bold text-[13px] tracking-[-0.01em] text-ink"
+                              style={{ lineHeight: 16 }}
+                              numberOfLines={1}
+                            >
+                              {meta.label}
+                            </Text>
+                            {subtitle ? (
+                              <Text
+                                className="font-mono text-[10px] tracking-[0.04em] text-muted mt-[3px]"
+                                numberOfLines={1}
+                              >
+                                {subtitle}
+                              </Text>
+                            ) : null}
+                          </View>
+
+                          {/* Right: price + chevron */}
+                          <View className="flex-row items-center" style={{ columnGap: 6 }}>
+                            <View
+                              className="flex-row items-baseline"
+                              style={{
+                                borderRadius: 999,
+                                paddingHorizontal: 9,
+                                paddingVertical: 3,
+                                borderWidth: 1,
+                                columnGap: 3,
+                                backgroundColor: accent ? 'rgba(242,208,107,0.22)' : '#F4F2EC',
+                                borderColor: accent ? 'rgba(242,208,107,0.4)' : 'rgba(26,26,26,0.16)',
+                              }}
+                            >
+                              <Text
+                                className="font-mono-semibold text-[9px] tracking-[0.06em] uppercase"
+                                style={{ color: accent ? '#1A1A1A' : '#7A756C' }}
+                              >
+                                S$
+                              </Text>
+                              <Text
+                                className="font-mono-semibold text-[12px] text-ink"
+                                style={{ fontVariant: ['tabular-nums'] }}
+                              >
+                                {cost}
+                              </Text>
+                            </View>
+                            <Icon name="chevron" size={13} stroke="#7A756C" />
+                          </View>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
+                </View>
+              );
+            })
           )}
         </View>
       </ScrollView>
@@ -515,10 +432,7 @@ export default function ServiceScreen() {
         dateRange={dateRange}
         onApply={(filter, range) => {
           setSelectedFilter(filter);
-          if (range) {
-            setDateRange(range);
-            setTimePeriod('All');
-          }
+          setDateRange(range ?? null);
           setFilterSheetVisible(false);
         }}
       />
