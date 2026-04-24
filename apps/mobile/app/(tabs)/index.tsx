@@ -383,6 +383,12 @@ export default function HomeScreen() {
     [activeBike, lastService],
   );
 
+  const onAttentionPress = useCallback(() => router.navigate('/(tabs)/garage'), []);
+  const quickActions = useMemo(
+    () => buildQuickActions(attention?.items ?? [], onAttentionPress),
+    [attention?.items, onAttentionPress],
+  );
+
   const [bikeSwitcherOpen, setBikeSwitcherOpen] = useState(false);
 
   if (bikesLoading) {
@@ -426,12 +432,6 @@ export default function HomeScreen() {
     );
   }
 
-  const items = attention?.items ?? [];
-  const onAttentionPress = useCallback(() => router.navigate('/(tabs)/garage'), []);
-  const quickActions = useMemo(
-    () => buildQuickActions(items, onAttentionPress),
-    [items, onAttentionPress],
-  );
   const unread = attention?.summary.needsAttention ?? 0;
 
   const pace: Tone =
