@@ -29,6 +29,7 @@ import type { IconName } from '../components/ui/atelier';
 import { useBike } from '../lib/api/use-bikes';
 import { useServiceLog } from '../lib/api/use-service-logs';
 import { useServiceLogForm } from '../lib/hooks/use-service-log-form';
+import { FONTS } from '../lib/theme';
 import type { ServiceTypeKey } from '../lib/constants/service-types';
 import type { ServiceLog } from '../lib/types/service-log';
 
@@ -169,7 +170,7 @@ function EditServiceForm({ log, bikeId, onClose, onDirtyChange }: EditServiceFor
           {/* Hero */}
           <View className="px-5 pb-6">
             <Eyebrow>Update log</Eyebrow>
-            <Text className="font-display text-[38px] leading-[1.05] text-ink mt-1.5">
+            <Text className="font-display text-[38px] leading-[1.05] tracking-[-0.03em] text-ink mt-1.5">
               What changed?
             </Text>
           </View>
@@ -328,7 +329,7 @@ function EditServiceForm({ log, bikeId, onClose, onDirtyChange }: EditServiceFor
               placeholder="Add a part + return"
               placeholderTextColor="rgba(26,26,26,0.35)"
               style={{
-                fontFamily: 'PlusJakartaSans-Medium',
+                fontFamily: FONTS.medium,
                 fontSize: 14,
                 color: '#1A1A1A',
               }}

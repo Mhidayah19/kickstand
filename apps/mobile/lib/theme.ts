@@ -1,7 +1,11 @@
 import { useFonts } from 'expo-font';
 import {
-  InstrumentSerif_400Regular,
-} from '@expo-google-fonts/instrument-serif';
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+  Inter_800ExtraBold,
+} from '@expo-google-fonts/inter';
 import {
   JetBrainsMono_500Medium,
   JetBrainsMono_600SemiBold,
@@ -9,16 +13,21 @@ import {
 
 export function useAppFonts() {
   return useFonts({
-    'PlusJakartaSans-Regular': require('../assets/fonts/PlusJakartaSans-Regular.ttf'),
-    'PlusJakartaSans-Medium': require('../assets/fonts/PlusJakartaSans-Medium.ttf'),
-    'PlusJakartaSans-SemiBold': require('../assets/fonts/PlusJakartaSans-SemiBold.ttf'),
-    'PlusJakartaSans-Bold': require('../assets/fonts/PlusJakartaSans-Bold.ttf'),
-    'PlusJakartaSans-ExtraBold': require('../assets/fonts/PlusJakartaSans-ExtraBold.ttf'),
-    InstrumentSerif_400Regular,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
     JetBrainsMono_500Medium,
     JetBrainsMono_600SemiBold,
   });
 }
+
+export const FONTS = {
+  medium: 'Inter_500Medium',
+  semibold: 'Inter_600SemiBold',
+  bold: 'Inter_700Bold',
+} as const;
 
 export function getComplianceVariant(daysLeft: number | null): 'expired' | 'danger' | 'warning' | 'neutral' {
   if (daysLeft === null || daysLeft > 30) return 'neutral';

@@ -225,7 +225,7 @@ export default function GarageScreen() {
             <View className="flex-row justify-between items-start">
               <View className="flex-1">
                 <Eyebrow>Active bike</Eyebrow>
-                <Text className="font-display text-[32px] leading-[1.05] text-ink mt-1.5">
+                <Text className="font-display text-[32px] leading-[1.05] tracking-[-0.03em] text-ink mt-1.5">
                   {bike.model}
                 </Text>
                 <Text className="font-mono text-[11px] tracking-[0.14em] text-muted mt-1">

@@ -53,7 +53,7 @@ export function AttentionDetailHero({ item }: { item: AttentionItem }) {
         {STATUS_LABEL[item.status]}
       </Eyebrow>
       <Text
-        className="font-display text-ink leading-[1.02] tracking-[-0.01em] mb-4"
+        className="font-display text-ink leading-[1.02] tracking-[-0.03em] mb-4"
         style={{ fontSize: 36 }}
       >
         {item.label}
@@ -61,7 +61,7 @@ export function AttentionDetailHero({ item }: { item: AttentionItem }) {
       <View className="flex-row items-baseline gap-2 mb-2">
         <Text
           className={`font-display ${item.status === 'overdue' ? 'text-danger' : 'text-ink'}`}
-          style={{ fontSize: 48, lineHeight: 56, letterSpacing: -2 }}
+          style={{ fontSize: 48, lineHeight: 56, letterSpacing: -2.2 }}
         >
           {num}
         </Text>

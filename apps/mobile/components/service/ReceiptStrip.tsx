@@ -2,6 +2,7 @@ import React from 'react';
 import { ActivityIndicator, Image, Pressable, ScrollView, Text, View } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
+import { FONTS } from '../../lib/theme';
 
 const THUMB = 72;
 const THUMB_RADIUS = 10;
@@ -109,7 +110,7 @@ export function ReceiptStrip({
             }}
           >
             <ActivityIndicator size="small" color={colors.yellow} />
-            <Text style={{ color: colors.yellow, fontSize: 9, fontFamily: 'PlusJakartaSans_700Bold' }}>
+            <Text style={{ color: colors.yellow, fontSize: 9, fontFamily: FONTS.bold }}>
               {getUploadingLabel(uploadingCount)}
             </Text>
           </View>
@@ -132,7 +133,7 @@ export function ReceiptStrip({
             className="active:opacity-70"
           >
             <MaterialCommunityIcons name="plus" size={20} color={colors.hairline2} />
-            <Text style={{ color: colors.hairline2, fontSize: 9, fontFamily: 'PlusJakartaSans_700Bold' }}>
+            <Text style={{ color: colors.hairline2, fontSize: 9, fontFamily: FONTS.bold }}>
               Add
             </Text>
           </Pressable>

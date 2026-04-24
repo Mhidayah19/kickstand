@@ -134,7 +134,7 @@ export default function ServiceDetailScreen() {
           <BackBtn />
         </View>
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="font-display text-[28px] leading-[32px] tracking-[-0.01em] text-ink mb-2">
+          <Text className="font-display text-[28px] leading-[32px] tracking-[-0.025em] text-ink mb-2">
             Not found
           </Text>
           <Text className="font-sans text-sm text-muted text-center">
@@ -171,7 +171,7 @@ export default function ServiceDetailScreen() {
         <View className="px-5 pt-4 pb-6">
           <Eyebrow className="mb-3">Service Type</Eyebrow>
           <Text
-            className="font-display text-ink leading-[1.02] tracking-[-0.01em]"
+            className="font-display text-ink leading-[1.02] tracking-[-0.035em]"
             style={{ fontSize: 40 }}
           >
             {serviceLabel}
@@ -189,7 +189,7 @@ export default function ServiceDetailScreen() {
           <View className="flex-1">
             <Eyebrow className="mb-2">Cost</Eyebrow>
             <Text
-              className="font-display text-ink"
+              className="font-display text-ink tracking-[-0.025em]"
               style={{ fontSize: 28, lineHeight: 34 }}
             >
               {formatCost(log.cost)}

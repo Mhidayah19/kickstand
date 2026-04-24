@@ -6,6 +6,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { TimelineEntry } from './timeline-entry';
 import { colors } from '../../lib/colors';
+import { FONTS } from '../../lib/theme';
 import type { TimelineColor } from '../../lib/service-type-meta';
 
 type AnimatedInterpolation = ReturnType<Animated.Value['interpolate']>;
@@ -44,7 +45,7 @@ function renderLeftActions(
     >
       <Animated.View style={{ transform: [{ scale }] }}>
         <MaterialCommunityIcons name="pencil-outline" size={20} color={colors.ink} />
-        <Text style={{ fontFamily: 'PlusJakartaSans_700Bold', fontSize: 10, color: colors.ink, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 }}>
+        <Text style={{ fontFamily: FONTS.bold, fontSize: 10, color: colors.ink, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 }}>
           Edit
         </Text>
       </Animated.View>
@@ -69,7 +70,7 @@ function renderRightActions(
     >
       <Animated.View style={{ transform: [{ scale }] }}>
         <MaterialCommunityIcons name="trash-can-outline" size={20} color={colors.white} />
-        <Text style={{ fontFamily: 'PlusJakartaSans_700Bold', fontSize: 10, color: colors.white, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 }}>
+        <Text style={{ fontFamily: FONTS.bold, fontSize: 10, color: colors.white, textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 4 }}>
           Delete
         </Text>
       </Animated.View>

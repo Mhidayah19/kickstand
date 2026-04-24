@@ -111,7 +111,7 @@ export default function SettingsScreen() {
           </View>
           <View className="flex-1">
             <Eyebrow>Account</Eyebrow>
-            <Text className="font-display text-[34px] leading-[1.05] text-ink mt-1">
+            <Text className="font-display text-[34px] leading-[1.05] tracking-[-0.03em] text-ink mt-1">
               {profile?.name ?? 'You'}
             </Text>
             <Text className="font-mono text-[10px] text-muted mt-1 tracking-[0.08em]">

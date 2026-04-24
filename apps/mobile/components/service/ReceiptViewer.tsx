@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { colors } from '../../lib/colors';
+import { FONTS } from '../../lib/theme';
 
 interface ReceiptViewerProps {
   urls: string[];
@@ -60,7 +61,7 @@ export function ReceiptViewer({ urls, initialIndex, visible, onClose }: ReceiptV
           <Text
             style={{
               color: 'rgba(255,255,255,0.4)',
-              fontFamily: 'PlusJakartaSans_700Bold',
+              fontFamily: FONTS.bold,
               fontSize: 11,
               letterSpacing: 1,
             }}
@@ -155,7 +156,7 @@ export function ReceiptViewer({ urls, initialIndex, visible, onClose }: ReceiptV
             right: 0,
             textAlign: 'center',
             color: 'rgba(255,255,255,0.25)',
-            fontFamily: 'PlusJakartaSans_500Medium',
+            fontFamily: FONTS.medium,
             fontSize: 10,
             letterSpacing: 0.5,
           }}

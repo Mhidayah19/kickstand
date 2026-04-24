@@ -215,9 +215,9 @@ export default function ServiceScreen() {
             Service History · Total Spend
           </Text>
           <View className="flex-row items-baseline gap-2.5 mb-2">
-            <Text className="font-display text-[18px] text-muted">S$</Text>
+            <Text className="font-display text-[18px] text-muted tracking-[-0.01em]">S$</Text>
             <Text
-              className="font-display text-[72px] text-ink flex-shrink"
+              className="font-display text-[72px] text-ink flex-shrink tracking-[-0.045em]"
               style={{ fontVariant: ['tabular-nums'], lineHeight: 76 }}
               numberOfLines={1}
               adjustsFontSizeToFit

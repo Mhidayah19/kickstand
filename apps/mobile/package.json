@@ -12,7 +12,7 @@
     "lint": "expo lint"
   },
   "dependencies": {
-    "@expo-google-fonts/instrument-serif": "^0.4.1",
+    "@expo-google-fonts/inter": "^0.4.2",
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
     "@hookform/resolvers": "^5.2.2",
     "@react-native-async-storage/async-storage": "2.2.0",
@@ -61,7 +61,6 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
     "@testing-library/react-native": "^13.3.3",
     "@types/aes-js": "^3.1.4",
     "@types/jest": "29.5.14",

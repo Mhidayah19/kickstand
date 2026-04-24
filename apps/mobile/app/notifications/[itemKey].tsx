@@ -107,7 +107,7 @@ export default function NotificationItemScreen() {
           </Pressable>
         </View>
         <View className="flex-1 items-center justify-center px-8">
-          <Text className="font-display text-[28px] leading-[32px] tracking-[-0.01em] text-ink mb-2">
+          <Text className="font-display text-[28px] leading-[32px] tracking-[-0.025em] text-ink mb-2">
             Not found
           </Text>
           <Text className="font-sans text-sm text-muted text-center">
