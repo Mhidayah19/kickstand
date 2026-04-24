@@ -191,7 +191,7 @@ export default function GarageScreen() {
     <View className="flex-1 bg-bg">
       {/* TopBar (atelier) */}
       <TopBar
-        bike={`${bike.model}${bike.year ? ` · ${bike.year}` : ''}`}
+        bike={bike.model}
         unread={badgeCount}
         onBikePress={() => setBikeSwitcherOpen(true)}
         onBellPress={() => router.push('/notifications' as any)}

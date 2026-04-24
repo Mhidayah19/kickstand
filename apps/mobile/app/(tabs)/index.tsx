@@ -173,7 +173,7 @@ export default function HomeScreen() {
     <View className="flex-1 bg-bg">
       {/* Top bar with bike selector + notifications bell */}
       <TopBar
-        bike={activeBike.model ?? (activeBike as any).name ?? 'My Bike'}
+        bike={activeBike.model}
         unread={0}
         onBikePress={() => setBikeSwitcherOpen(true)}
         onBellPress={() => router.push('/notifications' as any)}

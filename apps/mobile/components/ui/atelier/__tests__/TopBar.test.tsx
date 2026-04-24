@@ -15,8 +15,8 @@ import { TopBar } from '../TopBar';
 
 describe('TopBar', () => {
   it('shows bike name', () => {
-    const { getByText } = render(<TopBar bike="CB650R · 2022" unread={0} />);
-    expect(getByText('CB650R · 2022')).toBeTruthy();
+    const { getByText } = render(<TopBar bike="CB650R" unread={0} />);
+    expect(getByText('CB650R')).toBeTruthy();
   });
 
   it('renders unread dot when unread > 0', () => {
