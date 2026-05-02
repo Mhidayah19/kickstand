@@ -77,3 +77,11 @@ Non-negotiables when building UI:
 - Accent (burnt orange) is precious — one primary action per screen.
 - No emoji. No exclamation points. Field-journal terse copy.
 - Glass (`expo-blur`) only on the top app bar — it's a hierarchy signal, don't dilute it.
+
+## Diagrams
+
+Architecture and system diagrams live in `assets/` (publicly visible — `docs/` is gitignored).
+Each diagram ships as both `.html` (full-fidelity, browsable, source-of-truth for edits) and `.svg` (standalone, README-renderable on GitHub).
+To create or edit one, use the `diagram-design` skill (already onboarded to the atelier palette).
+Style tokens (paper / ink / muted / accent / link, typography) are defined in the skill's `references/style-guide.md` — do not inline new hex values directly into diagram files.
+After editing the `.html`, regenerate the `.svg` so the README stays in sync.

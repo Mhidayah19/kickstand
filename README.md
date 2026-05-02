@@ -86,58 +86,15 @@ Existing solutions fall short: SGBikemart is buy/sell only, Motorist SG is car-f
 
 ## Architecture
 
-Kickstand operates as a mobile-first client against a NestJS API, with background jobs handling proactive notifications.
+Mobile-first client against a NestJS API on Amazon ECS in `ap-southeast-1`. Supabase handles data and auth; third-party APIs cover OCR, push, places, and observability.
 
-```
-+-----------------------------------+
-|     React Native (Expo)           |
-|  - Bike profile screens           |
-|  - Service log screens            |
-|  - Compliance dashboard           |
-|  - Scan-receipt camera flow       |
-|  - Workshop picker (Places)       |
-|  - Push notification handling     |
-+----------------+------------------+
-                 | REST (JSON)
-                 v
-+-----------------------------------+
-|     NestJS Backend                |
-|  +-------------------------+     |
-|  | OCR Module              |     |
-|  | - Supabase Storage fetch|     |
-|  | - SHA-256 cache         |     |
-|  | - OpenAI (gpt-4o-mini)  |     |
-|  | - Per-user + global RPM |     |
-|  +-------------------------+     |
-|  +-------------------------+     |
-|  | Workshops Module        |     |
-|  | - Google Places proxy   |     |
-|  | - google_place_id dedup |     |
-|  | - Haversine proximity   |     |
-|  +-------------------------+     |
-|  +-------------------------+     |
-|  | @nestjs/schedule        |     |
-|  | - Daily compliance scan |     |
-|  | - Weekly maintenance    |     |
-|  |   reminders             |     |
-|  | - Monthly workshop      |     |
-|  |   freshness check       |     |
-|  +-------------------------+     |
-|  +-------------------------+     |
-|  | Push Notification Svc   |     |
-|  | - Expo Push API         |     |
-|  +-------------------------+     |
-+----------------+------------------+
-                 |
-                 v
-+-----------------------------------+
-|     Supabase (Data Layer Only)    |
-|  - PostgreSQL (all data)          |
-|  - Auth (sign up/login)           |
-|  - Storage (receipt photos)       |
-|  - Row Level Security             |
-+-----------------------------------+
-```
+![Kickstand AWS architecture](assets/architecture.svg)
+
+> Full-fidelity HTML version (with custom typography): [`assets/architecture.html`](assets/architecture.html). The diagram reflects the live cluster — verified against the AWS account on 2026-05.
+
+**Runtime path:** Mobile App → HTTPS → ECS task on a single `t3.micro` (Public Subnet, public IP) → Supabase (Postgres + JWT verify) and third-party APIs (OpenAI, Expo Push, Google Places, Sentry).
+
+**Deploy path:** GitHub Actions → ECR (image push) → ECS task pulls image, pulls secrets from Secrets Manager, streams logs to CloudWatch.
 
 ---
 
@@ -179,8 +136,9 @@ Kickstand operates as a mobile-first client against a NestJS API, with backgroun
 |---|---|
 | Supabase | PostgreSQL + Auth + Storage |
 | AWS ECS on EC2 (ap-southeast-1) | Backend hosting (~1-5ms to Supabase) |
-| AWS ALB + CloudFront | HTTPS termination + CDN |
 | AWS ECR | Container registry |
+| AWS Secrets Manager | Runtime env injection |
+| AWS CloudWatch Logs | Centralised log group (`/ecs/kickstand-api`) |
 | EAS Build | Mobile builds |
 | EAS Update | OTA updates (Expo Go distribution) |
 | Expo Push API | Push notifications |
@@ -498,7 +456,7 @@ Key relationships:
 - ✓ Compliance tracking (COE, road tax, insurance, inspection) with auto-calculated SG dates
 - ✓ Workshop directory with proximity search & price comparison
 - ✓ Push notifications with compliance + maintenance cron scan jobs
-- ✓ Deployed to AWS ECS on EC2 (ap-southeast-1) with ALB + CloudFront HTTPS
+- ✓ Deployed to AWS ECS on EC2 (ap-southeast-1) — direct public-IP ingress on the task
 - ✓ Sentry error monitoring + in-app feedback
 - ✓ EAS Update for OTA distribution
 
@@ -543,8 +501,9 @@ Key relationships:
 | Service | Tier | Purpose |
 |---|---|---|
 | AWS ECS on EC2 (ap-southeast-1) | Free tier (t3.micro) | Backend hosting, co-located with Supabase |
-| AWS ALB | Free tier | HTTPS load balancing |
 | AWS ECR | Free tier | Docker image registry |
+| AWS Secrets Manager | Free tier | Runtime env injection |
+| AWS CloudWatch Logs | Free tier | Application logs |
 | Supabase | Free | PostgreSQL + Auth + Storage |
 | EAS Build | Free | Mobile builds |
 | EAS Update | Free | OTA updates |

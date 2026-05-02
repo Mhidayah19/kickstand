@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Kickstand — Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4F2EC;
+    --paper-2: #EBE8DF;
+    --ink: #1A1A1A;
+    --muted: #7A756C;
+    --soft: #9A9388;
+    --rule: rgba(26,26,26,0.09);
+    --rule-solid: rgba(26,26,26,0.16);
+    --accent: #F2D06B;
+    --accent-deep: #C9A442;
+    --accent-tint: rgba(242,208,107,0.14);
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 14px;
+    padding: 64px 48px 80px;
+  }
+  .header { max-width: 1320px; margin: 0 auto 32px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 12px;
+    font-weight: 500;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 44px;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+    margin: 0 0 8px;
+  }
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    max-width: 64ch;
+    margin: 0;
+  }
+  .diagram { max-width: 1320px; margin: 0 auto; }
+  svg { display: block; width: 100%; height: auto; }
+  .footer {
+    max-width: 1320px;
+    margin: 32px auto 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    display: flex;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <p class="eyebrow">SYSTEM · KICKSTAND</p>
+  <h1>App to AWS architecture</h1>
+  <p class="subtitle">NestJS API on a single Amazon ECS task in <span style="font-family:var(--mono); font-size:12px;">ap-southeast-1a</span>. Direct EC2 public-IP ingress, no load balancer. Reflects the live cluster as of <span style="font-family:var(--mono); font-size:12px;">2026-05</span>.</p>
+</header>
+
+<div class="diagram">
+<svg viewBox="0 0 1320 800" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Kickstand AWS architecture diagram">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#1A1A1A"/>
+    </marker>
+    <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#C9A442"/>
+    </marker>
+
+    <!-- Reusable monoline icons -->
+    <symbol id="i-mobile" viewBox="0 0 24 24">
+      <rect x="6" y="2" width="12" height="20" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="6" y1="6" x2="18" y2="6" stroke="currentColor" stroke-width="1.2"/>
+      <circle cx="12" cy="19" r="0.8" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-cicd" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <polygon points="10,8 10,16 17,12" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-registry" viewBox="0 0 24 24">
+      <rect x="3" y="6" width="18" height="4" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="3" y="14" width="18" height="4" rx="0.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="6" cy="8" r="0.6" fill="currentColor"/>
+      <circle cx="6" cy="16" r="0.6" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-secrets" viewBox="0 0 24 24">
+      <rect x="5" y="11" width="14" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M 8 11 V 8 a 4 4 0 0 1 8 0 V 11" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="12" cy="16" r="1.2" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-logs" viewBox="0 0 24 24">
+      <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="4" y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="4" y1="14" x2="20" y2="14" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="4" y1="18" x2="11" y2="18" stroke="currentColor" stroke-width="1.5"/>
+    </symbol>
+    <symbol id="i-server" viewBox="0 0 24 24">
+      <rect x="3" y="4" width="18" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="3" y="14" width="18" height="6" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <circle cx="7" cy="7" r="0.8" fill="currentColor"/>
+      <circle cx="7" cy="17" r="0.8" fill="currentColor"/>
+      <line x1="11" y1="7" x2="18" y2="7" stroke="currentColor" stroke-width="1.2"/>
+      <line x1="11" y1="17" x2="18" y2="17" stroke="currentColor" stroke-width="1.2"/>
+    </symbol>
+    <symbol id="i-database" viewBox="0 0 24 24">
+      <ellipse cx="12" cy="6" rx="8" ry="3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M 4 6 v 6 a 8 3 0 0 0 16 0 V 6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M 4 12 v 6 a 8 3 0 0 0 16 0 V 12" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    </symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <ellipse cx="12" cy="12" rx="4" ry="9" fill="none" stroke="currentColor" stroke-width="1.2"/>
+      <line x1="3" y1="12" x2="21" y2="12" stroke="currentColor" stroke-width="1.2"/>
+    </symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24">
+      <path d="M 6 17 a 4 4 0 0 1 0.5 -7.9 a 6 6 0 0 1 11.6 1.4 A 4 4 0 0 1 18 17 Z"
+            fill="none" stroke="currentColor" stroke-width="1.5"/>
+    </symbol>
+    <symbol id="i-region" viewBox="0 0 24 24">
+      <rect x="3" y="3" width="18" height="18" rx="1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2,1.6"/>
+      <circle cx="12" cy="12" r="2" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-vpc" viewBox="0 0 24 24">
+      <polygon points="12,3 21,8 21,16 12,21 3,16 3,8" fill="none" stroke="currentColor" stroke-width="1.5"/>
+    </symbol>
+    <symbol id="i-az" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="2,1.6"/>
+      <path d="M 8 14 L 12 6 L 16 14 Z" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    </symbol>
+    <symbol id="i-subnet" viewBox="0 0 24 24">
+      <rect x="4" y="6" width="16" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      <line x1="4" y1="11" x2="20" y2="11" stroke="currentColor" stroke-width="1"/>
+    </symbol>
+  </defs>
+
+  <rect width="100%" height="100%" fill="#F4F2EC"/>
+
+  <!-- ============ AWS CLOUD (solid) ============ -->
+  <rect x="280" y="80" width="760" height="640" rx="10"
+        fill="rgba(26,26,26,0.015)" stroke="rgba(26,26,26,0.30)" stroke-width="1"/>
+  <use href="#i-cloud" x="296" y="92" width="20" height="20" color="#7A756C"/>
+  <text x="322" y="107" fill="#1A1A1A" font-size="13" font-weight="600"
+        font-family="'Plus Jakarta Sans', sans-serif">AWS Cloud</text>
+
+  <!-- ============ REGION (dashed) ============ -->
+  <rect x="304" y="128" width="712" height="584" rx="8"
+        fill="none" stroke="rgba(26,26,26,0.40)" stroke-width="1" stroke-dasharray="6,4"/>
+  <use href="#i-region" x="320" y="140" width="18" height="18" color="#7A756C"/>
+  <text x="344" y="154" fill="#1A1A1A" font-size="12" font-weight="600"
+        font-family="'Plus Jakarta Sans', sans-serif">Region</text>
+  <text x="394" y="154" fill="#7A756C" font-size="11"
+        font-family="'JetBrains Mono', monospace">ap-southeast-1</text>
+
+  <!-- ============ Regional services (ECR, Secrets Mgr, CloudWatch Logs) ============ -->
+
+  <!-- Amazon ECR -->
+  <rect x="332" y="180" width="156" height="108" rx="6"
+        fill="#F4F2EC" stroke="rgba(26,26,26,0.16)" stroke-width="1"/>
+  <rect x="394" y="196" width="32" height="32" rx="4" fill="#EBE8DF"/>
+  <use href="#i-registry" x="398" y="200" width="24" height="24" color="#1A1A1A"/>
+  <text x="410" y="252" fill="#1A1A1A" font-size="12" font-weight="600"
+        font-family="'Plus Jakarta Sans', sans-serif" text-anchor="middle">Amazon ECR</text>
+  <text x="410" y="270" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle">kickstand-api</text>
+
+  <!-- AWS Secrets Manager -->
+  <rect x="510" y="180" width="156" height="108" rx="6"
+        fill="#F4F2EC" stroke="rgba(26,26,26,0.16)" stroke-width="1"/>
+  <rect x="572" y="196" width="32" height="32" rx="4" fill="#EBE8DF"/>
+  <use href="#i-secrets" x="576" y="200" width="24" height="24" color="#1A1A1A"/>
+  <text x="588" y="252" fill="#1A1A1A" font-size="12" font-weight="600"
+        font-family="'Plus Jakarta Sans', sans-serif" text-anchor="middle">Secrets Manager</text>
+  <text x="588" y="270" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle">kickstand/api/prod</text>
+
+  <!-- Amazon CloudWatch Logs -->
+  <rect x="688" y="180" width="156" height="108" rx="6"
+        fill="#F4F2EC" stroke="rgba(26,26,26,0.16)" stroke-width="1"/>
+  <rect x="750" y="196" width="32" height="32" rx="4" fill="#EBE8DF"/>
+  <use href="#i-logs" x="754" y="200" width="24" height="24" color="#1A1A1A"/>
+  <text x="766" y="252" fill="#1A1A1A" font-size="12" font-weight="600"
+        font-family="'Plus Jakarta Sans', sans-serif" text-anchor="middle">CloudWatch Logs</text>
+  <text x="766" y="270" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle">/ecs/kickstand-api</text>
+
+  <!-- ============ VPC (Default, solid) ============ -->
+  <rect x="332" y="320" width="660" height="376" rx="8"
+        fill="rgba(26,26,26,0.02)" stroke="rgba(26,26,26,0.30)" stroke-width="1"/>
+  <use href="#i-vpc" x="348" y="332" width="18" height="18" color="#7A756C"/>
+  <text x="372" y="346" fill="#1A1A1A" font-size="12" font-weight="600"
+        font-family="'Plus Jakarta Sans', sans-serif">Default VPC</text>
+
+  <!-- ============ Availability Zone (dashed) ============ -->
+  <rect x="356" y="372" width="612" height="304" rx="6"
+        fill="none" stroke="rgba(26,26,26,0.40)" stroke-width="1" stroke-dasharray="5,4"/>
+  <use href="#i-az" x="372" y="384" width="16" height="16" color="#7A756C"/>
+  <text x="394" y="396" fill="#1A1A1A" font-size="11" font-weight="600"
+        font-family="'Plus Jakarta Sans', sans-serif">Availability Zone</text>
+  <text x="510" y="396" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace">ap-southeast-1a</text>
+
+  <!-- ============ Public Subnet (only one used) ============ -->
+  <rect x="380" y="416" width="564" height="240" rx="6"
+        fill="rgba(26,26,26,0.02)" stroke="rgba(26,26,26,0.20)" stroke-width="1"/>
+  <use href="#i-subnet" x="396" y="428" width="14" height="14" color="#7A756C"/>
+  <text x="416" y="439" fill="#1A1A1A" font-size="11" font-weight="600"
+        font-family="'Plus Jakarta Sans', sans-serif">Public Subnet</text>
+  <text x="510" y="439" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace">172.31.16.0/20</text>
+
+  <!-- Amazon ECS Service (FOCAL) — sits in the public subnet on a t3.micro -->
+  <rect x="528" y="476" width="268" height="160" rx="6"
+        fill="rgba(242,208,107,0.14)" stroke="#F2D06B" stroke-width="1.4"/>
+  <rect x="644" y="492" width="36" height="36" rx="4" fill="#F4F2EC"/>
+  <use href="#i-server" x="650" y="498" width="24" height="24" color="#9A7A1F"/>
+  <text x="662" y="552" fill="#1A1A1A" font-size="14" font-weight="700"
+        font-family="'Plus Jakarta Sans', sans-serif" text-anchor="middle">Amazon ECS</text>
+  <text x="662" y="572" fill="#1A1A1A" font-size="11" font-weight="500"
+        font-family="'Plus Jakarta Sans', sans-serif" text-anchor="middle">NestJS API</text>
+  <text x="662" y="590" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle">kickstand-api · 1 task</text>
+  <text x="662" y="608" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle">EC2 · t3.micro · public ip</text>
+
+  <!-- ============ OUTSIDE AWS — left ============ -->
+
+  <!-- GitHub Actions -->
+  <rect x="40" y="180" width="180" height="108" rx="6"
+        fill="#F4F2EC" stroke="rgba(26,26,26,0.30)" stroke-width="1"/>
+  <rect x="114" y="196" width="32" height="32" rx="4" fill="#EBE8DF"/>
+  <use href="#i-cicd" x="118" y="200" width="24" height="24" color="#1A1A1A"/>
+  <text x="130" y="252" fill="#1A1A1A" font-size="12" font-weight="600"
+        font-family="'Plus Jakarta Sans', sans-serif" text-anchor="middle">GitHub Actions</text>
+  <text x="130" y="270" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle">deploy + cron</text>
+
+  <!-- Mobile App — vertically centered with ECS center (y=556) for clean headline arrow -->
+  <rect x="40" y="496" width="180" height="120" rx="6"
+        fill="rgba(122,117,108,0.10)" stroke="#9A9388" stroke-width="1"/>
+  <rect x="114" y="512" width="32" height="32" rx="4" fill="#F4F2EC"/>
+  <use href="#i-mobile" x="118" y="516" width="24" height="24" color="#1A1A1A"/>
+  <text x="130" y="568" fill="#1A1A1A" font-size="12" font-weight="600"
+        font-family="'Plus Jakarta Sans', sans-serif" text-anchor="middle">Mobile App</text>
+  <text x="130" y="586" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle">expo · react native</text>
+
+  <!-- ============ OUTSIDE AWS — right ============ -->
+
+  <!-- Supabase (FOCAL) -->
+  <rect x="1100" y="180" width="180" height="108" rx="6"
+        fill="rgba(242,208,107,0.14)" stroke="#F2D06B" stroke-width="1.4"/>
+  <rect x="1174" y="196" width="32" height="32" rx="4" fill="#F4F2EC"/>
+  <use href="#i-database" x="1178" y="200" width="24" height="24" color="#9A7A1F"/>
+  <text x="1190" y="252" fill="#1A1A1A" font-size="13" font-weight="700"
+        font-family="'Plus Jakarta Sans', sans-serif" text-anchor="middle">Supabase</text>
+  <text x="1190" y="270" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle">postgres · auth</text>
+
+  <!-- Third-party APIs -->
+  <rect x="1100" y="324" width="180" height="232" rx="6"
+        fill="#F4F2EC" stroke="rgba(26,26,26,0.30)" stroke-width="1"/>
+  <rect x="1174" y="340" width="32" height="32" rx="4" fill="#EBE8DF"/>
+  <use href="#i-globe" x="1178" y="344" width="24" height="24" color="#1A1A1A"/>
+  <text x="1190" y="396" fill="#1A1A1A" font-size="12" font-weight="600"
+        font-family="'Plus Jakarta Sans', sans-serif" text-anchor="middle">Third-party APIs</text>
+
+  <line x1="1116" y1="412" x2="1264" y2="412" stroke="rgba(26,26,26,0.09)" stroke-width="0.8"/>
+
+  <text x="1116" y="432" fill="#1A1A1A" font-size="11" font-weight="500"
+        font-family="'Plus Jakarta Sans', sans-serif">OpenAI</text>
+  <text x="1264" y="432" fill="#7A756C" font-size="9"
+        font-family="'JetBrains Mono', monospace" text-anchor="end">ocr</text>
+
+  <text x="1116" y="452" fill="#1A1A1A" font-size="11" font-weight="500"
+        font-family="'Plus Jakarta Sans', sans-serif">Expo Push</text>
+  <text x="1264" y="452" fill="#7A756C" font-size="9"
+        font-family="'JetBrains Mono', monospace" text-anchor="end">notifications</text>
+
+  <text x="1116" y="492" fill="#1A1A1A" font-size="11" font-weight="500"
+        font-family="'Plus Jakarta Sans', sans-serif">Google Places</text>
+  <text x="1264" y="492" fill="#7A756C" font-size="9"
+        font-family="'JetBrains Mono', monospace" text-anchor="end">workshops</text>
+
+  <text x="1116" y="532" fill="#1A1A1A" font-size="11" font-weight="500"
+        font-family="'Plus Jakarta Sans', sans-serif">Sentry</text>
+  <text x="1264" y="532" fill="#7A756C" font-size="9"
+        font-family="'JetBrains Mono', monospace" text-anchor="end">errors · traces</text>
+
+  <!-- ============ ARROWS ============ -->
+
+  <!-- 1. GitHub Actions → Amazon ECR  (push, sync) -->
+  <line x1="220" y1="234" x2="328" y2="234"
+        stroke="#1A1A1A" stroke-width="1" marker-end="url(#arrow)"/>
+  <rect x="248" y="220" width="44" height="14" rx="2" fill="#F4F2EC"/>
+  <text x="270" y="230" fill="#1A1A1A" font-size="9"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle"
+        letter-spacing="0.06em">PUSH</text>
+
+  <!-- 2. Mobile App → Amazon ECS  (HTTPS direct to public IP — headline accent) -->
+  <line x1="220" y1="556" x2="528" y2="556"
+        stroke="#C9A442" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <rect x="318" y="540" width="112" height="16" rx="2" fill="#F4F2EC"/>
+  <text x="374" y="551" fill="#9A7A1F" font-size="9" font-weight="500"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle"
+        letter-spacing="0.08em">HTTPS · :3000</text>
+
+  <!-- 3. Amazon ECR → Amazon ECS  (image pull, sync) — clears AZ mono label, descends at x=620 -->
+  <path d="M 410 288 L 410 300 L 620 300 L 620 476"
+        stroke="#1A1A1A" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+  <rect x="495" y="290" width="40" height="12" rx="2" fill="#F4F2EC"/>
+  <text x="515" y="299" fill="#1A1A1A" font-size="9"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle"
+        letter-spacing="0.06em">PULL</text>
+
+  <!-- 4. Secrets Manager → Amazon ECS  (env injection, sync) — staggered y to avoid PULL line, descends at x=700 -->
+  <path d="M 588 288 L 588 316 L 700 316 L 700 476"
+        stroke="#1A1A1A" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+  <rect x="624" y="306" width="40" height="12" rx="2" fill="#F4F2EC"/>
+  <text x="644" y="315" fill="#1A1A1A" font-size="9"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle"
+        letter-spacing="0.06em">ENV</text>
+
+  <!-- 5. Amazon ECS → CloudWatch Logs  (async, dashed) — straight up at x=780 -->
+  <path d="M 780 476 L 780 288"
+        stroke="#1A1A1A" stroke-width="1" stroke-dasharray="5,4" fill="none" marker-end="url(#arrow)"/>
+  <rect x="788" y="372" width="40" height="14" rx="2" fill="#F4F2EC"/>
+  <text x="808" y="382" fill="#1A1A1A" font-size="9"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle"
+        letter-spacing="0.06em">LOGS</text>
+
+  <!-- 6. Amazon ECS → Supabase  (Postgres, sync) — orthogonal: right, up, right into Supabase left edge -->
+  <path d="M 796 510 L 1000 510 L 1000 234 L 1100 234"
+        stroke="#1A1A1A" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+  <rect x="872" y="500" width="52" height="12" rx="2" fill="#F4F2EC"/>
+  <text x="898" y="509" fill="#1A1A1A" font-size="9"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle"
+        letter-spacing="0.06em">PG · JWT</text>
+
+  <!-- 7. Amazon ECS → Third-party APIs  (HTTPS) — orthogonal: right, up, right into Third-party left edge -->
+  <path d="M 796 600 L 1040 600 L 1040 440 L 1100 440"
+        stroke="#1A1A1A" stroke-width="1" fill="none" marker-end="url(#arrow)"/>
+  <rect x="894" y="590" width="48" height="12" rx="2" fill="#F4F2EC"/>
+  <text x="918" y="599" fill="#1A1A1A" font-size="9"
+        font-family="'JetBrains Mono', monospace" text-anchor="middle"
+        letter-spacing="0.06em">HTTPS</text>
+
+  <!-- ============ LEGEND ============ -->
+  <line x1="40" y1="740" x2="1280" y2="740" stroke="rgba(26,26,26,0.09)" stroke-width="0.8"/>
+  <text x="40" y="760" fill="#7A756C" font-size="9"
+        font-family="'JetBrains Mono', monospace" letter-spacing="0.14em">LEGEND</text>
+
+  <rect x="40" y="776" width="20" height="14" rx="3"
+        fill="rgba(242,208,107,0.14)" stroke="#F2D06B" stroke-width="1"/>
+  <text x="68" y="787" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace">focal</text>
+
+  <rect x="140" y="776" width="20" height="14" rx="3"
+        fill="rgba(26,26,26,0.015)" stroke="rgba(26,26,26,0.30)" stroke-width="1"/>
+  <text x="168" y="787" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace">cloud / vpc / subnet</text>
+
+  <rect x="332" y="776" width="20" height="14" rx="3"
+        fill="none" stroke="rgba(26,26,26,0.40)" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="360" y="787" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace">region / az</text>
+
+  <line x1="490" y1="784" x2="518" y2="784" stroke="#1A1A1A" stroke-width="1" marker-end="url(#arrow)"/>
+  <text x="528" y="787" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace">sync flow</text>
+
+  <line x1="640" y1="784" x2="668" y2="784" stroke="#1A1A1A" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arrow)"/>
+  <text x="678" y="787" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace">async flow</text>
+
+  <line x1="800" y1="784" x2="828" y2="784" stroke="#C9A442" stroke-width="1.6" marker-end="url(#arrow-accent)"/>
+  <text x="838" y="787" fill="#7A756C" font-size="10"
+        font-family="'JetBrains Mono', monospace">user request</text>
+</svg>
+</div>
+
+<footer class="footer">
+  <span>KICKSTAND · ARCHITECTURE · 2026-05</span>
+  <span>AP-SOUTHEAST-1A · NESTJS 11 · NODE 22</span>
+</footer>
+
+</body>
+</html>
